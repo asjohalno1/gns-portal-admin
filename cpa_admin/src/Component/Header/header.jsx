@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import NavMen from "../../assets/img/navmen.png";
 
 export const Header = ({ toggleButton }) => {
-  
-
   return (
     <div>
       <header>
-        <div className="bg-[#F6F6F6] py-2 px-[30px]  fixed md:max-w-[70%] lg:max-w-[82%]  md:ml-auto w-full z-20  flex justify-between items-center">
+        <div className="bg-[#F6F6F6] py-4 px-[30px] left-0 fixed w-full z-20  flex justify-between items-center">
           <div className="flex items-center">
             <svg
               onClick={toggleButton}
@@ -27,6 +25,7 @@ export const Header = ({ toggleButton }) => {
 
             <a href="#" className="ml-4 text-sm font-medium text-[#000000]">
               Dashboard
+            
             </a>
           </div>
           <ul className="flex items-center">
@@ -46,22 +45,12 @@ export const Header = ({ toggleButton }) => {
               <span className="bg-red-600 h-1.5 w-1.5 rounded-full absolute right-0 top-0"></span>
             </li>
             <li className="ml-6">
-              <img
-                src={userHeaderdata?.profile || NavMen}
-                alt={userHeaderdata?.name || "User profile"}
-                className="w-8 h-8 rounded-full cursor-pointer"
-              />
+              <img src={NavMen} alt="" />
             </li>
             <li className="font-bold text-[#484848] ml-2">
-              {userHeaderdata?.first_name || "User Name"}
+              Kelly Gill
               <span className="block text-xs font-semibold text-[#8E8E8E]">
-                {userHeaderdata?.role_id === "1"
-                  ? "Admin"
-                  : userHeaderdata?.role_id === "2"
-                  ? "Staff"
-                  : userHeaderdata?.role_id
-                  ? "Client"
-                  : "Staff"}
+                Staff
               </span>
             </li>
           </ul>

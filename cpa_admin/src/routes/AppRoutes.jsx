@@ -1,26 +1,23 @@
+// src/routes/AppRoutes.jsx
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import { Layout } from "../Layout/layout";
+import {Layout} from "../Layout/layout"; // Make sure the path is correct
+import Home from "../pages/Home";
 import Dashboard from "../pages/dashboard";
 
 const AppRoutes = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        
-        {/* Layout Route */}
-        <Route path="/dashboard" element={<Layout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
+        {/* Dashboard route with layout */}
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
         </Route>
-
-        {/* Fallback Route */}
-        <Route path="*" element={<Navigate to="/admin" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
