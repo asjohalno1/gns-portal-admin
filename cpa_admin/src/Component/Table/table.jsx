@@ -1,5 +1,5 @@
 import React from "react";
-import Dropdowan from "../dropdown/Dropdowan";
+import Dropdown from "../Dropdown/dropdown";
 
 const Table = () => {
   return (
@@ -51,7 +51,7 @@ const Table = () => {
             Apr 1, 2025
             </td>
             <td className="px-6 py-4 ">
-              <Dropdowan />
+              <Dropdown />
             </td>
           </tr>
           <tr className="bg-white border-b border-[#eaeaea]  ">
