@@ -100,10 +100,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div
-      className={`min-h-screen   ${open ? "md:max-w-[70%] lg:max-w-[82%] md:ml-auto w-[100%]" : "close-sidebar w-[100%] md:ml-0"
-        }`}
-    >
+    
       <div className="p-7.5 pt-[86px]">
         <div className="bg-gradient-to-r from-[#1BA3A3] to-[#2E7ED4] rounded-[20px] p-5">
           <h4 className="text-2xl font-medium text-white mb-[15px]">
@@ -386,7 +383,6 @@ const Dashboard = () => {
           />
         </div>
       </div>
-    </div>
   );
 };
 export default Dashboard;

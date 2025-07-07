@@ -2,10 +2,10 @@ import React from "react";
 import NavMen from "../../assets/img/navmen.png";
 
 export const Header = ({ toggleButton }) => {
+
   return (
-    <div>
-      <header>
-        <div className="bg-[#F6F6F6] py-4 px-[30px] left-0 fixed w-full z-20  flex justify-between items-center">
+
+        <div className="bg-[#F6F6F6] py-2 px-[30px] z-20 header flex justify-between items-center fixed w-[calc(100%-256px)]">
           <div className="flex items-center">
             <svg
               onClick={toggleButton}
@@ -25,7 +25,6 @@ export const Header = ({ toggleButton }) => {
 
             <a href="#" className="ml-4 text-sm font-medium text-[#000000]">
               Dashboard
-            
             </a>
           </div>
           <ul className="flex items-center">
@@ -45,17 +44,19 @@ export const Header = ({ toggleButton }) => {
               <span className="bg-red-600 h-1.5 w-1.5 rounded-full absolute right-0 top-0"></span>
             </li>
             <li className="ml-6">
-              <img src={NavMen} alt="" />
+              <img
+                src={NavMen}
+                alt={"User profile"}
+                className="w-8 h-8 rounded-full cursor-pointer"
+              />
             </li>
             <li className="font-bold text-[#484848] ml-2">
-              Kelly Gill
+            User Name
               <span className="block text-xs font-semibold text-[#8E8E8E]">
-                Staff
+                superadmin
               </span>
             </li>
           </ul>
         </div>
-      </header>
-    </div>
   );
 };

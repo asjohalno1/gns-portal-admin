@@ -11,11 +11,11 @@ export const Layout = () => {
 
   return (
     <div>
-      <Header  />
-      <div className="flex">
-        <SideBar />
+      <SideBar/>
+       <div className={`min-h-screen flex  md:ml-auto ${open ? " md:w-[calc(100%-256px)]" : "close-sidebar w-[100%]" }`} >
+          <Header toggleButton={toggleButton} />
         <Outlet context={open} />
-      </div>
+        </div>
       {/* <Footer /> */}
     </div>
   );
