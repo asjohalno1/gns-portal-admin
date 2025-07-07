@@ -5,7 +5,7 @@ const Table = () => {
   return (
     <div className="relative overflow-x-auto border border-customGray sm:rounded-lg">
       <table className="w-full  text-left rtl:text-right ">
-        <thead className=" text-[#2C3E50]  bg-[#E4F0F3] border border-[#eaeaea]">
+        <thead className=" text-body  bg-[#E4F0F3] border border-[#eaeaea]">
           <tr>
             <th scope="col" className="px-6 py-3 text-base font-medium">
               Client name

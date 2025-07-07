@@ -19,10 +19,10 @@ const ImportBulkModal = ({ isOpen, onClose, title, children }) => {
                     <div className="border border-dashed border-[#80A5FF] rounded-[10px] p-6 text-center mb-6 mt-[25px]">
                         <div className="flex flex-col items-center gap-2">
                             <img src={csvfolder} alt="" className='mb-[60px]' />
-                            <p className="text-[#2C3E50] font-medium text-[18px] leading-[100%] tracking-[-0.34%] mb-[8px]">
+                            <p className="text-body font-medium text-[18px] leading-[100%] tracking-[-0.34%] mb-[8px]">
                                 Drop files here or click to browse
                             </p>
-                            <p className="text-[#2C3E50] font-normal text-[14px] leading-[100%] tracking-[-0.34%] mb-[60px]">
+                            <p className="text-body font-normal text-[14px] leading-[100%] tracking-[-0.34%] mb-[60px]">
                                 Upload client data from QuickBooks, UltraTax, or Excel, CSV spreadsheets
                             </p>
                         </div>

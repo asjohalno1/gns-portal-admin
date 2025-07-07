@@ -9,16 +9,53 @@
   --color-bgGreen:#D9F1E1;
   --color-bgOrange:#F8E9D6;
   --color-bgRed:#F8DFDC;
-  --color-bgTeal:#D9EDED;
-  --color-bgPurple:#DFE8FB;
-  --color-body:#2C3E50;
---color-green:#1BA3A3;
---color-textcolor:#303030
+  --color-bgPurple: #DFE8FB;
+  --color-body: #2C3E50;
+  --color-green: #1BA3A3;
+  --color-textcolor: #303030;
+  --color-tabsBg: #F8FAFC;
 }
 body {
   @apply text-gray-950;
 }
 
+/* Global Scrollbar Styling */
+* {
+  scrollbar-width: thin;              /* For Firefox */
+  scrollbar-color: #a7a7a7 #EAECED;   /* For Firefox: thumb and track colors */
+}
+
+/* For Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  width: 8px;          
+  height: 8px;    
+}
+
+*::-webkit-scrollbar-track {
+  background: #EAECED;  
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #a7a7a7; 
+  border-radius: 10px;       
+  border: 2px solid transparent; 
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #1BA3A3; 
+}
+
+
+/* header */
+.close-sidebar .header{
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .header{
+    width: 100%;
+  }
+}
 
 .btn-table {
   @apply w-[163px]

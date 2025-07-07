@@ -57,7 +57,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
 
             <div className="flex items-center gap-2">
               <input type="checkbox" id="invite" className="accent-[#2E7ED4]" />
-              <label htmlFor="invite" className="text-sm text-[#2C3E50]">Send invitation to client</label>
+              <label htmlFor="invite" className="text-sm text-body">Send invitation to client</label>
             </div>
 
             <div className="text-right">

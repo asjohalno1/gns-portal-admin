@@ -99,26 +99,22 @@ const [isImportBulkOpen, setIsImportBulkOpen] = useState(false);
   };
 
   return (
-    <div
-      className={`min-h-screen   md:ml-auto w-[82%] ${open ? "82%" : "close-sidebar w-[100%]"
-        }`}
-    >
-      {/* <Header toggleButton={toggleButton} /> */}
+    
       <div className="p-7.5 pt-[86px]">
         <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
           <button
-            className={`px-5 py-[7px] font-semibold text-base leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab1"
-              ? "bg-bgBlue text-primaryBlue border-b-2 border-primaryBlue"
-              : "bg-tabsBg text-bodyColor hover:text-blue-500 border-b-2 border-transparent"
+            className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab1"
+              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+              : " text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
               }`}
             onClick={() => setActiveTab("tab1")}
           >
             Manage Clients
           </button>
           <button
-            className={`px-5 py-[7px] font-semibold text-base leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab2"
-              ? "bg-bgBlue text-primaryBlue border-b-2 border-primaryBlue"
-              : "bg-tabsBg text-bodyColor hover:text-blue-500 border-b-2 border-transparent"
+            className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab2"
+              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+              : "text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
               }`}
             onClick={() => setActiveTab("tab2")}
           >
@@ -333,7 +329,7 @@ const [isImportBulkOpen, setIsImportBulkOpen] = useState(false);
                   </div>
                 </form>
               </div>
-              <h4 className="font-semibold text-lg text-[#2C3E50] mb-2.5 mt-16">
+              <h4 className="font-semibold text-lg text-body mb-2.5 mt-16">
                 Secure Links
               </h4>
               <div className="border border-customGray rounded-[20px] p-5">
@@ -420,7 +416,6 @@ const [isImportBulkOpen, setIsImportBulkOpen] = useState(false);
           )}
         </div>
       </div>
-    </div>
   );
 };
 export default ClientManagement;
