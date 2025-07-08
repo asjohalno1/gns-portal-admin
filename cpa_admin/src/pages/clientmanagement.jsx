@@ -100,7 +100,7 @@ const [isImportBulkOpen, setIsImportBulkOpen] = useState(false);
 
   return (
     
-      <div className="p-7.5 pt-[86px]">
+      <div className="p-7.5 pt-[86px] w-full">
         <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
           <button
             className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab1"

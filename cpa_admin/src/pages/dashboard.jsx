@@ -101,7 +101,7 @@ const Dashboard = () => {
 
   return (
 
-    <div className="p-7.5 pt-[86px]">
+    <div className="p-7.5 pt-[86px] w-full">
       <div className="bg-gradient-to-r from-[#1BA3A3] to-[#2E7ED4] rounded-[20px] p-5">
         <h4 className="text-2xl font-medium text-white mb-[15px]">
           Welcome, {userProfile?.first_name} !

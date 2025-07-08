@@ -6,7 +6,7 @@ const SideBar = () => {
   
     return (
       <>
-        <div className="main-sidebar max-w-30% sm:max-w-[50%] md:max-w-[30%] lg:max-w-[18%]  top-0 w-[70%] h-full fixed z-30 ">
+        <div className="main-sidebar w-[256px] top-0 h-full fixed z-30 ">
           <div className=" w-full  left-0 bg-[#F6F6F6] transition-all  duration-300 ease-in-out  h-full ">
             <nav className="flex flex-col h-full pt-3  p-3">
               <div className="logo mb-9">
