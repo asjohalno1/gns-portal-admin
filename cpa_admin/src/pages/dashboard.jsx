@@ -26,56 +26,10 @@ const Dashboard = () => {
     isOpen((open) => !open);
   }
 
-  const fetchClientData = async () => {
-    try {
-      const res = await getDashboardData({
-        search: searchQuery,
-        page: pagination.page,
-        limit: pagination.limit,
-        status: statusFilter,
-      });
 
-      if (res.status === 200) {
-        const {
-          summary = {},
-          documentCompletion = [],
-          urgentTasks = [],
-          clients = [],
-          pagination: pagData = {},
-        } = res.data.data;
-
-        setClientData(summary);
-        setDocumentCompletionValue(documentCompletion);
-        setUrgentTasks(urgentTasks);
-        setClients(clients);
-        setPagination((prev) => ({
-          ...prev,
-          ...pagData,
-        }));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   useEffect(() => {
-    fetchClientData();
   }, [searchQuery, pagination.page, statusFilter, pagination.limit]);
-
-  useEffect(() => {
-    const getUserData = async () => {
-      const id = localStorage.getItem("userId");
-      try {
-        const response = await getUserProfile(id);
-        if (response.status === 200) {
-          setUserProfile(response.data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-    getUserData();
-  }, []);
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);

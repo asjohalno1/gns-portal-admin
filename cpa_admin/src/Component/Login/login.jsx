@@ -1,94 +1,103 @@
-import React from "react";
-import Logo from "../../../../src/assets/img/gnslogo.png";
-import LoginBoy from "../../../../src/assets/img/loginimg.png";
-import { useGoogleLogin } from "@react-oauth/google";
+import React, { useState } from "react";
+import Logo from "../../assets/img/gnslogo.png";
+import LoginBoy from "../../assets/img/loginimg.png";
 import { useNavigate } from "react-router-dom";
-import { loginWithGoogle } from "../../api/auth.jsx";
-import { useAuth } from "../../../context/AuthContext.jsx";
+import axios from "axios";
+import { userLogin } from "../../api/auth.jsx";
+import { useAuth } from "../../Context/AuthContext.jsx";
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth(); // <-- new
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const googleLogin = useGoogleLogin({
-    flow: "implicit",
-    onSuccess: async (tokenResponse) => {
-      try {
-        const res = await fetch(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: {
-              Authorization: `Bearer ${tokenResponse.access_token}`,
-            },
-          }
-        );
 
-        const userInfo = await res.json();
+  const handleLogin = async () => {
 
-        let data = {
-          name: userInfo?.name,
-          email: userInfo?.email,
-          image: userInfo?.picture,
-        };
+    setErrorMsg("");
 
-        const result = await loginWithGoogle(data);
-        if (result?.success === true) {
-          let token = result?.data?.token;
-          const mockUser = {
-            role: "staff",
-            isAuthenticated: true,
-          };
-          login(mockUser, token);
-          localStorage.setItem("userId", result?.data?.user?._id);
-          navigate("/staff/dashboard");
-        } else {
-          navigate("/login");
-        }
-      } catch (error) {
-        console.error("Failed to fetch user info:", error);
+    try {
+      let loginInfo = {
+        email: email,
+        password: password
       }
-    },
-    onError: () => {
-      console.error("Google login failed");
-    },
-  });
+      const loginRes = await userLogin(loginInfo)
+      if (loginRes) {
+        console.log("Login,,,", loginRes);
+        login(loginRes?.data?.token);
+        navigate("/admin");
+      } else {
+        console.log("Please Try Again");
+
+      } 
+    } catch (err) {
+      setErrorMsg(err.response?.data?.message || "Login failed");
+    }
+  };
 
   return (
     <div className="bg-gradient-to-r from-[#2E7ED4] to-[#1B4F8A] min-h-screen w-full flex justify-center items-center">
       <div className="w-[1110px] bg-[#ffffff] rounded-[30px] flex md:flex-row flex-col-reverse h-auto md:h-[600px] mx-4 xl:mx-0">
         <div className="w-full md:w-[50%] p-5 lg:p-10 flex flex-col justify-center">
           <img className="mx-auto" src={Logo} alt="Login logo" />
-          <div  className="mt-4">
-            <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">Email*</label>
-            <input type="email" placeholder="Enter Name" className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm" />
+          <div className="mt-4">
+            <label className="block text-[#484848] font-medium text-[14px] mb-[8px]">Email*</label>
+            <input
+              type="email"
+              placeholder="Enter Email"
+              className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
           <div className="mt-4">
-            <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">Password*</label>
-            <input type="password" placeholder="Enter Password" className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm" />
+            <label className="block text-[#484848] font-medium text-[14px] mb-[8px]">Password*</label>
+            <input
+              type="password"
+              placeholder="Enter Password"
+              className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
+
           <label className="flex mt-4 items-center gap-2">
             <input
               type="checkbox"
-              checked={false}
-              onChange={() => { }}
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
               className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
-      checked:bg-[#20BF55] checked:border-[#20BF55]
-      checked:after:content-['✓'] checked:after:text-white 
-      checked:after:text-[12px] checked:after:font-bold 
-      checked:after:absolute checked:after:top-[0px] checked:after:left-[3px]"
+                checked:bg-[#20BF55] checked:border-[#20BF55]
+                checked:after:content-['✓'] checked:after:text-white 
+                checked:after:text-[12px] checked:after:font-bold 
+                checked:after:absolute checked:after:top-[0px] checked:after:left-[3px]"
             />
             Remember Password
           </label>
-          <button type="button" className="bg-[#2E7ED4] mt-4 rounded-[10px] py-2 px-6 text-white cursor-pointer">
+
+          {errorMsg && (
+            <p className="text-red-500 text-sm mt-2">{errorMsg}</p>
+          )}
+
+          <button
+            type="button"
+            onClick={handleLogin}
+            className="bg-[#2E7ED4] mt-4 rounded-[10px] py-2 px-6 text-white cursor-pointer"
+          >
             Login
           </button>
-          <div className="or-blk mt-4 text-[16px] font-regular text-body">
-            or
-          </div>
+
+          <div className="or-blk mt-4 text-[16px] text-body text-center">or</div>
+
           <div className="mt-4 md:mt-8 text-center">
             <button
               type="button"
-              onClick={googleLogin}
+              // onClick={googleLogin}
               className="cursor-pointer text-base flex items-center font-medium w-full justify-center text-[#1f1f1f] border border-[#C1D5F6] px-4 py-2 rounded-full"
             >
               <svg
@@ -128,12 +137,9 @@ const Login = () => {
             </button>
           </div>
         </div>
+
         <div className="w-full md:w-[50%] bg-[#E9F3FF] p-5 lg:p-10 rounded-tl-[30px] md:rounded-tl-[0] rounded-tr-[30px] md:rounded-tr-[30px] md:rounded-br-[30px] flex items-center justify-center">
-          <img
-            className="w-full"
-            src={LoginBoy}
-            alt="Secure login illustration"
-          />
+          <img className="w-full" src={LoginBoy} alt="Secure login illustration" />
         </div>
       </div>
     </div>
