@@ -108,7 +108,7 @@ const ClientManagement = () => {
 
   return (
 
-    <div className="p-7.5 pt-[86px]">
+    <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
         <button
           className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab1"
@@ -161,7 +161,7 @@ const ClientManagement = () => {
                   onClose={() => setIsImportBulkOpen(false)}
                   title="Bulk Import"
                 ></ImportBulkModal>
-                <button
+                {/* <button
                   type="button"
                   className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
                   onClick={() => setIsViewClientdetailsOpen(true)}
@@ -173,7 +173,7 @@ const ClientManagement = () => {
                   onClose={() => setIsViewClientdetailsOpen(false)}
                   title="View Client Details"
                 >
-                  {/* You can pass children content here if needed */}
+                  
                 </ViewClientdetailsModal>
                 <button
                   type="button"
@@ -210,7 +210,7 @@ const ClientManagement = () => {
                   isOpen={isDocumentHistoryModalOpen}
                   onClose={() => setIsDocumentHistoryModalOpen(false)}
                   title="Document History"
-                />
+                /> */}
               </div>
             </div>
             {showModal && (
