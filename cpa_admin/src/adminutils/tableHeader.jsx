@@ -81,7 +81,7 @@ export const getStatusButton = (status) => {
           type="button"
           className="bg-[#cfd1d0] text-[#696e6a] px-8 py-1.5 rounded-full cursor-pointer"
         >
-          -
+          {status}
         </button>
       );
   }
