@@ -79,9 +79,9 @@ export const getStatusButton = (status) => {
       return (
         <button
           type="button"
-          className="bg-[#FEF3C7] text-[#D97706] px-8 py-1.5 rounded-full cursor-pointer"
+          className="bg-[#cfd1d0] text-[#696e6a] px-8 py-1.5 rounded-full cursor-pointer"
         >
-          Expires Soon
+          -
         </button>
       );
   }
