@@ -1,13 +1,102 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { addClient, getAllStaff } from "../api/dashboard.api";
 
 const AddClientmodal = ({ isOpen, onClose, title, children }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    company: "",
+    status: "",
+    staffId: "",
+    address: "",
+    notes: "",
+    sendInvitation: false,
+  });
+
+  const [staffMembers, setStaffMembers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch staff members when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const fetchStaffMembers = async () => {
+        try {
+          setLoading(true);
+          const response = await getAllStaff();
+          setStaffMembers(response.data || []);
+        } catch (err) {
+          setError("Failed to fetch staff members");
+          console.error("Error fetching staff members:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchStaffMembers();
+    }
+  }, [isOpen]);
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const clientData = {
+        ...formData,
+        sendInvitation: undefined,
+      };
+
+      const response = await addClient(clientData);
+      setFormData({
+        name: "",
+        email: "",
+        phoneNumber: "",
+        company: "",
+        status: "",
+        staffId: "",
+        address: "",
+        notes: "",
+        sendInvitation: false,
+      });
+
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to add client");
+      console.error("Error adding client:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle input change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleCheckboxChange = (e) => {
+    const { checked } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      sendInvitation: checked,
+    }));
+  };
+
   if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 bg-[#0000005D] bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg w-full relative max-w-[562px]">
         <div className="w-full max-w-[562px] bg-white rounded-[10px] mx-auto">
-          <div className='flex justify-between items-center mb-[30px]'>
-            <h2 className="text-[#484848] font-medium text-[16px] leading-[100%] tracking-[0]">Add New Client</h2>
+          <div className="flex justify-between items-center mb-[30px]">
+            <h2 className="text-[#484848] font-medium text-[16px] leading-[100%] tracking-[0]">
+              {title || "Add New Client"}
+            </h2>
             <button
               onClick={onClose}
               className=" text-primaryBlue hover:text-gray-700"
@@ -15,54 +104,170 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
               ✕
             </button>
           </div>
-          <form className="space-y-4">
+
+          {error && (
+            <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[15px]">
               <div>
-                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">Client Name*</label>
-                <input type="text" placeholder="Enter Template Name" className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm" />
+                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                  Client Name*
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter Client Name"
+                  className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
+                  required
+                />
               </div>
               <div>
-                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">Email Address*</label>
-                <input type="email" placeholder="Enter Template Name" className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm" />
+                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                  Email Address*
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter Email Address"
+                  className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
+                  required
+                />
               </div>
               <div>
-                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">Phone no.*</label>
-                <input type="text" placeholder="Enter Template Name" className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm" />
+                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                  Phone no.*
+                </label>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  placeholder="Enter Phone Number"
+                  className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
+                  required
+                />
               </div>
               <div>
-                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">Company*</label>
-                <input type="text" placeholder="Enter Template Name" className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm" />
+                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                  Company*
+                </label>
+                <input
+                  type="text"
+                  name="company"
+                  value={formData.company}
+                  onChange={handleChange}
+                  placeholder="Enter Company Name"
+                  className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
+                  required
+                />
               </div>
               <div>
-                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">Status</label>
-                <input type="text" value="Active" className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm bg-gray-100" readOnly />
+                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
+                >
+                  <option value="">Select Status</option>
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
               </div>
               <div>
-                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">Assign to Staff</label>
-                <select className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm">
-                  <option>Select Staff Member</option>
+                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                  Assign to Staff
+                </label>
+                <select
+                  name="staffId"
+                  value={formData.staffId}
+                  onChange={handleChange}
+                  className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm "
+                  disabled={loading}
+                >
+                  <option className="text-black bg-blue-100" value="">
+                    Select Staff Member
+                  </option>
+                  {staffMembers.map((staff) => (
+                    <option
+                      className="text-dark "
+                      key={staff._id}
+                      value={staff._id}
+                    >
+                      {staff.first_name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
 
             <div>
-              <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">Address</label>
-              <textarea rows="3" placeholder="Enter Complete Address" className="w-full rounded-[6px] px-3 py-2 text-sm resize-none bg-[#F8F8F8] text-[12px]"></textarea>
+              <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                Address
+              </label>
+              <textarea
+                rows="3"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                placeholder="Enter Complete Address"
+                className="w-full rounded-[6px] px-3 py-2 text-sm resize-none bg-[#F8F8F8] text-[12px]"
+              ></textarea>
             </div>
 
             <div>
-              <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">Notes</label>
-              <textarea rows="3" placeholder="Enter Additional Notes About Client" className="w-full rounded-[6px] px-3 py-2 text-sm resize-none bg-[#F8F8F8] text-[12px]"></textarea>
+              <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                Notes
+              </label>
+              <textarea
+                rows="3"
+                name="notes"
+                value={formData.notes}
+                onChange={handleChange}
+                placeholder="Enter Additional Notes About Client"
+                className="w-full rounded-[6px] px-3 py-2 text-sm resize-none bg-[#F8F8F8] text-[12px]"
+              ></textarea>
             </div>
 
             <div className="flex items-center gap-2">
-              <input type="checkbox" id="invite" className="accent-[#2E7ED4]" />
-              <label htmlFor="invite" className="text-sm text-body">Send invitation to client</label>
+              <input
+                type="checkbox"
+                id="invite"
+                name="sendInvitation"
+                checked={formData.sendInvitation}
+                onChange={handleCheckboxChange}
+                className="accent-[#2E7ED4]"
+              />
+              <label htmlFor="invite" className="text-sm text-body">
+                Send invitation to client
+              </label>
             </div>
 
             <div className="text-right">
-              <button type="submit" className="bg-[#2E7ED4] border border-[#2E7ED4] text-white px-4 py-2 rounded-[8px] text-sm font-medium">
-                Add Client
+              <button
+                type="button"
+                onClick={onClose}
+                className="mr-2 border border-[#2E7ED4] text-[#2E7ED4] px-4 py-2 rounded-[8px] text-sm font-medium"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-[#2E7ED4] border border-[#2E7ED4] text-white px-4 py-2 rounded-[8px] text-sm font-medium"
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Add Client"}
               </button>
             </div>
           </form>
