@@ -4,7 +4,7 @@ import SideBar from "../Component/Sidebar/sidebar";
 import { useState } from "react";
 
 export const Layout = () => {
-  const [open, isOpen] = useState(false);
+  const [open, isOpen] = useState(true);
   function toggleButton() {
     isOpen((open) => !open);
   }
