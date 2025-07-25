@@ -5,6 +5,7 @@ import ImportBulkModal from "./importbulkmodal";
 import AddClientmodal from "./addClientmodal";
 import { getAllClients, getStaffClient } from "../api/dashboard.api";
 import ClientDetailsModal from "../Component/ClientModals/ClientDetailsModal";
+import EditClientmodal from "../Component/ClientModals/editClientModal";
 
 const ClientManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -12,11 +13,13 @@ const ClientManagement = () => {
   const [isImportBulkOpen, setIsImportBulkOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [clientDetailsModal, setClientDetailsModal] = useState(false);
+  const [clientEditModal, setClientEditModal] = useState(false);
   const [clientInfo, setClientInfo] = useState()
   const [filters, setFilters] = useState({
     search: "",
     status: "all",
   });
+  console.log("data",clientInfo);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -122,10 +125,12 @@ const ClientManagement = () => {
   };
 
   const handleModalAction = async (type, client) => {
+    console.log("type,,,",type);
+    
     if (client?._id) {
       try {
         const response = await getStaffClient(client?._id);
-        console.log("response",response);
+        console.log("response,,,,",response);
         
         if (response.success == true) {
           setClientInfo(response?.data)
@@ -138,8 +143,13 @@ const ClientManagement = () => {
       case "view":
         setClientDetailsModal(true);
         break;
+      case "edit":
+        setClientEditModal(true);
+        break;
     }
   };
+
+  
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
@@ -288,6 +298,11 @@ const ClientManagement = () => {
               isOpen={clientDetailsModal}
               onClose={() => setClientDetailsModal(false)}
               data ={clientInfo}
+            />
+            <EditClientmodal
+              isOpen={clientEditModal}
+              onClose={() => setClientEditModal(false)}
+              clientData ={clientInfo}
             />
           </div>
         )}

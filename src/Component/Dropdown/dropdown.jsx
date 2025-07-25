@@ -10,7 +10,7 @@ const Dropdown = ({ onAction }) => {
     { label: "Request Document", value: "request" },
     { label: "Mark Complete", value: "complete" },
     { label: "Send Reminder", value: "reminder" },
-    { label: "Update", value: "update" },
+    { label: "Edit", value: "edit" },
     { label: "Delete", value: "delete" },
   ];
 

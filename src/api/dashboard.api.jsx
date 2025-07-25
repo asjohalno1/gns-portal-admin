@@ -91,3 +91,15 @@ export const getStaffClient = async (id) => {
   }
 };
 
+export const updateClient = async (data,id) => {
+  try {
+    const response = await axiosInstance.put(`/client/update/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
