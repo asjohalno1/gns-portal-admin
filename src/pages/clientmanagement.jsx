@@ -15,7 +15,6 @@ const ClientManagement = () => {
     search: "",
     status: "all",
   });
-
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -25,6 +24,7 @@ const ClientManagement = () => {
 
   const [clientsList, setClientsList] = useState([]);
   const [loading, setLoading] = useState(false);
+
 
   const fetchClients = async () => {
     try {
@@ -52,6 +52,20 @@ const ClientManagement = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (activeTab === "tab2") {
+      setFilters((prev) => ({
+        ...prev,
+        status: false,
+      }));
+    } else {
+      setFilters((prev) => ({
+        ...prev,
+        status: "true",
+      }));
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     fetchClients();
@@ -105,28 +119,23 @@ const ClientManagement = () => {
       currentPage: 1,
     }));
   };
-
-  console.log(pagination, "hhhh");
-
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
         <button
-          className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${
-            activeTab === "tab1"
-              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
-              : " text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
-          }`}
+          className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab1"
+            ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+            : " text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
+            }`}
           onClick={() => setActiveTab("tab1")}
         >
           Manage Clients
         </button>
         <button
-          className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${
-            activeTab === "tab2"
-              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
-              : "text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
-          }`}
+          className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab2"
+            ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+            : "text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
+            }`}
           onClick={() => setActiveTab("tab2")}
         >
           Client Mapping
@@ -258,95 +267,17 @@ const ClientManagement = () => {
           <div className="">
             <div className="flex items-center justify-between mb-2.5">
               <h4 className="color-black text-lg font-semibold">
-                Secure Link Management
+                Manage Client Maping
               </h4>
-              <button
-                type="button"
-                onClick={() => setShowModal(true)}
-                className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
-              >
-                Create Secure Link
-              </button>
-              {showModal && (
-                <DocumentModal onClose={() => setShowModal(false)} />
-              )}
             </div>
-            <div className="border border-customGray rounded-[20px] p-5 ">
-              <form action="">
-                <div className="grid grid-cols-3 gap-5">
-                  <div className="w-full ">
-                    <label
-                      for="cars"
-                      className="mb-2 block font-medium text-sm "
-                    >
-                      Client
-                    </label>
-                    <div className="relative">
-                      <select className="border border-[#eaeaea] text-gray-700 rounded-[10px] py-2 px-4 w-full appearance-none">
-                        <option value="volvo">Volvo</option>
-                        <option value="saab">Saab</option>
-                        <option value="opel">Opel</option>
-                        <option value="audi">Audi</option>
-                      </select>
-                      <i class="fa-solid fa-chevron-down absolute top-[12px] right-[14px]"></i>
-                    </div>
-                  </div>
-                  <div className="w-full">
-                    <label
-                      for="fname"
-                      className="block mb-2 font-medium text-sm"
-                    >
-                      Created Date
-                    </label>
-                    <input
-                      type="date"
-                      id="fname"
-                      name="fname"
-                      className="w-full py-2 px-4 border border-[#eaeaea] rounded-[10px] text-gray-700"
-                    />
-                  </div>
-                  <div className="w-full">
-                    <label
-                      for="cars"
-                      className="mb-2 block font-medium text-sm "
-                    >
-                      Status
-                    </label>
-                    <div className="relative">
-                      <select className="border border-[#eaeaea] rounded-[10px] py-2 px-4 w-full appearance-none">
-                        <option value="volvo">All Status</option>
-                        <option value="saab">Saab</option>
-                        <option value="opel">Opel</option>
-                        <option value="audi">Audi</option>
-                      </select>
-                      <i class="fa-solid fa-chevron-down absolute top-[12px] right-[14px]"></i>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right mt-2.5">
-                  <button
-                    type="button"
-                    className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
-                  >
-                    Search
-                  </button>
-                  <a
-                    href="#"
-                    class="ml-5 color-black font-medium text-sm underline"
-                  >
-                    Clear
-                  </a>
-                </div>
-              </form>
-            </div>
-            <h4 className="font-semibold text-lg text-body mb-2.5 mt-16">
-              Secure Links
-            </h4>
             <div className="border border-customGray rounded-[20px] p-5">
               <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
                 <div className="relative w-full md:w-[60%]">
                   <input
                     type="text"
+                    name="search"
+                    value={filters.search}
+                    onChange={handleSearch}
                     placeholder="Search by name, email or status"
                     className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
                   />
@@ -361,23 +292,23 @@ const ClientManagement = () => {
                     <path
                       d="M13 13L9 9M1 5.66667C1 6.2795 1.12071 6.88634 1.35523 7.45252C1.58975 8.01871 1.93349 8.53316 2.36683 8.9665C2.80018 9.39984 3.31462 9.74358 3.88081 9.97811C4.447 10.2126 5.05383 10.3333 5.66667 10.3333C6.2795 10.3333 6.88634 10.2126 7.45252 9.97811C8.01871 9.74358 8.53316 9.39984 8.9665 8.9665C9.39984 8.53316 9.74358 8.01871 9.97811 7.45252C10.2126 6.88634 10.3333 6.2795 10.3333 5.66667C10.3333 5.05383 10.2126 4.447 9.97811 3.88081C9.74358 3.31462 9.39984 2.80018 8.9665 2.36683C8.53316 1.93349 8.01871 1.58975 7.45252 1.35523C6.88634 1.12071 6.2795 1 5.66667 1C5.05383 1 4.447 1.12071 3.88081 1.35523C3.31462 1.58975 2.80018 1.93349 2.36683 2.36683C1.93349 2.80018 1.58975 3.31462 1.35523 3.88081C1.12071 4.447 1 5.05383 1 5.66667Z"
                       stroke="#8F95A2"
-                      stroke-width="1.25"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeWidth="1.25"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
                   </svg>
                 </div>
                 <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
                   <div className="relative">
                     <select
-                      name="cars"
-                      id="cars"
+                      name="status"
+                      value={filters.status}
+                      onChange={handleStatusChange}
                       className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
                     >
-                      <option value="volvo">Newest First</option>
-                      <option value="saab">Saab</option>
-                      <option value="opel">Opel</option>
-                      <option value="audi">Audi</option>
+                      <option value="all">All</option>
+                      <option value="true">Active</option>
+                      <option value="false">Inactive</option>
                     </select>
                     <svg
                       className="absolute right-[14px] top-[14px]"
@@ -394,33 +325,35 @@ const ClientManagement = () => {
                       />
                     </svg>
                   </div>
-                  <a
-                    href="#"
+                  <button
+                    onClick={handleClearFilters}
                     className="ml-5 color-black font-medium text-sm underline"
                   >
                     Clear
-                  </a>
+                  </button>
                 </div>
               </div>
-              {/* <ClientTable
-                  data={documentsList}
+
+              {loading ? (
+                <div className="flex justify-center items-center h-64">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primaryBlue"></div>
+                </div>
+              ) : (
+                <Table
+                  data={clientsList}
                   pagination={{
                     page: pagination.currentPage,
                     totalPages: pagination.totalPages,
-                    total: pagination.totalDocuments,
+                    total: pagination.totalClients,
                     limit: pagination.limit,
                   }}
-                  onPageChange={(newPage) =>
-                    setPagination((prev) => ({
-                      ...prev,
-                      currentPage: newPage,
-                    }))
-                  }
+                  onPageChange={handlePageChange}
                   onLimitChange={handleLimitChange}
                   onNextPage={handleNextPage}
                   onPrevPage={handlePrevPage}
-                  mode="documents"
-                /> */}
+                  mode="clientsListing"
+                />
+              )}
             </div>
           </div>
         )}
