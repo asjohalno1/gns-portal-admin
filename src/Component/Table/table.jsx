@@ -9,6 +9,7 @@ const Table = ({
   onNextPage,
   onPrevPage,
   mode = "",
+  onAction,
 }) => {
   // Get the current header configuration
   const currentConfig = headerConfigs[mode] || headerConfigs.clients;
@@ -37,7 +38,7 @@ const Table = ({
                   key={`${index}-${column.key}`}
                   className="px-6 py-4 text-base font-normal color-black"
                 >
-                  {renderCellContent(item, column.key)}
+                  {renderCellContent(item, column.key, onAction)}
                 </td>
               ))}
             </tr>

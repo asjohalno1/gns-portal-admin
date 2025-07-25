@@ -1,19 +1,25 @@
 import React, { useState } from "react";
 
-const Dropdown = () => {
+const Dropdown = ({ onAction }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const options = [
+    { label: "View", value: "view" },
+    { label: "Request Document", value: "request" },
+    { label: "Mark Complete", value: "complete" },
+    { label: "Send Reminder", value: "reminder" },
+    { label: "Update", value: "update" },
+    { label: "Delete", value: "delete" },
+  ];
+
   const handleOptionClick = (option) => {
-    console.log("Selected:", option);
+    if (onAction && typeof onAction === "function") {
+      onAction(option.value);
+    }
     setIsOpen(false);
   };
-  const options = [
-    "View",
-    "Request Document",
-    "Mark Complete",
-    "Send Reminder",
-  ];
   return (
     <div className="relative inline-block text-left">
       <button onClick={toggleDropdown} className="cursor-pointer">
@@ -60,11 +66,11 @@ const Dropdown = () => {
           <div className="py-1">
             {options.map((option) => (
               <button
-                key={option}
+                key={option.value}
                 onClick={() => handleOptionClick(option)}
                 className="w-full text-left px-4 py-2 text-sm text-body hover:text-primaryBlue"
               >
-                {option}
+                {option.label}
               </button>
             ))}
           </div>

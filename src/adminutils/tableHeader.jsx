@@ -88,7 +88,7 @@ export const getStatusButton = (status) => {
 };
 
 // Function to render cell content based on column key
-export const renderCellContent = (item, columnKey) => {
+export const renderCellContent = (item, columnKey, onAction) => {
   switch (columnKey) {
     case "statusUpdate":
     case "taskDeadline":
@@ -105,7 +105,7 @@ export const renderCellContent = (item, columnKey) => {
       return getStatusButton(item[columnKey]);
 
     case "actions":
-      return <Dropdown />;
+      return <Dropdown onAction={(actionType) => onAction(actionType, item)} />;
     default:
       return item[columnKey] || "N/A";
   }

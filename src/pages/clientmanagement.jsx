@@ -4,12 +4,14 @@ import Table from "../Component/Table/table";
 import ImportBulkModal from "./importbulkmodal";
 import AddClientmodal from "./addClientmodal";
 import { getAllClients } from "../api/dashboard.api";
+import ClientDetailsModal from "../Component/ClientModals/ClientDetailsModal";
 
 const ClientManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
   const [isImportBulkOpen, setIsImportBulkOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [clientDetailsModal, setClientDetailsModal] = useState(false);
 
   const [filters, setFilters] = useState({
     search: "",
@@ -24,7 +26,6 @@ const ClientManagement = () => {
 
   const [clientsList, setClientsList] = useState([]);
   const [loading, setLoading] = useState(false);
-
 
   const fetchClients = async () => {
     try {
@@ -119,23 +120,33 @@ const ClientManagement = () => {
       currentPage: 1,
     }));
   };
+
+  const handleModalAction = (type, client) => {
+    switch (type) {
+      case "view":
+        setClientDetailsModal(true);
+        break;
+    }
+  };
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
         <button
-          className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab1"
-            ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
-            : " text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
-            }`}
+          className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${
+            activeTab === "tab1"
+              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+              : " text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
+          }`}
           onClick={() => setActiveTab("tab1")}
         >
           Manage Clients
         </button>
         <button
-          className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab2"
-            ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
-            : "text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
-            }`}
+          className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${
+            activeTab === "tab2"
+              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+              : "text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
+          }`}
           onClick={() => setActiveTab("tab2")}
         >
           Client Mapping
@@ -257,10 +268,16 @@ const ClientManagement = () => {
                   onLimitChange={handleLimitChange}
                   onNextPage={handleNextPage}
                   onPrevPage={handlePrevPage}
+                  onAction={handleModalAction}
                   mode="clientsListing"
                 />
               )}
             </div>
+
+            <ClientDetailsModal
+              isOpen={clientDetailsModal}
+              onClose={() => setClientDetailsModal(false)}
+            />
           </div>
         )}
         {activeTab === "tab2" && (
