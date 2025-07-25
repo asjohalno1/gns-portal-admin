@@ -1,4 +1,5 @@
 import Dropdown from "../Component/Dropdown/dropdown";
+import { formatDate } from "./commonutils";
 
 export const headerConfigs = {
   dashboardListing: {
@@ -22,6 +23,17 @@ export const headerConfigs = {
       { key: "assignedTo", label: "Assigned To" },
       { key: "status", label: "Status" },
       { key: "lastActivity", label: "Last Activity" },
+      { key: "actions", label: "Action" },
+    ],
+  },
+
+  documentRequestListing: {
+    columns: [
+      { key: "doctitle", label: "Document Request Title" },
+      { key: "clientName", label: "Client Name" },
+      { key: "assignedTo", label: "Under Staff Name" },
+      { key: "dueDate", label: "Due Date" },
+      { key: "status", label: "Status" },
       { key: "actions", label: "Action" },
     ],
   },
@@ -106,6 +118,8 @@ export const renderCellContent = (item, columnKey, onAction) => {
 
     case "actions":
       return <Dropdown onAction={(actionType) => onAction(actionType, item)} />;
+    case "dueDate":
+      return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
     default:
       return item[columnKey] || "N/A";
   }
