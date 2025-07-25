@@ -1,18 +1,18 @@
 import React, { useEffect } from "react";
- 
+
 import { useOutletContext } from "react-router-dom";
 import { useState } from "react";
 import Table from "../Component/Table/table";
 import ImportBulkModal from "./importbulkmodal";
 import AddClientmodal from "./addClientmodal";
- 
+
 // import '/index.css'
- 
+
 const DocReqManagement = () => {
     const [activeTab, setActiveTab] = useState("tab1");
- 
+
     return (
- 
+
         <div className="p-7.5 pt-[86px] w-full">
             <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
                 <button
@@ -67,7 +67,7 @@ const DocReqManagement = () => {
                                         </h4>
                                     </div>
                                     <div className="bg-bgPurple flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
- 
+
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M20.9346 5.83087L15.3097 0.206016C15.1778 0.0741977 14.999 0.000105395 14.8125 0L4.96875 0C3.80564 0 2.85938 0.946266 2.85938 2.10938V21.8906C2.85938 23.0537 3.80564 24 4.96875 24H19.0312C20.1944 24 21.1406 23.0537 21.1406 21.8906V6.32812C21.1406 6.13641 21.0601 5.95636 20.9346 5.83087ZM15.5156 2.40061L18.74 5.625H16.2188C15.831 5.625 15.5156 5.30958 15.5156 4.92188V2.40061ZM19.0312 22.5938H4.96875C4.58105 22.5938 4.26562 22.2783 4.26562 21.8906V2.10938C4.26562 1.72167 4.58105 1.40625 4.96875 1.40625H14.1094V4.92188C14.1094 6.08498 15.0556 7.03125 16.2188 7.03125H19.7344V21.8906C19.7344 22.2783 19.419 22.5938 19.0312 22.5938Z" fill="#497FFF" />
                                             <path d="M16.2188 9.9375H7.78125C7.39294 9.9375 7.07812 10.2523 7.07812 10.6406C7.07812 11.0289 7.39294 11.3438 7.78125 11.3438H16.2188C16.6071 11.3438 16.9219 11.0289 16.9219 10.6406C16.9219 10.2523 16.6071 9.9375 16.2188 9.9375ZM16.2188 12.75H7.78125C7.39294 12.75 7.07812 13.0648 7.07812 13.4531C7.07812 13.8414 7.39294 14.1562 7.78125 14.1562H16.2188C16.6071 14.1562 16.9219 13.8414 16.9219 13.4531C16.9219 13.0648 16.6071 12.75 16.2188 12.75ZM16.2188 15.5625H7.78125C7.39294 15.5625 7.07812 15.8773 7.07812 16.2656C7.07812 16.6539 7.39294 16.9688 7.78125 16.9688H16.2188C16.6071 16.9688 16.9219 16.6539 16.9219 16.2656C16.9219 15.8773 16.6071 15.5625 16.2188 15.5625ZM13.4062 18.375H7.78125C7.39294 18.375 7.07812 18.6898 7.07812 19.0781C7.07812 19.4664 7.39294 19.7812 7.78125 19.7812H13.4062C13.7946 19.7812 14.1094 19.4664 14.1094 19.0781C14.1094 18.6898 13.7946 18.375 13.4062 18.375Z" fill="#497FFF" />
@@ -110,7 +110,7 @@ const DocReqManagement = () => {
                                             </defs>
                                         </svg>
                                     </div>
- 
+
                                 </div>
                             </div>
                             <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center">
@@ -221,8 +221,8 @@ const DocReqManagement = () => {
                                 New Request
                             </button>
                         </div>
- 
- 
+
+
                         <div className="border border-customGray rounded-[20px] p-5">
                             <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
                                 <div className="relative w-full md:w-[60%]">
@@ -283,7 +283,7 @@ const DocReqManagement = () => {
                                     </a>
                                 </div>
                             </div>
- 
+
                         </div>
                     </div>
                 )}
@@ -291,28 +291,53 @@ const DocReqManagement = () => {
                     <div className="">
                         <div className="flex items-center justify-between mb-2.5">
                             <h4 className="color-black text-lg font-semibold">
-                                Secure Link Management
+                                Create New Document Request
                             </h4>
                             <button
                                 type="button"
-                                onClick={() => setShowModal(true)}
                                 className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
                             >
-                                Create Secure Link
+                                Use Template
                             </button>
-                            {showModal && (
-                                <DocumentModal onClose={() => setShowModal(false)} />
-                            )}
                         </div>
                         <div className="border border-customGray rounded-[20px] p-5 ">
                             <form action="">
-                                <div className="grid grid-cols-3 gap-5">
+                                <div className="w-full mb-5">
+                                    <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                                        Request Document Title*
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        placeholder="Enter document request title"
+                                        className="w-full border border-[#eaeaea] rounded-[10px] px-3 py-2 text-sm"
+                                        required
+                                    />
+                                </div>
+                                <div className="w-full mb-5">
+                                    <label
+                                        for="cars"
+                                        className="mb-2 block font-medium text-sm "
+                                    >
+                                        Client*
+                                    </label>
+                                    <div className="relative">
+                                        <select className="border border-[#eaeaea] rounded-[10px] py-2 px-4 w-full appearance-none">
+                                            <option value="volvo">Volvo</option>
+                                            <option value="saab">Saab</option>
+                                            <option value="opel">Opel</option>
+                                            <option value="audi">Audi</option>
+                                        </select>
+                                        <i class="fa-solid fa-chevron-down absolute top-[12px] right-[14px]"></i>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-5 mb-5">
                                     <div className="w-full ">
                                         <label
                                             for="cars"
                                             className="mb-2 block font-medium text-sm "
                                         >
-                                            Client
+                                            Document Types*
                                         </label>
                                         <div className="relative">
                                             <select className="border border-[#eaeaea] text-gray-700 rounded-[10px] py-2 px-4 w-full appearance-none">
@@ -324,12 +349,41 @@ const DocReqManagement = () => {
                                             <i class="fa-solid fa-chevron-down absolute top-[12px] right-[14px]"></i>
                                         </div>
                                     </div>
+                                    <div className="w-full ">
+                                        <label
+                                            for="cars"
+                                            className="mb-2 block font-medium text-sm "
+                                        >
+                                            Documents*
+                                        </label>
+                                        <div className="relative">
+                                            <select className="border border-[#eaeaea] text-gray-700 rounded-[10px] py-2 px-4 w-full appearance-none">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="opel">Opel</option>
+                                                <option value="audi">Audi</option>
+                                            </select>
+                                            <i class="fa-solid fa-chevron-down absolute top-[12px] right-[14px]"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mb-5">
+                                    <label className="block text-[#484848] text-sm font-medium mb-2">
+                                        Add other Documents (eg. Insurance, Petant document, ...)
+                                    </label>
+                                    <textarea
+                                        className="w-full border border-[#eaeaea] bg-[#FAFAFA] text-[#484848] p-3 rounded-[10px] font-normal text-[12px] leading-[100%] tracking-[0] capitalize focus:outline-none h-[60px] resize-none"
+                                        rows="2"
+                                        placeholder="Add Other Documents  seperated by ‘Comma’"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-5 mb-5">
                                     <div className="w-full">
                                         <label
                                             for="fname"
                                             className="block mb-2 font-medium text-sm"
                                         >
-                                            Created Date
+                                            Due Date
                                         </label>
                                         <input
                                             type="date"
@@ -343,7 +397,7 @@ const DocReqManagement = () => {
                                             for="cars"
                                             className="mb-2 block font-medium text-sm "
                                         >
-                                            Status
+                                            Priority Level
                                         </label>
                                         <div className="relative">
                                             <select className="border border-[#eaeaea] rounded-[10px] py-2 px-4 w-full appearance-none">
@@ -356,104 +410,136 @@ const DocReqManagement = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-right mt-2.5">
+                                <div className="mb-5">
+                                    <label className="block text-[#484848] text-sm font-medium mb-2">
+                                        Instructions & Requirements
+                                    </label>
+                                    <textarea
+                                        className="w-full border border-[#eaeaea] bg-[#FAFAFA] text-[#484848] p-3 rounded-[10px] font-normal text-[12px] leading-[100%] tracking-[0] capitalize focus:outline-none h-[60px] resize-none"
+                                        rows="2"
+                                        placeholder="Add Other Documents  seperated by ‘Comma’"
+                                    />
+                                </div>
+                                <div className="mb-5">
+                                    <label className="block text-[#484848] text-sm font-medium mb-2">
+                                        Notify Method
+                                    </label>
+                                    <div className="flex gap-5 text-sm text-[#484848]">
+                                        <label className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
+                                                    checked:bg-[#20BF55] checked:border-[#20BF55]
+                                                    checked:after:content-['✓'] checked:after:text-white 
+                                                    checked:after:text-[12px] checked:after:font-bold 
+                                                    checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
+                                            />
+                                            Email
+                                        </label>
+                                        <label className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
+                                                    checked:bg-[#20BF55] checked:border-[#20BF55]
+                                                    checked:after:content-['✓'] checked:after:text-white 
+                                                    checked:after:text-[12px] checked:after:font-bold 
+                                                    checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
+                                            />
+                                            SMS
+                                        </label>
+                                        <label className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
+                                                    checked:bg-[#20BF55] checked:border-[#20BF55]
+                                                    checked:after:content-['✓'] checked:after:text-white 
+                                                    checked:after:text-[12px] checked:after:font-bold 
+                                                    checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
+                                            />
+                                            Portal Notification
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className="mb-5">
+                                    <div className="flex items-center justify-between">
+                                        <label className="block text-[#484848] text-sm font-medium mb-2">
+                                            Schedule Reminder
+                                        </label>
+                                        <label className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
+                                                        checked:bg-[#20BF55] checked:border-[#20BF55]
+                                                        checked:after:content-['✓'] checked:after:text-white 
+                                                        checked:after:text-[12px] checked:after:font-bold 
+                                                        checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
+                                            />
+                                            Send as Default Reminder
+                                        </label>
+                                    </div>
+                                    <div className="border border-customGray p-5 rounded-[20px] overflow-hidden">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                                            <div className="mb-5 w-full">
+                                                <label className="block text-[14px] font-medium text-body mb-2">Set Time</label>
+                                                <input
+                                                    type="time"
+                                                    className="w-full p-3 bg-[#F8F8F8] border border-[#f2f2f2] text-[12px] font-[400] rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                                                />
+                                            </div>
+
+
+                                            <div className="mb-5 w-full">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <label className="block text-[14px] font-medium text-body">Frequency</label>
+                                                    <div className="relative h-[20px]">
+                                                        <select
+
+                                                            className="pr-8 pl-3 bg-white text-[14px] text-body appearance-none focus:outline-none focus:border-transparent font-[400]"
+                                                        >
+                                                            <option value="Weekly">Weekly</option>
+                                                            <option value="Daily">Daily</option>
+                                                        </select>
+                                                        <i className="fa-solid fa-chevron-down absolute text-[14px] top-[5px] right-[14px]"></i>
+                                                    </div>
+                                                </div>
+
+                                                {/* Day Picker */}
+                                                {/* <div className="flex flex-wrap gap-4 p-2 bg-[#F8F8F8] rounded-[10px]">
+                                                    {days.map((day) => (
+                                                        <button
+                                                            key={day}
+                                                            type="button"
+                                                            onClick={() => handleDayToggle(day)}
+                                                            className={`px-4 py-1 h-[30px] rounded-md text-[14px] font-[400] transition-colors ${selectedDays.includes(day)
+                                                                ? 'border border-primaryBlue text-primaryBlue bg-white'
+                                                                : 'text-body bg-white hover:bg-gray-100'
+                                                                }`}
+                                                        >
+                                                            {day}
+                                                        </button>
+                                                    ))}
+                                                </div> */}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between mt-2.5">
+                                    <button
+                                        type="button"
+                                        className="rounded-[10px] py-2 px-6 text-primaryBlue border-1 border-primaryBlue cursor-pointer"
+                                    >
+                                        Save as Template
+                                    </button>
                                     <button
                                         type="button"
                                         className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
                                     >
-                                        Search
+                                        Generate Secure Link & Send Request
                                     </button>
-                                    <a
-                                        href="#"
-                                        class="ml-5 color-black font-medium text-sm underline"
-                                    >
-                                        Clear
-                                    </a>
                                 </div>
                             </form>
-                        </div>
-                        <h4 className="font-semibold text-lg text-body mb-2.5 mt-16">
-                            Secure Links
-                        </h4>
-                        <div className="border border-customGray rounded-[20px] p-5">
-                            <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
-                                <div className="relative w-full md:w-[60%]">
-                                    <input
-                                        type="text"
-                                        placeholder="Search by name, email or status"
-                                        className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
-                                    />
-                                    <svg
-                                        className="absolute top-4 left-4"
-                                        width="14"
-                                        height="14"
-                                        viewBox="0 0 14 14"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M13 13L9 9M1 5.66667C1 6.2795 1.12071 6.88634 1.35523 7.45252C1.58975 8.01871 1.93349 8.53316 2.36683 8.9665C2.80018 9.39984 3.31462 9.74358 3.88081 9.97811C4.447 10.2126 5.05383 10.3333 5.66667 10.3333C6.2795 10.3333 6.88634 10.2126 7.45252 9.97811C8.01871 9.74358 8.53316 9.39984 8.9665 8.9665C9.39984 8.53316 9.74358 8.01871 9.97811 7.45252C10.2126 6.88634 10.3333 6.2795 10.3333 5.66667C10.3333 5.05383 10.2126 4.447 9.97811 3.88081C9.74358 3.31462 9.39984 2.80018 8.9665 2.36683C8.53316 1.93349 8.01871 1.58975 7.45252 1.35523C6.88634 1.12071 6.2795 1 5.66667 1C5.05383 1 4.447 1.12071 3.88081 1.35523C3.31462 1.58975 2.80018 1.93349 2.36683 2.36683C1.93349 2.80018 1.58975 3.31462 1.35523 3.88081C1.12071 4.447 1 5.05383 1 5.66667Z"
-                                            stroke="#8F95A2"
-                                            stroke-width="1.25"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                        />
-                                    </svg>
-                                </div>
-                                <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
-                                    <div className="relative">
-                                        <select
-                                            name="cars"
-                                            id="cars"
-                                            className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
-                                        >
-                                            <option value="volvo">Newest First</option>
-                                            <option value="saab">Saab</option>
-                                            <option value="opel">Opel</option>
-                                            <option value="audi">Audi</option>
-                                        </select>
-                                        <svg
-                                            className="absolute right-[14px] top-[14px]"
-                                            width="12"
-                                            height="11"
-                                            viewBox="0 0 12 11"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                opacity="0.2"
-                                                d="M7.64399 9.62711C6.84862 10.7751 5.15138 10.7751 4.35601 9.62711L0.380525 3.88899C-0.538433 2.56259 0.410876 0.750001 2.02452 0.750001L9.97548 0.750001C11.5891 0.750002 12.5384 2.56259 11.6195 3.88899L7.64399 9.62711Z"
-                                                fill="#2C3E50"
-                                            />
-                                        </svg>
-                                    </div>
-                                    <a
-                                        href="#"
-                                        className="ml-5 color-black font-medium text-sm underline"
-                                    >
-                                        Clear
-                                    </a>
-                                </div>
-                            </div>
-                            <ClientTable
-                                data={documentsList}
-                                pagination={{
-                                    page: pagination.currentPage,
-                                    totalPages: pagination.totalPages,
-                                    total: pagination.totalDocuments,
-                                    limit: pagination.limit,
-                                }}
-                                onPageChange={(newPage) =>
-                                    setPagination((prev) => ({
-                                        ...prev,
-                                        currentPage: newPage,
-                                    }))
-                                }
-                                onLimitChange={handleLimitChange}
-                                onNextPage={handleNextPage}
-                                onPrevPage={handlePrevPage}
-                                mode="documents"
-                            />
                         </div>
                     </div>
                 )}

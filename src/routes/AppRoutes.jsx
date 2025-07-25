@@ -13,6 +13,7 @@ import AddClient from "../pages/addClientmodal";
 import Login from "../Component/Login/login";
 import PrivateRoute from "./ProtectedRoute";
 import { useAuth } from "../Context/AuthContext"; // ✅ Import useAuth
+import DocReqManagement from "../pages/documentRequestMangement";
 
 const AppRoutes = () => {
   const { authToken } = useAuth(); // ✅ Get token from context
@@ -34,6 +35,7 @@ const AppRoutes = () => {
             <Route index element={<Dashboard />} />
             <Route path="clientmanagement" element={<ClientManagement />} />
             <Route path="addclient" element={<AddClient />} />
+            <Route path="documentrequestmanagement" element={<DocReqManagement />} />
           </Route>
         </Route>
 
