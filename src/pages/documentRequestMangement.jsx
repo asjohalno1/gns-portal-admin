@@ -67,7 +67,7 @@ const DocReqManagement = () => {
           totalPages: totalPages,
         }));
 
-        toast.success(res?.message || "Documents fetched successfully");
+        // toast.success(res?.message || "Documents fetched successfully");
       }
     } catch (error) {
       console.error("Failed to fetch document list:", error);
