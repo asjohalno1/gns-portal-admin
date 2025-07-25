@@ -3,7 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import Table from "../Component/Table/table";
 import ImportBulkModal from "./importbulkmodal";
 import AddClientmodal from "./addClientmodal";
-import { getAllClients } from "../api/dashboard.api";
+import { getAllClients, getStaffClient } from "../api/dashboard.api";
 import ClientDetailsModal from "../Component/ClientModals/ClientDetailsModal";
 
 const ClientManagement = () => {
@@ -12,7 +12,7 @@ const ClientManagement = () => {
   const [isImportBulkOpen, setIsImportBulkOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [clientDetailsModal, setClientDetailsModal] = useState(false);
-
+  const [clientInfo, setClientInfo] = useState()
   const [filters, setFilters] = useState({
     search: "",
     status: "all",
@@ -121,7 +121,19 @@ const ClientManagement = () => {
     }));
   };
 
-  const handleModalAction = (type, client) => {
+  const handleModalAction = async (type, client) => {
+    if (client?._id) {
+      try {
+        const response = await getStaffClient(client?._id);
+        console.log("response",response);
+        
+        if (response.success == true) {
+          setClientInfo(response?.data)
+        }
+      } catch (err) {
+        console.error("Error fetching staff members:", err);
+      }
+    }
     switch (type) {
       case "view":
         setClientDetailsModal(true);
@@ -132,21 +144,19 @@ const ClientManagement = () => {
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
         <button
-          className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${
-            activeTab === "tab1"
-              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
-              : " text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
-          }`}
+          className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab1"
+            ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+            : " text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
+            }`}
           onClick={() => setActiveTab("tab1")}
         >
           Manage Clients
         </button>
         <button
-          className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${
-            activeTab === "tab2"
-              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
-              : "text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
-          }`}
+          className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab2"
+            ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+            : "text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
+            }`}
           onClick={() => setActiveTab("tab2")}
         >
           Client Mapping
@@ -277,6 +287,7 @@ const ClientManagement = () => {
             <ClientDetailsModal
               isOpen={clientDetailsModal}
               onClose={() => setClientDetailsModal(false)}
+              data ={clientInfo}
             />
           </div>
         )}

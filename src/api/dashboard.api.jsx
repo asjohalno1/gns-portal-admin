@@ -79,3 +79,15 @@ export const addBulkClient = async (data) => {
   }
 };
 
+export const getStaffClient = async (id) => {
+  try {
+    const response = await axiosInstance.get(`/clientsatff/details/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
