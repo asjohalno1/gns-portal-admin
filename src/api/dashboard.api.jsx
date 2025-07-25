@@ -61,3 +61,21 @@ export const getAllStaff = async () => {
     throw error;
   }
 };
+
+export const addBulkClient = async (data) => {
+  try {
+    const response = await axiosInstance.post("/client/uploadCsv", data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Dashboard data fetch error details:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
