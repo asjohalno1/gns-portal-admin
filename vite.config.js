@@ -17,11 +17,11 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       'process.env.MY_ENV_VAR': JSON.stringify(env.MY_ENV_VAR),
-      'process.env.NODE_ENV':   JSON.stringify(process.env.NODE_ENV),
-      global:                   'globalThis',
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      global: 'globalThis',
     },
     optimizeDeps: {
-      include: ['buffer','process'],
+      include: ['buffer', 'process'],
       esbuildOptions: {
         loader: { '.js': 'jsx' },
         define: { global: 'globalThis' },
@@ -37,13 +37,13 @@ export default defineConfig(({ mode }) => {
     ],
     resolve: {
       alias: {
-        src:     path.resolve(__dirname,'src'),
-        crypto:  'crypto-browserify',
-        stream:  'stream-browserify',
-        buffer:  'buffer',
+        src: path.resolve(__dirname, 'src'),
+        crypto: 'crypto-browserify',
+        stream: 'stream-browserify',
+        buffer: 'buffer',
         process: 'process/browser',
       },
-      extensions: ['.mjs','.js','.ts','.jsx','.tsx','.json','.scss'],
+      extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.scss'],
     },
     server: { port: 8077 },
   }
