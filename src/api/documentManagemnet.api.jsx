@@ -81,3 +81,61 @@ export const createDocumentRequest = async (data) => {
     throw error;
   }
 };
+
+// services/category.js
+export const addCategoryApi = async (data) => {
+  try {
+    const { data: res } = await axiosInstance.post("/category/add", data);
+    return res; // { success, message, data: savedCategory }
+  } catch (error) {
+    console.error(
+      "Add category error details:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+export const addSubCategoryApi = async (data) => {
+  try {
+    const { data: res } = await axiosInstance.post("/subcategory/add", data);
+    return res; // { success, message, data: savedSubCategory }
+  } catch (error) {
+    console.error(
+      "Add subcategory error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+// GET all categories with subcategories
+export const getAllCategoriesApi = async () => {
+  try {
+    const { data } = await axiosInstance.get("/category/getAllcategory");
+    return data;
+  } catch (err) {
+    console.error(
+      "Failed to fetch categories:",
+      err.response?.data || err.message
+    );
+    throw err;
+  }
+};
+
+// GET all subcategories by category ID
+
+export const getSubCategoriesByCategoryIdApi = async (categoryId) => {
+  try {
+    const { data } = await axiosInstance.get(
+      `/subcategory/getAllSubCategoryByCategory/${categoryId}`
+    );
+    return data;
+  } catch (err) {
+    console.error(
+      "Failed to fetch subcategories:",
+      err.response?.data || err.message
+    );
+    throw err;
+  }
+};

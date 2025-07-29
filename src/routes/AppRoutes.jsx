@@ -14,6 +14,7 @@ import Login from "../Component/Login/login";
 import PrivateRoute from "./ProtectedRoute";
 import { useAuth } from "../Context/AuthContext"; // ✅ Import useAuth
 import DocReqManagement from "../pages/documentRequestMangement";
+import AddCat from "../pages/AddCat";
 
 const AppRoutes = () => {
   const { authToken } = useAuth(); // ✅ Get token from context
@@ -24,9 +25,7 @@ const AppRoutes = () => {
         {/* Login route now redirects to /admin if logged in */}
         <Route
           path="/"
-          element={
-            authToken ? <Navigate to="/admin" replace /> : <Login />
-          }
+          element={authToken ? <Navigate to="/admin" replace /> : <Login />}
         />
 
         {/* Protected Routes */}
@@ -35,7 +34,11 @@ const AppRoutes = () => {
             <Route index element={<Dashboard />} />
             <Route path="clientmanagement" element={<ClientManagement />} />
             <Route path="addclient" element={<AddClient />} />
-            <Route path="documentrequestmanagement" element={<DocReqManagement />} />
+            <Route
+              path="documentrequestmanagement"
+              element={<DocReqManagement />}
+            />
+            <Route path="addCatogary" element={<AddCat />} />
           </Route>
         </Route>
 
