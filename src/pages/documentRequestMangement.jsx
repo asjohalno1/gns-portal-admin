@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Table from "../Component/Table/table";
 import {
+  addTemplate,
   createDocumentRequest,
   getAllAssociatedSubCategories,
   getAllCategories,
   getAllClientsAdmin,
+  getAllDocuments,
   getAllDocumentsListing,
+  getAllTemplates,
 } from "../api/documentManagemnet.api";
 import { toast } from "react-toastify";
 import {
@@ -15,20 +18,24 @@ import {
   PendingIcon,
 } from "../Icons/SvgIcons";
 import { getAllClients } from "../api/dashboard.api";
+import getPlainText from "../adminutils/commonutils";
 
 const DocReqManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
   const [documentList, setDocumentList] = useState([]);
   const [headerSummery, setHeaderSummery] = useState({});
+  const [secureLink, setSecureLink] = useState("");
+
+  const [loading, setLoading] = useState(false);
 
   const [clientListing, setClientListing] = useState([]);
   const [catogaryListing, setCategoryListing] = useState([]);
   const [subDocumentListing, setSubDocumentListing] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
-    clientId: [], // Changed to array for multiple selection
-    categoryId: [], // Changed to array for multiple selection
-    documentId: [], // Changed to array for multiple selection
+    clientId: [],
+    categoryId: [],
+    documentId: [],
     subcategoryPriorities: [],
     otherDocuments: "",
     dueDate: "",
@@ -37,10 +44,10 @@ const DocReqManagement = () => {
     scheduleReminder: false,
     reminderTime: "",
     reminderFrequency: "Weekly",
-    selectedDays: [], // Add this for day selection
+    selectedDays: [],
     // subcategoryPriorities: [],
   });
-
+  const [templateList, setTemplateList] = useState([]);
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const [query, setQuery] = useState({
     search: "",
@@ -63,12 +70,19 @@ const DocReqManagement = () => {
       }
     }, 500);
 
+    if (activeTab === "tab3") {
+      fetchAllDocuments(query);
+    }
+
     return () => clearTimeout(delayDebounce);
   }, [query.search]);
 
   useEffect(() => {
     if (activeTab === "tab1") {
       fetchDocumentListing(query);
+    }
+    if (activeTab === "tab3") {
+      fetchAllDocuments(query);
     }
   }, [query.page, query.limit]);
 
@@ -166,6 +180,7 @@ const DocReqManagement = () => {
   const handleCreateRequest = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       if (
         !formData.clientId ||
         !formData.categoryId ||
@@ -189,7 +204,9 @@ const DocReqManagement = () => {
           formData.instructions ||
           "<p>Please Upload Your Document Using This Secure Link.</p>",
         notifyMethod: formData.notifyMethods[0] || "email",
-        remainderSchedule: formData.scheduleReminder ? "ThreeDays" : "None",
+        remainderSchedule: formData.scheduleReminder
+          ? "ThreeDays"
+          : "ThreeDays",
         expiration: "24",
         linkMethod: "email",
         subcategoryPriorities: formData.subcategoryPriorities.reduce(
@@ -230,18 +247,134 @@ const DocReqManagement = () => {
             id: "",
           },
         });
+        setLoading(false);
         setActiveTab("tab1");
         fetchDocumentListing();
       } else {
         toast.error(res?.message || "Failed to create document request");
+        setLoading(false);
       }
     } catch (error) {
       console.error("Failed to create document request:", error);
       toast.error(
         error.response?.data?.message || "Failed to create document request."
       );
+      setLoading(false);
     }
   };
+
+  const handleSaveAsTemplate = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+
+      // Validate required fields for template
+      if (
+        !formData.title ||
+        !formData.categoryId?.length ||
+        !formData.documentId?.length
+      ) {
+        toast.error(
+          "Please fill title, select at least one document type and documents to save as template"
+        );
+        return;
+      }
+
+      // Convert subcategoryPriorities array to object if needed
+      const prioritiesObj = Array.isArray(formData.subcategoryPriorities)
+        ? formData.subcategoryPriorities.reduce((acc, curr) => {
+            acc[curr.subCategoryId] = curr.priority;
+            return acc;
+          }, {})
+        : formData.subcategoryPriorities;
+
+      const templateData = {
+        name: formData.title,
+        clientIds: formData.clientId || [], // Array of client IDs
+        categoryIds: formData.categoryId, // Array of category IDs
+        subCategoryId: formData.documentId, // Array of document IDs
+        notifyMethod: formData.notifyMethods[0] || "email",
+        remainderSchedule: formData.scheduleReminder
+          ? "ThreeDays"
+          : "ThreeDays",
+        message:
+          formData.instructions ||
+          "<p>Please Upload Your Document Using This Secure Link.</p>",
+        subcategoryPriorities: prioritiesObj,
+        expiration: "24", // Default or from form
+        linkMethod: "email", // Default or from form
+        active: true,
+      };
+
+      const res = await addTemplate(templateData);
+
+      if (res.success) {
+        toast.success(res?.message || "Template saved successfully");
+        setLoading(false);
+        setActiveTab("tab4"); // Navigate to templates tab
+      } else {
+        toast.error(res?.message || "Failed to save template");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Failed to save template:", error);
+      toast.error(error.response?.data?.message || "Failed to save template.");
+      setLoading(false);
+    }
+  };
+
+  const fetchAllDocuments = async (query) => {
+    try {
+      const res = await getAllDocuments(query);
+
+      const {
+        documents,
+        currentPage,
+        totalDocuments,
+        totalPages,
+        headerTotal,
+      } = res.data;
+
+      if (res.success) {
+        setSecureLink(documents);
+        setQuery((prev) => ({
+          ...prev,
+          page: currentPage,
+          total: totalDocuments,
+          totalPages: totalPages,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch document list:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to fetch document list."
+      );
+    }
+  };
+
+  const fetchAllTemplates = async () => {
+    try {
+      const res = await getAllTemplates();
+      console.log(res);
+      if (res.success) {
+        setTemplateList(res.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch document list:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to fetch document list."
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "tab3") {
+      fetchAllDocuments(query);
+    }
+    if (activeTab === "tab4") {
+      fetchAllTemplates();
+    }
+  }, [activeTab]);
   // Pagination handlers
   const onNextPage = () => {
     if (query.page < query.totalPages) {
@@ -937,7 +1070,7 @@ const DocReqManagement = () => {
                     <label className="block text-[#484848] text-sm font-medium mb-2">
                       Schedule Reminder
                     </label>
-                    <label className="flex items-center gap-2">
+                    {/* <label className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={formData.scheduleReminder}
@@ -954,7 +1087,7 @@ const DocReqManagement = () => {
               checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
                       />
                       Send as Default Reminder
-                    </label>
+                    </label> */}
                   </div>
                   <div className="border border-customGray p-5 rounded-[20px] overflow-hidden">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -1050,19 +1183,177 @@ const DocReqManagement = () => {
                 <div className="flex items-center justify-between mt-2.5">
                   <button
                     type="button"
-                    className="rounded-[10px] py-2 px-6 text-primaryBlue border-1 border-primaryBlue cursor-pointer"
+                    onClick={handleSaveAsTemplate}
+                    disabled={loading}
+                    className="rounded-[10px] py-2 px-6 text-primaryBlue border-1 border-primaryBlue cursor-pointer disabled:opacity-50"
                   >
-                    Save as Template
+                    {loading ? "Saving..." : "Save as Template"}
                   </button>
                   <button
                     type="submit"
                     className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
+                    disabled={loading}
                   >
-                    Generate Secure Link & Send Request
+                    {loading
+                      ? "Creating Request..."
+                      : "Generate Secure Link & Send Request"}
                   </button>
                 </div>
               </form>
             </div>
+          </div>
+        )}
+
+        {activeTab === "tab3" && (
+          <div>
+            <div className="border border-customGray rounded-[20px] p-5">
+              <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
+                <div className="relative w-full md:w-[60%]">
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    value={query.search}
+                    onChange={(e) =>
+                      setQuery((prev) => ({
+                        ...prev,
+                        search: e.target.value,
+                        page: 1,
+                      }))
+                    }
+                    className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
+                  />
+                </div>
+                <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
+                  <div className="relative">
+                    <select
+                      name="cars"
+                      id="cars"
+                      className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
+                    >
+                      <option value="volvo">Newest First</option>
+                      <option value="saab">Saab</option>
+                      <option value="opel">Opel</option>
+                      <option value="audi">Audi</option>
+                    </select>
+                    <svg
+                      className="absolute right-[14px] top-[14px]"
+                      width="12"
+                      height="11"
+                      viewBox="0 0 12 11"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        opacity="0.2"
+                        d="M7.64399 9.62711C6.84862 10.7751 5.15138 10.7751 4.35601 9.62711L0.380525 3.88899C-0.538433 2.56259 0.410876 0.750001 2.02452 0.750001L9.97548 0.750001C11.5891 0.750002 12.5384 2.56259 11.6195 3.88899L7.64399 9.62711Z"
+                        fill="#2C3E50"
+                      />
+                    </svg>
+                  </div>
+                  <a
+                    onClick={handleClear}
+                    className="ml-5 color-black font-medium text-sm underline cursor-pointer"
+                  >
+                    Clear
+                  </a>
+                </div>
+              </div>
+
+              <Table
+                data={secureLink || []}
+                mode="secureDocumentListing"
+                pagination={query}
+                onNextPage={onNextPage}
+                onPrevPage={onPrevPage}
+                onLimitChange={onLimitChange}
+              />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "tab4" && (
+          <div>
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-[30px] mb-[30px] gap-2 sm:gap[7px]">
+              <h4 className="color-black text-lg font-semibold">
+                Manage Document Templates
+              </h4>
+            </div>
+
+            <div className="border border-customGray rounded-[20px] p-5">
+              {templateList.length > 0 ? (
+                templateList.map((template) => (
+                  <div
+                    key={template._id}
+                    className="bg-white border border-[#2C3E501A] rounded-[10px] py-[25px] px-[20px] mb-4"
+                  >
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2 sm:gap-[10px]">
+                      <h3 className="text-[#2C3E50] font-medium text-[16px] leading-[100%] tracking-[0%]">
+                        {template.name}
+                      </h3>
+                      <div className="flex items-center gap-[10px]">
+                        <button
+                          className="bg-[#1BA3A3] text-[#ffffff] px-[20px] py-[10px] rounded-md font-normal text-[14px] leading-[100%] tracking-[0%] cursor-pointer"
+                          onClick={() => {
+                            setSelectedTemplate(template._id);
+                            setActiveTab("tab2"); // Switch to create request tab
+                          }}
+                        >
+                          Use Template
+                        </button>
+                        <button
+                          type="button"
+                          className="text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer p-1"
+                          title="Edit Template"
+                          onClick={() => {
+                            // setSelectedTemplate(template._id);
+                            // setShowEditRemainderModal(true);
+                          }}
+                        >
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="transition-colors duration-200"
+                          >
+                            <path
+                              d="M4.76 18.8096H4.87L7.8 18.5396C8.21 18.4996 8.59 18.3196 8.88 18.0296L19.94 6.96961C20.46 6.44961 20.75 5.75961 20.75 5.02961C20.75 4.29961 20.46 3.60961 19.94 3.08961L19.23 2.37961C18.19 1.33961 16.38 1.33961 15.34 2.37961L13.93 3.78961L4.29 13.4296C4 13.7196 3.82 14.0996 3.79 14.5096L3.52 17.4396C3.49 17.8096 3.62 18.1696 3.88 18.4396C4.12 18.6796 4.43 18.8096 4.76 18.8096ZM17.29 3.06961C17.61 3.06961 17.93 3.18961 18.17 3.43961L18.88 4.14961C18.9968 4.26446 19.0896 4.40142 19.153 4.55251C19.2163 4.70359 19.2489 4.86578 19.2489 5.02961C19.2489 5.19344 19.2163 5.35562 19.153 5.50671C19.0896 5.6578 18.9968 5.79476 18.88 5.90961L18 6.78961L15.53 4.31961L16.41 3.43961C16.65 3.19961 16.97 3.06961 17.29 3.06961ZM5.28 14.6496C5.28 14.5896 5.31 14.5396 5.35 14.4996L14.46 5.37961L16.93 7.84961L7.82 16.9596C7.82 16.9596 7.72 17.0296 7.67 17.0296L5.04 17.2696L5.28 14.6396V14.6496ZM22.75 21.9996C22.75 22.4096 22.41 22.7496 22 22.7496H2C1.59 22.7496 1.25 22.4096 1.25 21.9996C1.25 21.5896 1.59 21.2496 2 21.2496H22C22.41 21.2496 22.75 21.5896 22.75 21.9996Z"
+                              fill="#2C3E50"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p
+                        dangerouslySetInnerHTML={{ __html: template.message }}
+                        className="mb-2 font-normal text-[16px] leading-[100%] tracking-[0%] text-[#2C3E50]"
+                      />
+                      <p className="sr-only">
+                        {getPlainText(template.message)}
+                      </p>
+                    </div>
+
+                    <p className="text-[#2C3E50] font-normal text-[14px] leading-[100%] tracking-[0%] opacity-[0.6]">
+                      Created:{" "}
+                      {new Date(template.createdAt).toLocaleDateString()} |
+                      Used: {template.usedCount || 0} times
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-10">
+                  <p className="text-gray-600 mb-4">No templates found</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {loading && (
+          <div className="flex items-center justify-center mt-5">
+            <div className="loader"></div>
           </div>
         )}
       </div>
