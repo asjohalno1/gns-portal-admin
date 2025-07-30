@@ -37,6 +37,19 @@ export const headerConfigs = {
       { key: "actions", label: "Action" },
     ],
   },
+
+  secureDocumentListing: {
+    columns: [
+      { key: "title", label: "Document Name" },
+      { key: "clientName", label: "Client Name" },
+      { key: "DocType", label: "Document Type" },
+      { key: "RemaindersCount", label: "Remainders" },
+      { key: "status", label: "Status" },
+      { key: "createdAt", label: "Created" },
+      { key: "expire", label: "Expires" },
+      { key: "actions", label: "Action" },
+    ],
+  },
 };
 
 // Function to determine status button styling
@@ -119,6 +132,10 @@ export const renderCellContent = (item, columnKey, onAction) => {
     case "actions":
       return <Dropdown onAction={(actionType) => onAction(actionType, item)} />;
     case "dueDate":
+      return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
+    case "expire":
+      return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
+    case "createdAt":
       return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
     default:
       return item[columnKey] || "N/A";

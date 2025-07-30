@@ -139,3 +139,39 @@ export const getSubCategoriesByCategoryIdApi = async (categoryId) => {
     throw err;
   }
 };
+
+export const getAllDocuments = async (query) => {
+  try {
+    const response = await axiosInstance.get(
+      "/admin/getAllRequestedDocuments",
+      {
+        params: query,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Document listing fetch error details:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+export const addTemplate = async (data) => {
+  try {
+    const response = await axiosInstance.post("/template/add", data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAllTemplates = async (query) => {
+  try {
+    const response = await axiosInstance.get("/template/all");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
