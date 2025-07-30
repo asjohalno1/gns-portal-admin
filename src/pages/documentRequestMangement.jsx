@@ -637,12 +637,12 @@ const DocReqManagement = () => {
                       {(clientListing || [])
                         .filter(
                           (client) =>
-                            !formData.clientId.includes(client.clientId)
+                            !formData.clientId.includes(client?.clientId)
                         )
                         .map((client) => (
                           <option key={client.clientId} value={client.clientId}>
-                            {client.clientName} (Associated to:{" "}
-                            {client.staff.staffName})
+                            {client?.clientName} (Associated to:{" "}
+                            {client?.staff?.staffName})
                           </option>
                         ))}
                     </select>
