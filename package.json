@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cross-env VITE_ENV=local vite",
+    "dev": "cross-env VITE_ENV=development vite",
     "local-build": "cross-env VITE_ENV=local vite build",
     "stag-dev": "cross-env VITE_ENV=staging vite",
     "stag-build": "cross-env VITE_ENV=staging vite build",

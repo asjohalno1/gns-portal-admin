@@ -25,6 +25,7 @@ const DocReqManagement = () => {
   const [documentList, setDocumentList] = useState([]);
   const [headerSummery, setHeaderSummery] = useState({});
   const [secureLink, setSecureLink] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -59,7 +60,7 @@ const DocReqManagement = () => {
 
   useEffect(() => {
     if (activeTab === "tab1") {
-      fetchDocumentListing(query); // for first load
+      fetchDocumentListing(query);
     }
   }, [activeTab]);
 
@@ -108,8 +109,6 @@ const DocReqManagement = () => {
           total: totalDocuments,
           totalPages: totalPages,
         }));
-
-        // toast.success(res?.message || "Documents fetched successfully");
       }
     } catch (error) {
       console.error("Failed to fetch document list:", error);
@@ -210,8 +209,8 @@ const DocReqManagement = () => {
         remainderSchedule: formData.scheduleReminder
           ? "ThreeDays"
           : "ThreeDays",
-        expiration: "24",
-        linkMethod: "email",
+        expiration: formData.dueDate,
+        linkMethod: formData.notifyMethods[0] || "email",
         subcategoryPriorities: formData.subcategoryPriorities.reduce(
           (acc, curr) => {
             acc[curr.subCategoryId] = curr.priority;
@@ -304,8 +303,8 @@ const DocReqManagement = () => {
           formData.instructions ||
           "<p>Please Upload Your Document Using This Secure Link.</p>",
         subcategoryPriorities: prioritiesObj,
-        expiration: "24", // Default or from form
-        linkMethod: "email", // Default or from form
+        expiration: formData.dueDate,
+        linkMethod: formData.linkMethod, // Default or from form
         active: true,
       };
 
@@ -367,6 +366,73 @@ const DocReqManagement = () => {
       toast.error(
         error.response?.data?.message || "Failed to fetch document list."
       );
+    }
+  };
+  const handleUseTemplate = async (templateData) => {
+    try {
+      setLoading(true);
+
+      if (clientListing.length === 0) await fetchAllClient();
+      if (catogaryListing.length === 0) await fetchAllDocumentListing();
+
+      // Small delay to allow data population (optional safeguard)
+      await new Promise((res) => setTimeout(res, 100));
+
+      const clientIds = templateData.clientNames
+        ? clientListing
+            .filter((client) =>
+              templateData.clientNames.includes(client.clientName)
+            )
+            .map((client) => client.clientId)
+        : templateData.clientIds || [];
+
+      const categoryIds = templateData.categoryNames
+        ? catogaryListing
+            .filter((category) =>
+              templateData.categoryNames.includes(category.name)
+            )
+            .map((category) => category._id)
+        : templateData.categoryIds || [];
+
+      for (const categoryId of categoryIds) {
+        await handleCategoryChange(categoryId);
+      }
+
+      const subcategoryPriorities = Object.entries(
+        templateData.subcategoryPriorities || {}
+      ).map(([subCategoryId, priority]) => ({
+        subCategoryId,
+        priority,
+      }));
+
+      const documentIds = Object.keys(templateData.subcategoryPriorities || {});
+
+      // ✅ SET FORM DATA FIRST
+      setFormData({
+        title: templateData.name || "",
+        clientId: clientIds,
+        categoryId: categoryIds,
+        documentId: documentIds,
+        subcategoryPriorities,
+        instructions: templateData.message || "",
+        notifyMethods: [templateData.notifyMethod].filter(Boolean),
+        scheduleReminder: templateData.remainderSchedule === "ThreeDays",
+        reminderFrequency: "Weekly",
+        selectedDays: [],
+        dueDate: templateData?.expiration || "",
+        otherDocuments: "",
+        reminderTime: "",
+      });
+
+      // ✅ ONLY AFTER FORM DATA IS SET, SWITCH TO TAB
+      setTimeout(() => {
+        setActiveTab("tab2");
+      }, 100); // slight delay to let form re-render properly
+    } catch (error) {
+      console.error("Error using template:", error);
+      toast.error("Failed to load template data");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -588,10 +654,10 @@ const DocReqManagement = () => {
                 Create New Document Request
               </h4>
               <button
-                type="button"
+                onClick={() => setActiveTab("tab4")}
                 className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
               >
-                Use Template
+                Prefill Data
               </button>
             </div>
             <div className="border border-customGray rounded-[20px] p-5 ">
@@ -1405,20 +1471,16 @@ const DocReqManagement = () => {
                         <button
                           className="bg-[#1BA3A3] text-[#ffffff] px-[20px] py-[10px] rounded-md font-normal text-[14px] leading-[100%] tracking-[0%] cursor-pointer"
                           onClick={() => {
-                            setSelectedTemplate(template._id);
-                            setActiveTab("tab2"); // Switch to create request tab
+                            setSelectedTemplate(template);
+                            handleUseTemplate(template);
                           }}
                         >
-                          Use Template
+                          Use Template !
                         </button>
                         <button
                           type="button"
                           className="text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer p-1"
                           title="Edit Template"
-                          onClick={() => {
-                            // setSelectedTemplate(template._id);
-                            // setShowEditRemainderModal(true);
-                          }}
                         >
                           <svg
                             width="20"
@@ -1433,6 +1495,7 @@ const DocReqManagement = () => {
                               fill="#2C3E50"
                             />
                           </svg>
+                          hi
                         </button>
                       </div>
                     </div>
