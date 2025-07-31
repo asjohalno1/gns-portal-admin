@@ -227,10 +227,10 @@ const AddCat = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Category Manager
+            Document Management
           </h1>
           <p className="text-gray-600">
-            Organize your content with categories and subcategories
+            Organize your content with Documents and Documents Type
           </p>
         </div>
 
@@ -242,21 +242,21 @@ const AddCat = () => {
                 <Folder className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-2xl font-semibold text-gray-800">
-                Add New Category
+                Add New Document
               </h2>
             </div>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category Name
+                  Document Name
                 </label>
                 <div className="flex gap-3">
                   <input
                     type="text"
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="Enter category name..."
+                    placeholder="Enter document name..."
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                     onKeyDown={(e) => e.key === "Enter" && addCategory()}
                   />
@@ -286,14 +286,14 @@ const AddCat = () => {
                 <Tag className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-2xl font-semibold text-gray-800">
-                Add Subcategory
+                Add Document Type
               </h2>
             </div>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Category
+                  Select Document
                 </label>
                 <select
                   value={selectedCategory?.id || ""}
@@ -305,7 +305,7 @@ const AddCat = () => {
                   }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                 >
-                  <option value="">Choose a category...</option>
+                  <option value="">Choose a document...</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -316,14 +316,14 @@ const AddCat = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Subcategory Name
+                  Document Type Name
                 </label>
                 <div className="flex gap-3">
                   <input
                     type="text"
                     value={newSubCategory}
                     onChange={(e) => setNewSubCategory(e.target.value)}
-                    placeholder="Enter subcategory name..."
+                    placeholder="Enter document type name..."
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                     onKeyDown={(e) => e.key === "Enter" && addSubCategory()}
                     disabled={!selectedCategory || loadingSubAdd}
@@ -358,7 +358,7 @@ const AddCat = () => {
             <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 rounded-full mr-3">
               <FolderOpen className="w-5 h-5 text-white" />
             </div>
-            Categories Overview
+            Document Overview
           </h2>
 
           {categories.length === 0 ? (
@@ -367,7 +367,7 @@ const AddCat = () => {
                 <Folder className="w-12 h-12 text-gray-400" />
               </div>
               <p className="text-gray-500 text-lg">
-                No categories yet. Start by adding your first category!
+                No document yet. Start by adding your first document!
               </p>
             </div>
           ) : (
@@ -445,7 +445,7 @@ const AddCat = () => {
                     <div className="bg-white">
                       {category.subCategories.length === 0 ? (
                         <div className="p-4 text-gray-500 italic">
-                          No subcategories yet. Add some above!
+                          No document type yet. Add some above!
                         </div>
                       ) : (
                         <div className="p-4 space-y-2">

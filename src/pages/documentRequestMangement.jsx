@@ -156,10 +156,13 @@ const DocReqManagement = () => {
     try {
       const res = await getAllAssociatedSubCategories(categoryId);
       if (res.success) {
-        // Merge subcategories instead of replacing
+        const taggedSubcategories = res.data.map((sub) => ({
+          ...sub,
+          parentCategoryId: categoryId,
+        }));
         setSubDocumentListing((prev) => {
           const existingIds = prev.map((item) => item._id);
-          const newItems = res.data.filter(
+          const newItems = taggedSubcategories.filter(
             (item) => !existingIds.includes(item._id)
           );
           return [...prev, ...newItems];
@@ -688,13 +691,15 @@ const DocReqManagement = () => {
                 </div>
                 <div className="grid grid-cols-1 gap-5 mb-5">
                   {/* Replace the existing grid with category and document selection */}
-                  <div className="mb-5 ">
-                    {/* Category Selection */}
+                  <div className="mb-5">
+                    {/* Document Types Selection Header */}
                     <div className="w-full mb-4">
-                      <label className="mb-2 block font-medium text-sm">
-                        Document Types*
+                      <label className="mb-3 block font-medium text-sm text-gray-700">
+                        Select Document Types*
                       </label>
-                      <div className="relative">
+
+                      {/* Document Type Selection Dropdown */}
+                      <div className="relative mb-4">
                         <select
                           value=""
                           onChange={(e) => {
@@ -710,11 +715,9 @@ const DocReqManagement = () => {
                               handleCategoryChange(categoryId);
                             }
                           }}
-                          className="border border-[#eaeaea] rounded-[10px] py-2 px-4 w-full"
+                          className="border border-[#eaeaea] rounded-[10px] py-3 px-4 w-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
-                          <option value="">
-                            Select a document type to add...
-                          </option>
+                          <option value="">+ Add Document Type...</option>
                           {(catogaryListing || [])
                             .filter(
                               (category) =>
@@ -728,11 +731,10 @@ const DocReqManagement = () => {
                         </select>
                       </div>
                     </div>
-
-                    {/* Selected Categories with Subcategories */}
+                    {/* Selected Document Types with Their Subcategories */}
                     {formData.categoryId.length > 0 && (
                       <div className="space-y-4">
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className="text-sm font-medium text-gray-700 mb-4">
                           Selected Document Types & Documents:
                         </p>
 
@@ -740,29 +742,42 @@ const DocReqManagement = () => {
                           const category = catogaryListing.find(
                             (c) => c._id === categoryId
                           );
+
                           const categorySubcategories =
-                            subDocumentListing.filter((sub) =>
-                              // You might need to add a categoryId field to subcategories or use another way to filter
-                              formData?.documentId.includes(sub._id)
-                            );
+                            formData.documentId.filter((docId) => {
+                              const subCategory = subDocumentListing.find(
+                                (sub) => sub._id === docId
+                              );
+                              return (
+                                subCategory &&
+                                subCategory.parentCategoryId === categoryId
+                              );
+                            });
 
                           return (
                             <div
                               key={categoryId}
-                              className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                              className="border-2 border-blue-100 rounded-xl p-5 bg-[#fafafa] from-blue-50 to-indigo-50 shadow-sm"
                             >
-                              {/* Category Header */}
-                              <div className="flex items-center justify-between mb-3">
-                                <h4 className="font-medium text-gray-800">
-                                  {category?.name}
-                                </h4>
+                              {/* Category Header with Badge Style */}
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                  <h4 className="font-semibold text-gray-800 text-lg">
+                                    {category?.name}
+                                  </h4>
+                                  <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                                    {categorySubcategories.length} documents
+                                    selected
+                                  </span>
+                                </div>
                                 <button
                                   type="button"
                                   onClick={() => {
                                     // Remove category and its subcategories
                                     const subcatsToRemove = subDocumentListing
                                       .filter((sub) =>
-                                        categorySubcategories.includes(sub)
+                                        categorySubcategories.includes(sub._id)
                                       )
                                       .map((sub) => sub._id);
 
@@ -783,14 +798,22 @@ const DocReqManagement = () => {
                                         ),
                                     }));
                                   }}
-                                  className="text-red-500 hover:text-red-700 text-sm"
+                                  className="flex items-center gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-all duration-200"
                                 >
-                                  Remove Category
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                  >
+                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                                  </svg>
+                                  Remove Type
                                 </button>
                               </div>
 
-                              {/* Subcategory Selection */}
-                              <div className="mb-3">
+                              {/* Subcategory Selection Dropdown */}
+                              <div className="mb-4">
                                 <select
                                   value=""
                                   onChange={(e) => {
@@ -814,9 +837,9 @@ const DocReqManagement = () => {
                                       }));
                                     }
                                   }}
-                                  className="border border-[#eaeaea] rounded-[10px] py-2 px-4 w-full text-sm"
+                                  className="border border-gray-300 rounded-lg py-2 px-4 w-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
-                                  <option value="">Add a document...</option>
+                                  <option value="">+ Add Document...</option>
                                   {subDocumentListing
                                     .filter(
                                       (sub) =>
@@ -833,92 +856,181 @@ const DocReqManagement = () => {
                                 </select>
                               </div>
 
-                              {/* Selected Subcategories with Priorities */}
-                              <div className="space-y-2">
-                                {formData.documentId.map((docId) => {
-                                  const subCategory = subDocumentListing.find(
-                                    (sc) => sc._id === docId
-                                  );
-                                  const priorityIndex =
-                                    formData.subcategoryPriorities.findIndex(
-                                      (p) => p.subCategoryId === docId
-                                    );
-                                  const currentPriority =
-                                    priorityIndex >= 0
-                                      ? formData.subcategoryPriorities[
-                                          priorityIndex
-                                        ].priority
-                                      : "medium";
+                              <div className="space-y-3">
+                                {categorySubcategories.length > 0 ? (
+                                  <>
+                                    <h5 className="text-sm font-medium text-gray-600 mb-2">
+                                      Selected Documents:
+                                    </h5>
+                                    {categorySubcategories.map((docId) => {
+                                      const subCategory =
+                                        subDocumentListing.find(
+                                          (sc) => sc._id === docId
+                                        );
+                                      const priorityIndex =
+                                        formData.subcategoryPriorities.findIndex(
+                                          (p) => p.subCategoryId === docId
+                                        );
+                                      const currentPriority =
+                                        priorityIndex >= 0
+                                          ? formData.subcategoryPriorities[
+                                              priorityIndex
+                                            ].priority
+                                          : "medium";
 
-                                  return (
-                                    <div
-                                      key={docId}
-                                      className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3"
-                                    >
-                                      <div className="flex items-center space-x-3">
-                                        <span className="text-sm font-medium text-gray-700">
-                                          {subCategory?.name}
-                                        </span>
-                                        <span className="text-xs text-gray-500">
-                                          -
-                                        </span>
-                                        <select
-                                          value={currentPriority}
-                                          onChange={(e) => {
-                                            const newPriorities = [
-                                              ...formData.subcategoryPriorities,
-                                            ];
-                                            if (priorityIndex >= 0) {
-                                              newPriorities[
-                                                priorityIndex
-                                              ].priority = e.target.value;
-                                            } else {
-                                              newPriorities.push({
-                                                subCategoryId: docId,
-                                                priority: e.target.value,
-                                              });
-                                            }
-                                            setFormData((prev) => ({
-                                              ...prev,
-                                              subcategoryPriorities:
-                                                newPriorities,
-                                            }));
-                                          }}
-                                          className="border border-gray-300 rounded px-2 py-1 text-xs"
+                                      const priorityColors = {
+                                        low: "bg-green-50 border-green-200 text-green-700",
+                                        medium:
+                                          "bg-yellow-50 border-yellow-200 text-yellow-700",
+                                        high: "bg-red-50 border-red-200 text-red-700",
+                                      };
+
+                                      const priorityLabels = {
+                                        low: "Low Priority",
+                                        medium: "Medium Priority",
+                                        high: "High Priority",
+                                      };
+
+                                      return (
+                                        <div
+                                          key={docId}
+                                          className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
                                         >
-                                          <option value="low">
-                                            Low Priority
-                                          </option>
-                                          <option value="medium">
-                                            Medium Priority
-                                          </option>
-                                          <option value="high">
-                                            High Priority
-                                          </option>
-                                        </select>
-                                      </div>
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setFormData((prev) => ({
-                                            ...prev,
-                                            documentId: prev.documentId.filter(
-                                              (id) => id !== docId
-                                            ),
-                                            subcategoryPriorities:
-                                              prev.subcategoryPriorities.filter(
-                                                (item) =>
-                                                  item.subCategoryId !== docId
-                                              ),
-                                          }));
-                                        }}
-                                        className="text-red-500 hover:text-red-700 text-sm"
-                                      >
-                                        ×
-                                      </button>
-                                    </div>
-                                  );
-                                })}
+                                          <div className="flex items-center space-x-4 flex-1">
+                                            {/* Document Icon */}
+                                            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                              <svg
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                className="text-blue-600"
+                                              >
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                <polyline points="14,2 14,8 20,8" />
+                                                <line
+                                                  x1="16"
+                                                  y1="13"
+                                                  x2="8"
+                                                  y2="13"
+                                                />
+                                                <line
+                                                  x1="16"
+                                                  y1="17"
+                                                  x2="8"
+                                                  y2="17"
+                                                />
+                                                <polyline points="10,9 9,9 8,9" />
+                                              </svg>
+                                            </div>
+
+                                            {/* Document Name */}
+                                            <div className="flex-1">
+                                              <span className="text-sm font-medium text-gray-800">
+                                                {subCategory?.name}
+                                              </span>
+                                            </div>
+
+                                            {/* Priority Selection */}
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-xs text-gray-500">
+                                                Priority:
+                                              </span>
+                                              <select
+                                                value={currentPriority}
+                                                onChange={(e) => {
+                                                  const newPriorities = [
+                                                    ...formData.subcategoryPriorities,
+                                                  ];
+                                                  if (priorityIndex >= 0) {
+                                                    newPriorities[
+                                                      priorityIndex
+                                                    ].priority = e.target.value;
+                                                  } else {
+                                                    newPriorities.push({
+                                                      subCategoryId: docId,
+                                                      priority: e.target.value,
+                                                    });
+                                                  }
+                                                  setFormData((prev) => ({
+                                                    ...prev,
+                                                    subcategoryPriorities:
+                                                      newPriorities,
+                                                  }));
+                                                }}
+                                                className={`border rounded-lg px-3 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 ${priorityColors[currentPriority]}`}
+                                              >
+                                                <option value="low">Low</option>
+                                                <option value="medium">
+                                                  Medium
+                                                </option>
+                                                <option value="high">
+                                                  High
+                                                </option>
+                                              </select>
+                                            </div>
+                                          </div>
+
+                                          {/* Remove Button */}
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setFormData((prev) => ({
+                                                ...prev,
+                                                documentId:
+                                                  prev.documentId.filter(
+                                                    (id) => id !== docId
+                                                  ),
+                                                subcategoryPriorities:
+                                                  prev.subcategoryPriorities.filter(
+                                                    (item) =>
+                                                      item.subCategoryId !==
+                                                      docId
+                                                  ),
+                                              }));
+                                            }}
+                                            className="ml-3 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1"
+                                          >
+                                            <svg
+                                              width="16"
+                                              height="16"
+                                              viewBox="0 0 24 24"
+                                              fill="currentColor"
+                                            >
+                                              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                                            </svg>
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
+                                  </>
+                                ) : (
+                                  <div className="text-center py-4 text-gray-500">
+                                    <svg
+                                      width="48"
+                                      height="48"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="1"
+                                      className="mx-auto mb-2 text-gray-300"
+                                    >
+                                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                      <polyline points="14,2 14,8 20,8" />
+                                      <line x1="16" y1="13" x2="8" y2="13" />
+                                      <line x1="16" y1="17" x2="8" y2="17" />
+                                      <polyline points="10,9 9,9 8,9" />
+                                    </svg>
+                                    <p className="text-sm">
+                                      No documents selected for this type
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                      Use the dropdown above to add documents
+                                    </p>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           );
@@ -926,8 +1038,6 @@ const DocReqManagement = () => {
                       </div>
                     )}
                   </div>
-
-                  {/* here teres  */}
                 </div>
                 <div className="mb-5">
                   <label className="block text-[#484848] text-sm font-medium mb-2">
@@ -956,6 +1066,7 @@ const DocReqManagement = () => {
                           dueDate: e.target.value,
                         }))
                       }
+                      min={new Date().toISOString().split("T")[0]}
                       className="w-full py-2 px-4 border border-[#eaeaea] rounded-[10px] text-gray-700"
                       required
                     />
