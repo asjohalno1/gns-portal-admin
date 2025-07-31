@@ -242,7 +242,7 @@ const AddCat = () => {
                 <Folder className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-2xl font-semibold text-gray-800">
-                Add New Category
+                Add Document Type
               </h2>
             </div>
 
@@ -286,7 +286,7 @@ const AddCat = () => {
                 <Tag className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-2xl font-semibold text-gray-800">
-                Add Subcategory
+                Add Document
               </h2>
             </div>
 
@@ -305,7 +305,7 @@ const AddCat = () => {
                   }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                 >
-                  <option value="">Choose a category...</option>
+                  <option value="">Choose a Document...</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -323,7 +323,7 @@ const AddCat = () => {
                     type="text"
                     value={newSubCategory}
                     onChange={(e) => setNewSubCategory(e.target.value)}
-                    placeholder="Enter subcategory name..."
+                    placeholder="Enter Document Type..."
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                     onKeyDown={(e) => e.key === "Enter" && addSubCategory()}
                     disabled={!selectedCategory || loadingSubAdd}
