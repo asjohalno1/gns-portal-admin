@@ -249,14 +249,14 @@ const AddCat = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category Name
+                 Document Type
                 </label>
                 <div className="flex gap-3">
                   <input
                     type="text"
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="Enter category name..."
+                    placeholder="Enter Document name..."
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                     onKeyDown={(e) => e.key === "Enter" && addCategory()}
                   />
@@ -293,7 +293,7 @@ const AddCat = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Category
+                  Select Document Type
                 </label>
                 <select
                   value={selectedCategory?.id || ""}
@@ -323,7 +323,7 @@ const AddCat = () => {
                     type="text"
                     value={newSubCategory}
                     onChange={(e) => setNewSubCategory(e.target.value)}
-                    placeholder="Enter Document Type..."
+                    placeholder="Enter Document..."
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                     onKeyDown={(e) => e.key === "Enter" && addSubCategory()}
                     disabled={!selectedCategory || loadingSubAdd}
