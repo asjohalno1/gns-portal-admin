@@ -227,10 +227,10 @@ const AddCat = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Category Manager
+            Document Management
           </h1>
           <p className="text-gray-600">
-            Organize your content with categories and subcategories
+            Organize your content with Documents and Documents Type
           </p>
         </div>
 
@@ -358,7 +358,7 @@ const AddCat = () => {
             <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 rounded-full mr-3">
               <FolderOpen className="w-5 h-5 text-white" />
             </div>
-            Categories Overview
+            Document Overview
           </h2>
 
           {categories.length === 0 ? (
@@ -367,7 +367,7 @@ const AddCat = () => {
                 <Folder className="w-12 h-12 text-gray-400" />
               </div>
               <p className="text-gray-500 text-lg">
-                No categories yet. Start by adding your first category!
+                No document yet. Start by adding your first document!
               </p>
             </div>
           ) : (
@@ -445,7 +445,7 @@ const AddCat = () => {
                     <div className="bg-white">
                       {category.subCategories.length === 0 ? (
                         <div className="p-4 text-gray-500 italic">
-                          No subcategories yet. Add some above!
+                          No document type yet. Add some above!
                         </div>
                       ) : (
                         <div className="p-4 space-y-2">
