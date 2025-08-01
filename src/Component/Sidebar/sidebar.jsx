@@ -97,7 +97,7 @@ const SideBar = () => {
                     fill-opacity="0.8"
                   />
                 </svg>
-                <span className="ml-4">Add Catogary/ Sub-Catogery</span>
+                <span className="ml-4">Add Catogary/ Document Type</span>
               </Link>
             </div>
 

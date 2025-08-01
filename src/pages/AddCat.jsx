@@ -242,21 +242,21 @@ const AddCat = () => {
                 <Folder className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-2xl font-semibold text-gray-800">
-                Add Document Type
+                Add Document Category
               </h2>
             </div>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                 Document Type
+                 Document Category
                 </label>
                 <div className="flex gap-3">
                   <input
                     type="text"
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="Enter Document name..."
+                    placeholder="Enter Document Category..."
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                     onKeyDown={(e) => e.key === "Enter" && addCategory()}
                   />
@@ -286,14 +286,14 @@ const AddCat = () => {
                 <Tag className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-2xl font-semibold text-gray-800">
-                Add Document
+                Add Document Type
               </h2>
             </div>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Document Type
+                  Select Category Type
                 </label>
                 <select
                   value={selectedCategory?.id || ""}
@@ -316,7 +316,7 @@ const AddCat = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Subcategory Name
+                  Document Type Name
                 </label>
                 <div className="flex gap-3">
                   <input
