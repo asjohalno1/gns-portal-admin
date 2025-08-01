@@ -17,7 +17,6 @@ import {
   OverdueIcon,
   PendingIcon,
 } from "../Icons/SvgIcons";
-import { getAllClients } from "../api/dashboard.api";
 import getPlainText from "../adminutils/commonutils";
 
 const DocReqManagement = () => {
@@ -32,6 +31,14 @@ const DocReqManagement = () => {
   const [clientListing, setClientListing] = useState([]);
   const [catogaryListing, setCategoryListing] = useState([]);
   const [subDocumentListing, setSubDocumentListing] = useState([]);
+
+  const [isScheduleEnabled, setIsScheduleEnabled] = useState(false);
+  const [wasSchedulerActivated, setWasSchedulerActivated] = useState(false);
+  const [customDateTime, setCustomDateTime] = useState("09:00");
+  const [frequency, setFrequency] = useState("Weekly");
+  const [selectedDays, setSelectedDays] = useState([]);
+  const [notifyMethods, setNotifyMethods] = useState([]);
+
   const [formData, setFormData] = useState({
     title: "",
     clientId: [],
@@ -42,10 +49,6 @@ const DocReqManagement = () => {
     dueDate: "",
     instructions: "",
     notifyMethods: [],
-    scheduleReminder: false,
-    reminderTime: "",
-    reminderFrequency: "Weekly",
-    selectedDays: [],
     // subcategoryPriorities: [],
   });
   const [templateList, setTemplateList] = useState([]);
@@ -222,6 +225,14 @@ const DocReqManagement = () => {
           id: selectedClient?.staff?.staffId,
         },
       };
+      if (isScheduleEnabled) {
+        requestData.scheduler = {
+          scheduleTime: customDateTime,
+          frequency,
+          notifyMethod: notifyMethods,
+          days: selectedDays,
+        };
+      }
 
       const cleanPayload = Object.fromEntries(
         Object.entries(requestData).filter(([_, v]) => v != null)
@@ -308,6 +319,15 @@ const DocReqManagement = () => {
         active: true,
       };
 
+      // if (isScheduleEnabled) {
+      //   templateData.scheduler = {
+      //     scheduleTime: customDateTime,
+      //     frequency,
+      //     notifyMethod: notifyMethods,
+      //     days: selectedDays,
+      //   };
+      // }
+
       const res = await addTemplate(templateData);
 
       if (res.success) {
@@ -357,15 +377,11 @@ const DocReqManagement = () => {
   const fetchAllTemplates = async () => {
     try {
       const res = await getAllTemplates();
-      console.log(res);
       if (res.success) {
         setTemplateList(res.data);
       }
     } catch (error) {
       console.error("Failed to fetch document list:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to fetch document list."
-      );
     }
   };
   const handleUseTemplate = async (templateData) => {
@@ -444,6 +460,51 @@ const DocReqManagement = () => {
       fetchAllTemplates();
     }
   }, [activeTab]);
+
+  //schedular logic
+  const handleSchedulerToggle = (e) => {
+    const isChecked = e.target.checked;
+    setIsScheduleEnabled(isChecked);
+
+    if (!isChecked && wasSchedulerActivated) {
+      // Reset scheduler data when turning it off
+      setCustomDateTime("09:00");
+      setFrequency("Weekly");
+      setSelectedDays([]);
+      setNotifyMethods([]);
+    }
+
+    if (isChecked) {
+      setWasSchedulerActivated(true);
+    }
+  };
+
+  const handleFrequencyChange = (e) => {
+    const newFrequency = e.target.value;
+    setFrequency(newFrequency);
+
+    if (newFrequency === "Daily") {
+      setSelectedDays(daysOfWeek);
+    } else {
+      setSelectedDays([]);
+    }
+  };
+
+  const handleDayToggle = (day) => {
+    if (frequency === "Weekly") {
+      setSelectedDays([day]);
+    } else {
+      setSelectedDays((prev) =>
+        prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+      );
+    }
+  };
+
+  const handleNotifyChange = (value) => {
+    setNotifyMethods((prev) =>
+      prev.includes(value) ? prev.filter((m) => m !== value) : [...prev, value]
+    );
+  };
   // Pagination handlers
   const onNextPage = () => {
     if (query.page < query.totalPages) {
@@ -810,7 +871,7 @@ const DocReqManagement = () => {
                           );
 
                           const categorySubcategories =
-                            formData.documentId.filter((docId) => {
+                            formData?.documentId?.filter((docId) => {
                               const subCategory = subDocumentListing.find(
                                 (sub) => sub._id === docId
                               );
@@ -1137,23 +1198,6 @@ const DocReqManagement = () => {
                       required
                     />
                   </div>
-                  {/* <div className="w-full">
-                    <label
-                      for="cars"
-                      className="mb-2 block font-medium text-sm "
-                    >
-                      Priority Level
-                    </label>
-                    <div className="relative">
-                      <select className="border border-[#eaeaea] rounded-[10px] py-2 px-4 w-full appearance-none">
-                        <option value="volvo">All Status</option>
-                        <option value="saab">Saab</option>
-                        <option value="opel">Opel</option>
-                        <option value="audi">Audi</option>
-                      </select>
-                      <i class="fa-solid fa-chevron-down absolute top-[12px] right-[14px]"></i>
-                    </div>
-                  </div> */}
                 </div>
                 <div className="mb-5">
                   <label className="block text-[#484848] text-sm font-medium mb-2">
@@ -1242,120 +1286,138 @@ const DocReqManagement = () => {
                     </label>
                   </div>
                 </div>
+
                 <div className="mb-5">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-[#484848] text-sm font-medium mb-2">
-                      Schedule Reminder
-                    </label>
-                    {/* <label className="flex items-center gap-2">
+                  <label className="block text-[#484848] text-sm font-medium mb-2">
+                    Schedule Reminder
+                  </label>
+                  <div className="flex items-center gap-2   text-sm text-[#484848]">
+                    <input
+                      type="checkbox"
+                      checked={isScheduleEnabled}
+                      onChange={(e) => setIsScheduleEnabled(e.target.checked)}
+                      className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative
+                checked:bg-[#20BF55] checked:border-[#20BF55]
+                checked:after:content-['✓'] checked:after:text-white
+                checked:after:text-[12px] checked:after:font-bold
+                checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]
+              "
+                    />
+                    Enable Schedule Reminder
+                  </div>
+                </div>
+
+                {isScheduleEnabled && (
+                  <div className="mb-5">
+                    <div className="flex items-center gap-2 mb-4">
                       <input
                         type="checkbox"
-                        checked={formData.scheduleReminder}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            scheduleReminder: e.target.checked,
-                          }))
-                        }
-                        className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
-              checked:bg-[#20BF55] checked:border-[#20BF55]
-              checked:after:content-['✓'] checked:after:text-white 
-              checked:after:text-[12px] checked:after:font-bold 
-              checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
+                        id="schedulerCheckbox"
+                        checked={isScheduleEnabled}
+                        onChange={handleSchedulerToggle}
+                        className="w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px]"
                       />
-                      Send as Default Reminder
-                    </label> */}
-                  </div>
-                  <div className="border border-customGray p-5 rounded-[20px] overflow-hidden">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div className="mb-5 w-full">
-                        <label className="block text-[14px] font-medium text-body mb-2">
-                          Set Time
-                        </label>
-                        <input
-                          type="time"
-                          className="w-full p-3 bg-[#F8F8F8] border border-[#f2f2f2] text-[12px] font-[400] rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
-                        />
-                      </div>
+                      <label
+                        htmlFor="schedulerCheckbox"
+                        className="block text-[#484848] text-sm font-medium mb-0"
+                      >
+                        Configure Reminder Schedule
+                      </label>
+                    </div>
 
-                      <div className="mb-5 w-full">
-                        <div className="flex items-center justify-between mb-2">
-                          <label className="block text-[14px] font-medium text-body">
+                    {isScheduleEnabled && (
+                      <div className="p-4 bg-white rounded-lg shadow-md">
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium mb-1">
+                            Set Time
+                          </label>
+                          <input
+                            type="time"
+                            value={customDateTime}
+                            onChange={(e) => setCustomDateTime(e.target.value)}
+                            className="w-full border px-3 py-2 rounded"
+                          />
+                        </div>
+
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium mb-1">
                             Frequency
                           </label>
-                          <div className="relative h-[20px]">
-                            <select
-                              value={formData.reminderFrequency}
-                              onChange={(e) => {
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  reminderFrequency: e.target.value,
-                                  selectedDays: [], // Reset selected days when frequency changes
-                                }));
-                              }}
-                              className="pr-8 pl-3 bg-white text-[14px] text-body appearance-none focus:outline-none focus:border-transparent font-[400]"
-                            >
-                              <option value="Weekly">Weekly</option>
-                              <option value="Daily">Daily</option>
-                            </select>
-                            <i className="fa-solid fa-chevron-down absolute text-[14px] top-[5px] right-[14px]"></i>
+                          <select
+                            value={frequency}
+                            onChange={handleFrequencyChange}
+                            className="w-full border px-3 py-2 rounded"
+                          >
+                            <option value="Weekly">Weekly</option>
+                            <option value="Daily">Daily</option>
+                          </select>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {days.map((day) => (
+                              <button
+                                key={day}
+                                type="button"
+                                onClick={() => handleDayToggle(day)}
+                                className={`px-3 py-1 rounded border ${
+                                  selectedDays.includes(day)
+                                    ? "bg-blue-500 text-white border-blue-500"
+                                    : "bg-white text-gray-700 border-gray-300"
+                                } ${
+                                  frequency === "Weekly" &&
+                                  selectedDays.length > 0 &&
+                                  !selectedDays.includes(day)
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                                }`}
+                                disabled={
+                                  frequency === "Weekly" &&
+                                  selectedDays.length > 0 &&
+                                  !selectedDays.includes(day)
+                                }
+                              >
+                                {day}
+                              </button>
+                            ))}
                           </div>
                         </div>
 
-                        {/* Day Selection */}
-                        <div className="flex flex-wrap gap-4 p-2 bg-[#F8F8F8] rounded-[10px]">
-                          {formData.reminderFrequency === "Daily"
-                            ? // Show all 7 days for daily frequency
-                              days.map((day) => (
-                                <button
-                                  key={day}
-                                  type="button"
-                                  onClick={() => {
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      selectedDays: prev.selectedDays.includes(
-                                        day
-                                      )
-                                        ? prev.selectedDays.filter(
-                                            (d) => d !== day
-                                          )
-                                        : [...prev.selectedDays, day],
-                                    }));
-                                  }}
-                                  className={`px-4 py-1 h-[30px] rounded-md text-[14px] font-[400] transition-colors ${
-                                    formData.selectedDays.includes(day)
-                                      ? "border border-primaryBlue text-primaryBlue bg-white"
-                                      : "text-body bg-white hover:bg-gray-100"
-                                  }`}
-                                >
-                                  {day}
-                                </button>
-                              ))
-                            : // Show only one day selection for weekly frequency
-                              days.map((day) => (
-                                <button
-                                  key={day}
-                                  type="button"
-                                  onClick={() => {
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      selectedDays: [day], // Only allow one day for weekly
-                                    }));
-                                  }}
-                                  className={`px-4 py-1 h-[30px] rounded-md text-[14px] font-[400] transition-colors ${
-                                    formData?.selectedDays?.includes(day)
-                                      ? "border border-primaryBlue text-primaryBlue bg-white"
-                                      : "text-body bg-white hover:bg-gray-100"
-                                  }`}
-                                >
-                                  {day}
-                                </button>
-                              ))}
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium mb-2">
+                            Notify Methods
+                          </label>
+                          <div className="flex flex-wrap gap-4">
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                value="email"
+                                checked={notifyMethods.includes("email")}
+                                onChange={() => handleNotifyChange("email")}
+                              />
+                              Email
+                            </label>
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                value="sms"
+                                checked={notifyMethods.includes("sms")}
+                                onChange={() => handleNotifyChange("sms")}
+                              />
+                              SMS
+                            </label>
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                value="portal"
+                                checked={notifyMethods.includes("portal")}
+                                onChange={() => handleNotifyChange("portal")}
+                              />
+                              Portal Notification
+                            </label>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </div>
-                </div>
+                )}
 
                 <div className="flex items-center justify-between mt-2.5">
                   <button
