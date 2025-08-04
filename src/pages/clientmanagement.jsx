@@ -14,12 +14,11 @@ const ClientManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [clientDetailsModal, setClientDetailsModal] = useState(false);
   const [clientEditModal, setClientEditModal] = useState(false);
-  const [clientInfo, setClientInfo] = useState()
+  const [clientInfo, setClientInfo] = useState();
   const [filters, setFilters] = useState({
     search: "",
     status: "all",
   });
-  console.log("data",clientInfo);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -125,15 +124,15 @@ const ClientManagement = () => {
   };
 
   const handleModalAction = async (type, client) => {
-    console.log("type,,,",type);
-    
+    console.log("type,,,", type);
+
     if (client?._id) {
       try {
         const response = await getStaffClient(client?._id);
-        console.log("response,,,,",response);
-        
+        console.log("response,,,,", response);
+
         if (response.success == true) {
-          setClientInfo(response?.data)
+          setClientInfo(response?.data);
         }
       } catch (err) {
         console.error("Error fetching staff members:", err);
@@ -149,24 +148,25 @@ const ClientManagement = () => {
     }
   };
 
-  
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
         <button
-          className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab1"
-            ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
-            : " text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
-            }`}
+          className={`px-5 py-10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${
+            activeTab === "tab1"
+              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+              : " text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
+          }`}
           onClick={() => setActiveTab("tab1")}
         >
           Manage Clients
         </button>
         <button
-          className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${activeTab === "tab2"
-            ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
-            : "text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
-            }`}
+          className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${
+            activeTab === "tab2"
+              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+              : "text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
+          }`}
           onClick={() => setActiveTab("tab2")}
         >
           Client Mapping
@@ -297,12 +297,12 @@ const ClientManagement = () => {
             <ClientDetailsModal
               isOpen={clientDetailsModal}
               onClose={() => setClientDetailsModal(false)}
-              data ={clientInfo}
+              data={clientInfo}
             />
             <EditClientmodal
               isOpen={clientEditModal}
               onClose={() => setClientEditModal(false)}
-              clientData ={clientInfo}
+              clientData={clientInfo}
             />
           </div>
         )}
