@@ -7,9 +7,9 @@ const Dropdown = ({ onAction }) => {
 
   const options = [
     { label: "View", value: "view" },
-    { label: "Request Document", value: "request" },
-    { label: "Mark Complete", value: "complete" },
-    { label: "Send Reminder", value: "reminder" },
+    // { label: "Request Document", value: "request" },
+    // { label: "Mark Complete", value: "complete" },
+    // { label: "Send Reminder", value: "reminder" },
     { label: "Edit", value: "edit" },
     { label: "Delete", value: "delete" },
   ];

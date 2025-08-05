@@ -253,7 +253,7 @@ const EmailTemplates = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block font-medium text-[14px] text-[#2C3E50] mb-2">
-                  Template Title *
+                  Title *
                 </label>
                 <input
                   type="text"
@@ -265,10 +265,25 @@ const EmailTemplates = () => {
                   required
                 />
               </div>
-
               <div>
                 <label className="block font-medium text-[14px] text-[#2C3E50] mb-2">
-                  Email Description *
+                  Template Type *
+                </label>
+                <select
+                  name="listType"
+                  value={formData.listType}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">Select type</option>
+                  <option value="Document Request">Document Request</option>
+                  <option value="Reminder">Reminder</option>
+                </select>
+              </div>
+              <div>
+                <label className="block font-medium text-[14px] text-[#2C3E50] mb-2">
+                  Description *
                 </label>
                 <textarea
                   name="description"
