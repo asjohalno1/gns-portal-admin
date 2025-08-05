@@ -30,3 +30,5 @@ export const getPlainText = (html) => {
 };
 
 export default getPlainText;
+
+

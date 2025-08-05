@@ -16,6 +16,7 @@ import { useAuth } from "../Context/AuthContext"; // ✅ Import useAuth
 import DocReqManagement from "../pages/documentRequestMangement";
 import AddCat from "../pages/AddCat";
 import EmailTemplates from "../pages/EmailTemaplates";
+import SendReminder from "../pages/SendReminder";
 
 const AppRoutes = () => {
   const { authToken } = useAuth(); // ✅ Get token from context
@@ -41,6 +42,7 @@ const AppRoutes = () => {
             />
             <Route path="addCatogary" element={<AddCat />} />
             <Route path="manage-email-template" element={<EmailTemplates />} />
+            <Route path="send-reminder" element={<SendReminder />} />
           </Route>
         </Route>
 
