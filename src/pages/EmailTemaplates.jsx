@@ -9,16 +9,13 @@ const EmailTemplates = () => {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
-    linkNote: "",
+    description: ""
   });
 
   const fetchAllTemplates = async () => {
     setLoading(true);
     try {
-      // Simulate API call
       const response = await getAllEmailApi();
-
       setTemplates(response?.data);
     } catch (error) {
       console.error("Error fetching templates:", error);
@@ -43,17 +40,9 @@ const EmailTemplates = () => {
     setEditingTemplate(template);
     setFormData({
       title: template.title,
-      description: template.description,
-      linkNote: template.linkNote,
+      description: template.description
     });
     setShowModal(true);
-  };
-
-  const handleDelete = (templateId) => {
-    if (window.confirm("Are you sure you want to delete this template?")) {
-      setTemplates((prev) => prev.filter((t) => t._id !== templateId));
-      toast.success("Template deleted successfully!");
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -78,8 +67,9 @@ const EmailTemplates = () => {
         toast.success("Template updated successfully!");
       } else {
         const newTemplate = {
-          _id: Date.now().toString(), // Dummy ID (ideally use real one from backend)
+          _id: Date.now().toString(),
           ...formData,
+          linkNote: "", // Keeping for backward compatibility
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -89,7 +79,7 @@ const EmailTemplates = () => {
 
       setShowModal(false);
       setEditingTemplate(null);
-      setFormData({ title: "", description: "", linkNote: "" });
+      setFormData({ title: "", description: "" });
     } catch (error) {
       toast.error("Something went wrong while saving template.");
     }
@@ -97,7 +87,7 @@ const EmailTemplates = () => {
 
   const handleAddNew = () => {
     setEditingTemplate(null);
-    setFormData({ title: "", description: "", linkNote: "" });
+    setFormData({ title: "", description: "" });
     setShowModal(true);
   };
 
@@ -125,7 +115,7 @@ const EmailTemplates = () => {
               communications
             </p>
           </div>
-          {/* <button
+          <button
             onClick={handleAddNew}
             className="bg-white text-[#2E7ED4] px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
           >
@@ -138,17 +128,9 @@ const EmailTemplates = () => {
               />
             </svg>
             Add New Template
-          </button> */}
+          </button>
         </div>
       </div>
-
-      {/* Templates Count */}
-      {/* <p className="font-normal text-[24px] leading-[100%] tracking-[0%] capitalize text-[#2C3E50] mb-[30px]">
-        Total Templates:{" "}
-        <span className="font-medium text-[24px] leading-[100%] tracking-[0%]">
-          {templates.length}
-        </span>
-      </p> */}
 
       {/* Templates List */}
       <div className="templates-section">
@@ -232,20 +214,6 @@ const EmailTemplates = () => {
                       />
                     </svg>
                   </button>
-                  {/* <button
-                    onClick={() => handleDelete(template._id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete Template"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                      <path
-                        d="M3.75 4.5H14.25M6 4.5V3C6 2.44772 6.44772 2 7 2H11C11.5523 2 12 2.44772 12 3V4.5M7.5 8.25V12.75M10.5 8.25V12.75M4.5 4.5L5.25 14.25C5.25 14.8023 5.69772 15.25 6.25 15.25H11.75C12.3023 15.25 12.75 14.8023 12.75 14.25L13.5 4.5"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </button> */}
                 </div>
               </div>
 
@@ -257,17 +225,6 @@ const EmailTemplates = () => {
                   <div className="bg-[#F0F6FC] rounded-[10px] p-4">
                     <p className="text-[#484848] text-[14px] leading-[1.5] whitespace-pre-line">
                       {template.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <h7 className="font-medium text-[14px] text-[#2C3E50] mb-2 block">
-                    Link Note:
-                  </h7>
-                  <div className="bg-blue-50 border border-blue-200 rounded-[10px] p-3">
-                    <p className="text-blue-700 text-[14px] font-medium">
-                      {template.linkNote}
                     </p>
                   </div>
                 </div>
@@ -296,7 +253,7 @@ const EmailTemplates = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block font-medium text-[14px] text-[#2C3E50] mb-2">
-                  Template Title *
+                  Title *
                 </label>
                 <input
                   type="text"
@@ -308,10 +265,25 @@ const EmailTemplates = () => {
                   required
                 />
               </div>
-
               <div>
                 <label className="block font-medium text-[14px] text-[#2C3E50] mb-2">
-                  Email Description *
+                  Template Type *
+                </label>
+                <select
+                  name="listType"
+                  value={formData.listType}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                >
+                  <option value="">Select type</option>
+                  <option value="Document Request">Document Request</option>
+                  <option value="Reminder">Reminder</option>
+                </select>
+              </div>
+              <div>
+                <label className="block font-medium text-[14px] text-[#2C3E50] mb-2">
+                  Description *
                 </label>
                 <textarea
                   name="description"
@@ -320,21 +292,6 @@ const EmailTemplates = () => {
                   rows="8"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
                   placeholder="Enter email description..."
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block font-medium text-[14px] text-[#2C3E50] mb-2">
-                  Link Note *
-                </label>
-                <input
-                  type="text"
-                  name="linkNote"
-                  value={formData.linkNote}
-                  onChange={handleInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter link note text"
                   required
                 />
               </div>
