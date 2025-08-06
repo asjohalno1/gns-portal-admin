@@ -102,7 +102,7 @@ const SideBar = () => {
                 <span className="ml-4">Add Catogary/ Document Type</span>
               </Link>
               <Link
-                to="manage-email-template"
+                to="send-reminder"
                 className="flex items-center px-4 py-3 hover:bg-[#2E7ED41A] hover:text-[#2E7ED4] rounded-[50px] mb-[10px] font-medium text-[#5B5B5B] text-sm transition-colors"
               >
                 <svg
@@ -120,7 +120,7 @@ const SideBar = () => {
                     fill-opacity="0.8"
                   />
                 </svg>
-                <span className="ml-4">Manage Email Templates</span>
+                <span className="ml-4">Send Reminder</span>
               </Link>
             </div>
 
