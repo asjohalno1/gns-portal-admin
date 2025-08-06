@@ -30,6 +30,8 @@ const SendReminder = () => {
   const [templateData, setTemplateData] = useState("");
   const [clients, setClients] = useState([]);
   const [remainder, setDocumentRemainder] = useState([]);
+
+  console.log("remainder", remainder);
   const [remainderCount, setDocumentRemainderCount] = useState([]);
   const [title, setTitle] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -76,17 +78,20 @@ const SendReminder = () => {
     }));
   };
   const handleSelectAll = () => {
-    setSelectedClientIds(clients.map((client) => client._id));
+    setSelectedClientIds(clients.map((client) => client.clientId));
   };
 
   const handleClearSelection = () => {
     setSelectedClientIds([]);
   };
+  // In fetchClientData function
   const fetchClientData = async () => {
     try {
       const res = await getActiveClients({ search: searchQuery });
       if (res.success === true) {
-        setClients(res?.data);
+        const validClients =
+          res?.data?.filter((client) => client.clientId) || [];
+        setClients(validClients);
       }
     } catch (error) {
       console.error(error);
@@ -191,38 +196,39 @@ const SendReminder = () => {
   };
 
   const SendReminder = async () => {
-    // Basic validation before sending request
     if (!selectedDoc) {
       toast.error("Please select a Document Title.");
       return;
     }
-    if (selectedClientIds.length === 0) {
-      toast.error("Please select a Client.");
+    const validClientIds = selectedClientIds.filter((clientId) => clientId);
+
+    if (validClientIds.length === 0) {
+      toast.error("Please select at least one valid Client.");
       return;
     }
 
     try {
       const payload = {
-        clientId: selectedClientIds,
+        clientId: validClientIds,
         templateId: selectedTemplate,
         customMessage: customMessage,
         documentId: selectedDoc,
-        // Remove isDefault completely - it shouldn't be sent to the backend
       };
 
-      if (sendAsDefaultReminder) {
-        // When using default settings, use the values from defaultSettings
-        payload.scheduleTime = defaultSettings?.scheduleTime;
-        payload.frequency = defaultSettings?.frequency;
-        payload.days = defaultSettings?.days;
-        payload.notifyMethod = defaultSettings?.notifyMethod;
-        payload.isDefault = sendAsDefaultReminder;
+      if (sendAsDefaultReminder && defaultSettings) {
+        payload.scheduleTime = defaultSettings.scheduleTime;
+        payload.frequency = defaultSettings.frequency;
+        payload.days = defaultSettings.days;
+        payload.notifyMethod = defaultSettings.notifyMethod;
+        payload.isDefault = true;
       } else {
-        // When using custom settings, use the form values
+        // When using custom settings
         payload.scheduleTime = customDateTime;
         payload.frequency = frequency;
         payload.days = selectedDays;
-        payload.notifyMethod = notifyMethods;
+        payload.notifyMethod = Object.keys(notifyMethods).filter(
+          (method) => notifyMethods[method]
+        );
       }
 
       const res = await sendClientReminder(payload);
@@ -230,6 +236,9 @@ const SendReminder = () => {
         toast.success("Reminder Scheduled Successfully!");
         getAllRemainder();
         setActiveTab("history");
+        setSelectedClientIds([]);
+        setSelectedDoc("");
+        setSelectedTemplate(null);
       } else {
         toast.error(res?.message || "Failed to create reminder.");
       }
@@ -239,13 +248,16 @@ const SendReminder = () => {
     }
   };
   const handleClientSelect = (id) => {
-    setSelectedClientIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((clientId) => clientId !== id)
-        : [...prev, id]
-    );
-  };
+    if (!id) return;
 
+    setSelectedClientIds((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((clientId) => clientId !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
   const handleNextPage = () => {
     if (pagination.page < pagination.totalPages) {
       setPagination((prev) => ({ ...prev, page: prev.page + 1 }));
@@ -686,11 +698,12 @@ const SendReminder = () => {
 
                     {/* Client List */}
                     <div className="space-y-1 p-5 mb-5 border border-[#eaeaea] rounded-[10px] min-h-[250px] overflow-auto">
-                      {clients.map((client, index) => (
+                      {clients.map((client) => (
                         <div
-                          key={client._id}
+                          key={client.clientId}
                           className="flex items-center justify-between p-3 hover:bg-[#f6f6f6] rounded-md transition-colors"
                         >
+                          {/* Client info */}
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-[18px] bg-gradient-to-r from-[#1BA3A3] to-[#2E7ED4]">
                               {client.initials}
@@ -704,16 +717,22 @@ const SendReminder = () => {
                               </div>
                             </div>
                           </div>
+
+                          {/* Checkbox */}
                           <div className="flex items-center justify-center">
                             <input
                               type="checkbox"
+                              checked={selectedClientIds.includes(
+                                client.clientId
+                              )}
+                              onChange={() =>
+                                handleClientSelect(client.clientId)
+                              }
                               className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
-                                                        checked:bg-[#20BF55] checked:border-[#20BF55]
-                                                        checked:after:content-['✓'] checked:after:text-white 
-                                                        checked:after:text-[12px] checked:after:font-bold 
-                                                        checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
-                              checked={selectedClientIds.includes(client._id)}
-                              onChange={() => handleClientSelect(client._id)}
+                  checked:bg-[#20BF55] checked:border-[#20BF55]
+                  checked:after:content-['✓'] checked:after:text-white 
+                  checked:after:text-[12px] checked:after:font-bold 
+                  checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
                             />
                           </div>
                         </div>

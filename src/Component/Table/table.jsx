@@ -19,7 +19,7 @@ const Table = ({
       <table className="w-full text-left rtl:text-right">
         <thead className="text-body bg-[#E4F0F3] border border-[#eaeaea]">
           <tr>
-            {currentConfig.columns.map((column) => (
+            {currentConfig?.columns.map((column) => (
               <th
                 key={column.key}
                 scope="col"
@@ -31,7 +31,7 @@ const Table = ({
           </tr>
         </thead>
         <tbody>
-          {data?.map((item, index) => (
+          {(data || []).map((item, index) => (
             <tr key={index} className="bg-white border-b border-[#eaeaea]">
               {currentConfig.columns.map((column) => (
                 <td
