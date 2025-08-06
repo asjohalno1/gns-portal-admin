@@ -6,6 +6,7 @@ import AddClientmodal from "./addClientmodal";
 import { getAllClients, getStaffClient } from "../api/dashboard.api";
 import ClientDetailsModal from "../Component/ClientModals/ClientDetailsModal";
 import EditClientmodal from "../Component/ClientModals/editClientModal";
+import DeleteConfirmationModal from "../Component/DeleteComfermationModal/DeleteConfirmationModal";
 
 const ClientManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -28,6 +29,8 @@ const ClientManagement = () => {
 
   const [clientsList, setClientsList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
 
   const fetchClients = async () => {
     try {
@@ -124,13 +127,9 @@ const ClientManagement = () => {
   };
 
   const handleModalAction = async (type, client) => {
-    console.log("type,,,", type);
-
     if (client?._id) {
       try {
         const response = await getStaffClient(client?._id);
-        console.log("response,,,,", response);
-
         if (response.success == true) {
           setClientInfo(response?.data);
         }
@@ -145,7 +144,18 @@ const ClientManagement = () => {
       case "edit":
         setClientEditModal(true);
         break;
+      case "delete":
+        setShowDeleteModal(true);
+        setSelectedClient(client);
+
+        break;
     }
+  };
+
+  const handleDeleteSuccess = () => {
+    setShowDeleteModal(false);
+    setSelectedClient(null);
+    fetchClients();
   };
 
   return (
@@ -303,6 +313,13 @@ const ClientManagement = () => {
               isOpen={clientEditModal}
               onClose={() => setClientEditModal(false)}
               clientData={clientInfo}
+            />
+
+            <DeleteConfirmationModal
+              isOpen={showDeleteModal}
+              onClose={() => setShowDeleteModal(false)}
+              clientData={selectedClient}
+              onDeleteSuccess={handleDeleteSuccess}
             />
           </div>
         )}

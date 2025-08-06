@@ -22,7 +22,7 @@ export const headerConfigs = {
       { key: "phoneNumber", label: "Phone" },
       { key: "assignedTo", label: "Assigned To" },
       { key: "status", label: "Status" },
-      { key: "lastActivity", label: "Last Activity" },
+      { key: "updatedAt", label: "Last Activity" },
       { key: "actions", label: "Action" },
     ],
   },
@@ -165,6 +165,8 @@ export const renderCellContent = (item, columnKey, onAction) => {
     case "expire":
       return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
     case "createdAt":
+      return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
+    case "updatedAt":
       return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
     default:
       return item[columnKey] || "N/A";
