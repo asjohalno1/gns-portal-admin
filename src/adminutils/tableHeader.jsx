@@ -50,6 +50,35 @@ export const headerConfigs = {
       { key: "actions", label: "Action" },
     ],
   },
+  remainderHistory: {
+    columns: [
+      {
+        header: "Client Name",
+        key: "clientName",
+        isText: true,
+      },
+      {
+        header: "Channel",
+        key: "notifyMethod",
+        isText: true,
+      },
+      {
+        header: "Document Title",
+        key: "docTitle",
+        isText: true,
+      },
+      {
+        header: "Date & Time",
+        key: "scheduleTime",
+        isDeadline: true,
+      },
+      {
+        header: "Status",
+        key: "status",
+        isStatus: true,
+      },
+    ],
+  },
 };
 
 // Function to determine status button styling

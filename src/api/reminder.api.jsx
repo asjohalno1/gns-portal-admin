@@ -32,7 +32,7 @@ export const getAllRemaindersCount = async () => {
 
 export const getAllRemainders = async ({ page, limit }) => {
   try {
-    const response = await axiosInstance.get(`/reminder/all`, {
+    const response = await axiosInstance.get(`/admin/getAllScheduledReminder`, {
       params: { page, limit },
     });
     return response?.data;
