@@ -121,10 +121,12 @@ const AddCat = () => {
       const res = await getSubCategoriesByCategoryIdApi(categoryId);
 
       if (res?.success && Array.isArray(res.data)) {
-        const subCategories = res.data.map((sub) => ({
-          id: sub._id,
-          name: sub.name,
-        }));
+        const subCategories = res.data
+          .filter((sub) => !sub.isCustom)
+          .map((sub) => ({
+            id: sub._id,
+            name: sub.name,
+          }));
 
         // Update subcategories for that category
         setCategories((prev) =>
@@ -249,7 +251,7 @@ const AddCat = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                 Document Category
+                  Document Category
                 </label>
                 <div className="flex gap-3">
                   <input
