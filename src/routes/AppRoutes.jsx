@@ -15,8 +15,8 @@ import PrivateRoute from "./ProtectedRoute";
 import { useAuth } from "../Context/AuthContext"; // ✅ Import useAuth
 import DocReqManagement from "../pages/documentRequestMangement";
 import AddCat from "../pages/AddCat";
-import EmailTemplates from "../pages/EmailTemaplates";
 import SendReminder from "../pages/SendReminder";
+import EmailTemplates from "../pages/EmailTemaplates";
 
 const AppRoutes = () => {
   const { authToken } = useAuth(); // ✅ Get token from context
