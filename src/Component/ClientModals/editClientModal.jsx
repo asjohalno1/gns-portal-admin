@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { updateClient, getAllStaff } from "../../api/dashboard.api";
+import { updateClient, getAllStaff,deleteClient } from "../../api/dashboard.api";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -63,8 +63,6 @@ const EditClientmodal = ({ isOpen, onClose, clientData, }) => {
         ...formData,
         sendInvitation: undefined,
       };
- console.log("clientData,",clientData?.client?._id);
- 
       const response = await updateClient(payloadClient,clientData?.client?._id);
       if(response.success === true){
         toast.success('Client Updated successfully!', {

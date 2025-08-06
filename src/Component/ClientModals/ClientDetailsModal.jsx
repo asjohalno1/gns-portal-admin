@@ -25,9 +25,9 @@ const ClientDetailsModal = ({ isOpen, onClose, data }) => {
             Basic Information
           </p>
           <div>
-            <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
+            {/* <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               ID: <span className="ml-[11px] font-medium">{data?.client?._id}</span>
-            </p>
+            </p> */}
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               Name: <span className="ml-[11px] font-medium">{data?.client?.name}</span>
             </p>
@@ -47,7 +47,7 @@ const ClientDetailsModal = ({ isOpen, onClose, data }) => {
         </div>
         <div className="bg-[#2E7ED40D] rounded-[6px] px-[20px] py-[10px] mb-[21px]">
           <p className="font-medium text-[16px] leading-[100%] tracking-normal capitalize text-[#484848] mb-[12px]">
-            Staff Details
+          Assign To Staff 
           </p>
           <div>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
