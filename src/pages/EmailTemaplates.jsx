@@ -9,7 +9,8 @@ const EmailTemplates = () => {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
-    description: ""
+    description: "",
+    listType: ""
   });
 
   const fetchAllTemplates = async () => {
@@ -40,7 +41,8 @@ const EmailTemplates = () => {
     setEditingTemplate(template);
     setFormData({
       title: template.title,
-      description: template.description
+      description: template.description,
+      listType: template.listType || ""
     });
     setShowModal(true);
   };
@@ -69,7 +71,7 @@ const EmailTemplates = () => {
         const newTemplate = {
           _id: Date.now().toString(),
           ...formData,
-          linkNote: "", // Keeping for backward compatibility
+          linkNote: "",
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -79,7 +81,7 @@ const EmailTemplates = () => {
 
       setShowModal(false);
       setEditingTemplate(null);
-      setFormData({ title: "", description: "" });
+      setFormData({ title: "", description: "", listType: "" });
     } catch (error) {
       toast.error("Something went wrong while saving template.");
     }
@@ -87,7 +89,7 @@ const EmailTemplates = () => {
 
   const handleAddNew = () => {
     setEditingTemplate(null);
-    setFormData({ title: "", description: "" });
+    setFormData({ title: "", description: "", listType: "" });
     setShowModal(true);
   };
 
@@ -96,8 +98,6 @@ const EmailTemplates = () => {
       year: "numeric",
       month: "short",
       day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   };
 
@@ -111,8 +111,7 @@ const EmailTemplates = () => {
               Email Templates Management
             </h4>
             <p className="text-white text-base font-medium">
-              Create, edit, and manage your email templates for various
-              communications
+              Create, edit, and manage your email templates
             </p>
           </div>
           <button
@@ -135,98 +134,49 @@ const EmailTemplates = () => {
       {/* Templates List */}
       <div className="templates-section">
         <h5 className="font-medium text-[20px] leading-[100%] tracking-[0%] mb-[10px]">
-          Email Templates
+          Email Templates ({templates.length})
         </h5>
-        <div className="templates-container">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((template) => (
             <div
               key={template._id}
-              className="template-card bg-white border border-[#2C3E501A] rounded-[20px] p-[30px] mb-[20px] hover:shadow-lg transition-shadow"
+              className="bg-white border border-[#2C3E501A] rounded-[20px] p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex justify-between items-start mb-4">
-                <div className="flex-1">
-                  <h6 className="font-semibold text-[18px] text-[#2C3E50] mb-2">
-                    {template.title}
-                  </h6>
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                    <span className="flex items-center gap-1">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                      >
-                        <path
-                          d="M8 14.5C11.5899 14.5 14.5 11.5899 14.5 8C14.5 4.41015 11.5899 1.5 8 1.5C4.41015 1.5 1.5 4.41015 1.5 8C1.5 11.5899 4.41015 14.5 8 14.5Z"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        />
-                        <path
-                          d="M8 4V8L10.5 10.5"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      Created: {formatDate(template.createdAt)}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                      >
-                        <path
-                          d="M11.5 2H12.5C13.0523 2 13.5 2.44772 13.5 3V13C13.5 13.5523 13.0523 14 12.5 14H3.5C2.94772 14 2.5 13.5523 2.5 13V3C2.5 2.44772 2.94772 2 3.5 2H4.5"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        />
-                        <path
-                          d="M10.5 1H5.5C4.94772 1 4.5 1.44772 4.5 2V3C4.5 3.55228 4.94772 4 5.5 4H10.5C11.0523 4 11.5 3.55228 11.5 3V2C11.5 1.44772 11.0523 1 10.5 1Z"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        />
-                      </svg>
-                      Updated: {formatDate(template.updatedAt)}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleEdit(template)}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Edit Template"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                      <path
-                        d="M8.25 3H3C2.44772 3 2 3.44772 2 4V15C2 15.5523 2.44772 16 3 16H14C14.5523 16 15 15.5523 15 15V9.75"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M13.5 2.25L15.75 4.5L8.625 11.625L6 12L6.375 9.375L13.5 2.25Z"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                <h6 className="font-semibold text-lg text-[#2C3E50]">
+                  {template.title}
+                </h6>
+                <span className="text-xs text-gray-500">
+                  {formatDate(template.updatedAt)}
+                </span>
               </div>
 
-              <div className="template-content">
-                <div className="mb-4">
-                  <h7 className="font-medium text-[14px] text-[#2C3E50] mb-2 block">
-                    Description:
-                  </h7>
-                  <div className="bg-[#F0F6FC] rounded-[10px] p-4">
-                    <p className="text-[#484848] text-[14px] leading-[1.5] whitespace-pre-line">
-                      {template.description}
-                    </p>
-                  </div>
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 line-clamp-3">
+                  {template.description}
+                </p>
+              </div>
+
+              <div className="flex justify-between items-center">
+                
+                
+                <div className="flex gap-2">
+                  {/* <button
+                    onClick={() => {
+                      // View functionality would go here
+                      toast.info(`Viewing template: ${template.title}`);
+                    }}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                  >
+                    View
+                  </button> */}
+                  <button
+                    onClick={() => handleEdit(template)}
+                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Edit
+                  </button>
                 </div>
               </div>
             </div>
@@ -279,6 +229,7 @@ const EmailTemplates = () => {
                   <option value="">Select type</option>
                   <option value="Document Request">Document Request</option>
                   <option value="Reminder">Reminder</option>
+                  <option value="Notification">Notification</option>
                 </select>
               </div>
               <div>

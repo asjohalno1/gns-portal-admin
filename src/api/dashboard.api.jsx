@@ -102,4 +102,15 @@ export const updateClient = async (data,id) => {
     throw error;
   }
 };
+export const deleteClient = async (id) => {
+  try {
+    const response = await axiosInstance.delete(`/api/client/delete/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
 
