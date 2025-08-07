@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Table from "../Component/Table/table";
 import { dashboarData } from "../api/dashboard.api";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [open, isOpen] = useState(false);
@@ -19,6 +20,8 @@ const Dashboard = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -94,6 +97,22 @@ const Dashboard = () => {
       ...prev,
       pagination: { ...prev.pagination, page: 1 },
     }));
+  };
+
+  const handleActionChange = (action, item) => {
+    console.log(action, item);
+    switch (action) {
+      case "view":
+        console.log("View action for item:", item);
+        // Implement view logic here
+        break;
+      case "Request":
+        navigate("/admin/documentrequestmanagement");
+        break;
+
+      default:
+        break;
+    }
   };
 
   return (
@@ -420,6 +439,7 @@ const Dashboard = () => {
           mode="dashboardListing"
           onNextPage={handleNextPage}
           onPrevPage={handlePrevPage}
+          onAction={handleActionChange}
         />
       </div>
     </div>

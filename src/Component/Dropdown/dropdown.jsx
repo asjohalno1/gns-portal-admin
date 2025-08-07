@@ -22,7 +22,7 @@ const Dropdown = ({ onAction, mode, itemId }) => {
       case "dashboardListing":
         return [
           { label: "View", value: "view" },
-          { label: "Request", value: "Request" },
+          { label: "Request Document", value: "Request" },
           { label: "Send Reminder", value: "Send Reminder" },
         ];
       case "secureDocumentListing":
