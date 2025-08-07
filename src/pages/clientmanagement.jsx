@@ -141,7 +141,7 @@ const ClientManagement = () => {
       case "view":
         setClientDetailsModal(true);
         break;
-      case "edit":
+      case "update":
         setClientEditModal(true);
         break;
       case "delete":

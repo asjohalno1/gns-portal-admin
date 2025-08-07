@@ -38,7 +38,7 @@ const Table = ({
                   key={`${index}-${column.key}`}
                   className="px-6 py-4 text-base font-normal color-black"
                 >
-                  {renderCellContent(item, column.key, onAction)}
+                  {renderCellContent(item, column.key, onAction, mode, index)}
                 </td>
               ))}
             </tr>

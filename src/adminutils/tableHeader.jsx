@@ -16,7 +16,6 @@ export const headerConfigs = {
 
   clientsListing: {
     columns: [
-      // { key: "_id", label: "ID" },
       { key: "name", label: "Client Name" },
       { key: "email", label: "Email" },
       { key: "phoneNumber", label: "Phone" },
@@ -142,7 +141,7 @@ export const getStatusButton = (status) => {
 };
 
 // Function to render cell content based on column key
-export const renderCellContent = (item, columnKey, onAction) => {
+export const renderCellContent = (item, columnKey, onAction, mode, index) => {
   switch (columnKey) {
     case "statusUpdate":
     case "taskDeadline":
@@ -159,7 +158,13 @@ export const renderCellContent = (item, columnKey, onAction) => {
       return getStatusButton(item[columnKey]);
 
     case "actions":
-      return <Dropdown onAction={(actionType) => onAction(actionType, item)} />;
+      return (
+        <Dropdown
+          onAction={(actionType) => onAction(actionType, item)}
+          mode={mode}
+          itemId={item._id || item.id || `${mode}-${index}`}
+        />
+      );
     case "dueDate":
       return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
     case "expire":

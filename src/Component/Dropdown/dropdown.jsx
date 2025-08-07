@@ -1,76 +1,105 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-const Dropdown = ({ onAction }) => {
+const Dropdown = ({ onAction, mode, itemId }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
-
-  const options = [
-    { label: "View", value: "view" },
-    // { label: "Request Document", value: "request" },
-    // { label: "Mark Complete", value: "complete" },
-    // { label: "Send Reminder", value: "reminder" },
-    { label: "Edit", value: "edit" },
-    { label: "Delete", value: "delete" },
-  ];
-
-  const handleOptionClick = (option) => {
-    if (onAction && typeof onAction === "function") {
-      onAction(option.value);
+  // Define actions based on mode
+  const getActionsForMode = (mode) => {
+    switch (mode) {
+      case "clientsListing":
+        return [
+          { label: "View", value: "view" },
+          { label: "Update", value: "update" },
+          { label: "Delete", value: "delete" },
+        ];
+      case "documentRequestListing":
+        return [
+          { label: "Update", value: "update" },
+          { label: "Delete", value: "delete" },
+          { label: "Mark as Complete", value: "markComplete" },
+        ];
+      case "dashboardListing":
+        return [
+          { label: "View", value: "view" },
+          { label: "Request", value: "Request" },
+          { label: "Send Reminder", value: "Send Reminder" },
+        ];
+      case "secureDocumentListing":
+        return [
+          { label: "View", value: "view" },
+          { label: "Download", value: "download" },
+          { label: "Delete", value: "delete" },
+        ];
+      default:
+        return [
+          { label: "View", value: "view" },
+          { label: "Edit", value: "edit" },
+          { label: "Delete", value: "delete" },
+        ];
     }
+  };
+
+  const actions = getActionsForMode(mode);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    // Close all other dropdowns when this one opens
+    const handleDropdownOpen = (event) => {
+      if (event.detail && event.detail.dropdownId !== itemId) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("dropdownOpen", handleDropdownOpen);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("dropdownOpen", handleDropdownOpen);
+    };
+  }, [itemId]);
+
+  const toggleDropdown = () => {
+    if (!isOpen) {
+      const event = new CustomEvent("dropdownOpen", {
+        detail: { dropdownId: itemId },
+      });
+      document.dispatchEvent(event);
+    }
+    setIsOpen(!isOpen);
+  };
+
+  const handleActionClick = (actionValue) => {
+    onAction(actionValue);
     setIsOpen(false);
   };
+
   return (
-    <div className="relative inline-block text-left">
-      <button onClick={toggleDropdown} className="cursor-pointer">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g opacity="0.9" clip-path="url(#clip0_71_725)">
-            <g clip-path="url(#clip1_71_725)">
-              <path
-                d="M12 0C5.37258 0 0 5.37258 0 12C0 18.6274 5.37258 24 12 24C18.6274 24 24 18.6274 24 12C24 5.37258 18.6274 0 12 0ZM12 22.5C6.201 22.5 1.5 17.799 1.5 12C1.5 6.201 6.201 1.5 12 1.5C17.799 1.5 22.5 6.201 22.5 12C22.5 17.799 17.799 22.5 12 22.5Z"
-                fill="#2C3E50"
-              />
-              <path
-                d="M12 13.5C12.8284 13.5 13.5 12.8284 13.5 12C13.5 11.1716 12.8284 10.5 12 10.5C11.1716 10.5 10.5 11.1716 10.5 12C10.5 12.8284 11.1716 13.5 12 13.5Z"
-                fill="#2C3E50"
-              />
-              <path
-                d="M17.25 13.5C18.0784 13.5 18.75 12.8284 18.75 12C18.75 11.1716 18.0784 10.5 17.25 10.5C16.4216 10.5 15.75 11.1716 15.75 12C15.75 12.8284 16.4216 13.5 17.25 13.5Z"
-                fill="#2C3E50"
-              />
-              <path
-                d="M6.75 13.5C7.57843 13.5 8.25 12.8284 8.25 12C8.25 11.1716 7.57843 10.5 6.75 10.5C5.92157 10.5 5.25 11.1716 5.25 12C5.25 12.8284 5.92157 13.5 6.75 13.5Z"
-                fill="#2C3E50"
-              />
-            </g>
-          </g>
-          <defs>
-            <clipPath id="clip0_71_725">
-              <rect width="24" height="24" fill="white" />
-            </clipPath>
-            <clipPath id="clip1_71_725">
-              <rect width="24" height="24" fill="white" />
-            </clipPath>
-          </defs>
-        </svg>
+    <div className="relative inline-block text-left" ref={dropdownRef}>
+      <button
+        type="button"
+        className="inline-flex justify-center rounded-full border border-gray-300 w-full px-3 py-1.5 text-sm font-medium text-gray-900 bg-white hover:bg-gray-50"
+        onClick={toggleDropdown}
+      >
+        <i className="fa-solid fa-ellipsis-vertical"></i>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-44 origin-top-right rounded-md bg-white shadow-xl ring-opacity-5 z-10">
+        <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right bg-white  rounded-md shadow-lg">
           <div className="py-1">
-            {options.map((option) => (
+            {actions.map((action) => (
               <button
-                key={option.value}
-                onClick={() => handleOptionClick(option)}
-                className="w-full text-left px-4 py-2 text-sm text-body hover:text-primaryBlue"
+                key={action.value}
+                className="block w-full px-4 py-2 text-left text-sm text-gray-900 hover:bg-gray-100 hover:text-gray-900"
+                onClick={() => handleActionClick(action.value)}
               >
-                {option.label}
+                {action.label}
               </button>
             ))}
           </div>
@@ -79,4 +108,5 @@ const Dropdown = ({ onAction }) => {
     </div>
   );
 };
+
 export default Dropdown;
