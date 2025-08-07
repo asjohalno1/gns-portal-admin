@@ -25,6 +25,15 @@ export const headerConfigs = {
       { key: "actions", label: "Action" },
     ],
   },
+  AuditList: {
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "role", label: "Role" },
+      { key: "activityType", label: "Activity Type" },
+      { key: "lastActivity", label: "Last Activity" },
+      { key: "actions", label: "Action" },
+    ],
+  },
 
   documentRequestListing: {
     columns: [

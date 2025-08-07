@@ -61,6 +61,14 @@ export const getAllStaff = async () => {
     throw error;
   }
 };
+export const getAllLogs = async () => {
+  try {
+    const response = await axiosInstance.get("/logs/getAllLogs");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const addBulkClient = async (data) => {
   try {
