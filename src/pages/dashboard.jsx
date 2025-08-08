@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Table from "../Component/Table/table";
 import { dashboarData } from "../api/dashboard.api";
+import { useNavigate } from "react-router-dom";
+import DocumentDeatailsModal from "../Component/DocumentDetails/DocumentDeatailsModal";
 
 const Dashboard = () => {
   const [open, isOpen] = useState(false);
@@ -19,6 +21,10 @@ const Dashboard = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [viewDocument, setViewDocument] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -92,8 +98,24 @@ const Dashboard = () => {
     setSearchQuery("");
     setDashboardData((prev) => ({
       ...prev,
-      pagination: { ...prev.pagination, page: 1 },
+      pagination: { ...prev.pagination, page: 1, limit: 10 },
     }));
+  };
+
+  const handleActionChange = (action, item) => {
+    switch (action) {
+      case "view":
+        setViewDocument(true);
+        setSelectedDocument(item);
+
+        break;
+      case "Request":
+        navigate("/admin/documentrequestmanagement");
+        break;
+
+      default:
+        break;
+    }
   };
 
   return (
@@ -420,8 +442,15 @@ const Dashboard = () => {
           mode="dashboardListing"
           onNextPage={handleNextPage}
           onPrevPage={handlePrevPage}
+          onAction={handleActionChange}
         />
       </div>
+      <DocumentDeatailsModal
+        isOpen={viewDocument}
+        onClose={() => setViewDocument(false)}
+        title="Document Tracking"
+        data={selectedDocument}
+      />
     </div>
   );
 };

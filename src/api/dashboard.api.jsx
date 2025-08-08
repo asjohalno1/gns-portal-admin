@@ -61,12 +61,20 @@ export const getAllStaff = async () => {
     throw error;
   }
 };
+export const getAllLogs = async () => {
+  try {
+    const response = await axiosInstance.get("/logs/getAllLogs");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const addBulkClient = async (data) => {
   try {
     const response = await axiosInstance.post("/client/uploadCsv", data, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
@@ -79,3 +87,31 @@ export const addBulkClient = async (data) => {
   }
 };
 
+export const getStaffClient = async (id) => {
+  try {
+    const response = await axiosInstance.get(`/clientsatff/details/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const updateClient = async (data, id) => {
+  try {
+    const response = await axiosInstance.put(`/client/update/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+};
+export const deleteClient = async (id) => {
+  try {
+    const response = await axiosInstance.delete(`/client/delete/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+};

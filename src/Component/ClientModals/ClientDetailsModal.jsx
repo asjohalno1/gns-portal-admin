@@ -1,6 +1,6 @@
 import React from "react";
 
-const ClientDetailsModal = ({ isOpen, onClose, title, children }) => {
+const ClientDetailsModal = ({ isOpen, onClose, data }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0000005D] bg-opacity-50">
@@ -25,51 +25,66 @@ const ClientDetailsModal = ({ isOpen, onClose, title, children }) => {
             Basic Information
           </p>
           <div>
+            {/* <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
+              ID: <span className="ml-[11px] font-medium">{data?.client?._id}</span>
+            </p> */}
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
-              ID: <span className="ml-[11px] font-medium">C001</span>
-            </p>
-            <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
-              Name: <span className="ml-[11px] font-medium">John Doe</span>
+              Name:{" "}
+              <span className="ml-[11px] font-medium">
+                {data?.client?.name + " " + (data?.client?.lastName || "")}
+              </span>
             </p>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               Email:{" "}
-              <span className="ml-[11px] font-medium">johndoe@gmail.com</span>
+              <span className="ml-[11px] font-medium">
+                {data?.client?.email}
+              </span>
             </p>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               Phone:{" "}
-              <span className="ml-[11px] font-medium">+62 67546 76738</span>
+              <span className="ml-[11px] font-medium">
+                {data?.client?.phoneNumber}
+              </span>
             </p>
             <p className="mb-[0px] font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50]">
               Company:{" "}
-              <span className="ml-[11px] font-medium">Smith & Associates</span>
+              <span className="ml-[11px] font-medium">
+                {data?.client?.company}
+              </span>
             </p>
           </div>
         </div>
         <div className="bg-[#2E7ED40D] rounded-[6px] px-[20px] py-[10px] mb-[21px]">
           <p className="font-medium text-[16px] leading-[100%] tracking-normal capitalize text-[#484848] mb-[12px]">
-            Assignment & Activity
+            Assign To Staff
           </p>
           <div>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               Assigned to:{" "}
-              <span className="ml-[11px] font-medium">Jane Smith</span>
-            </p>
-            <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
-              Last Activity:{" "}
-              <span className="ml-[11px] font-medium">1 Hour ago</span>
-            </p>
-            <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
-              Address:{" "}
               <span className="ml-[11px] font-medium">
-                123 Main St, New York, NY 10001
+                {(data?.assignedStaff?.first_name || "") +
+                  " " +
+                  (data?.assignedStaff?.last_name || "")}
+              </span>
+            </p>
+            <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
+              Email:{" "}
+              <span className="ml-[11px] font-medium">
+                {data?.assignedStaff?.email}
+              </span>
+            </p>
+            <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
+              phoneNumber:{" "}
+              <span className="ml-[11px] font-medium">
+                {data?.assignedStaff?.phoneNumber || "-"}
               </span>
             </p>
           </div>
         </div>
-        <p className="font-medium text-[16px] leading-[100%] tracking-normal capitalize text-[#484848] mb-[12px]">
+        {/* <p className="font-medium text-[16px] leading-[100%] tracking-normal capitalize text-[#484848] mb-[12px]">
           Engagement Status
-        </p>
-        <div className="grid grid-cols-3 gap-4">
+        </p> */}
+        {/* <div className="grid grid-cols-3 gap-4">
           <div className="bg-[#E4F3EB] rounded-[6px] py-[15px] px-[17px] text-center">
             <h6 className="mb-[12px] text-[#2C3E50] font-medium text-[16px] leading-[100%]">
               Tax Preparation
@@ -94,7 +109,7 @@ const ClientDetailsModal = ({ isOpen, onClose, title, children }) => {
               Completed
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
       z
     </div>

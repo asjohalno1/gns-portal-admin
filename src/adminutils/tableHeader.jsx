@@ -1,4 +1,5 @@
 import Dropdown from "../Component/Dropdown/dropdown";
+import { formatDate } from "./commonutils";
 
 export const headerConfigs = {
   dashboardListing: {
@@ -15,14 +16,75 @@ export const headerConfigs = {
 
   clientsListing: {
     columns: [
-      { key: "_id", label: "ID" },
-      { key: "name", label: "Client Name" },
+      { key: "fullName", label: "Client Name" },
       { key: "email", label: "Email" },
       { key: "phoneNumber", label: "Phone" },
       { key: "assignedTo", label: "Assigned To" },
       { key: "status", label: "Status" },
+      { key: "updatedAt", label: "Last Activity" },
+      { key: "actions", label: "Action" },
+    ],
+  },
+  AuditList: {
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "role", label: "Role" },
+      { key: "activityType", label: "Activity Type" },
       { key: "lastActivity", label: "Last Activity" },
       { key: "actions", label: "Action" },
+    ],
+  },
+
+  documentRequestListing: {
+    columns: [
+      { key: "doctitle", label: "Document Request Title" },
+      { key: "clientName", label: "Client Name" },
+      { key: "assignedTo", label: "Under Staff Name" },
+      { key: "dueDate", label: "Due Date" },
+      { key: "status", label: "Status" },
+      { key: "actions", label: "Action" },
+    ],
+  },
+
+  secureDocumentListing: {
+    columns: [
+      { key: "title", label: "Document Name" },
+      { key: "clientName", label: "Client Name" },
+      { key: "DocType", label: "Document Type" },
+      { key: "RemaindersCount", label: "Remainders" },
+      { key: "status", label: "Status" },
+      { key: "createdAt", label: "Created" },
+      { key: "expire", label: "Expires" },
+      { key: "actions", label: "Action" },
+    ],
+  },
+  remainderHistory: {
+    columns: [
+      {
+        header: "Client Name",
+        key: "clientName",
+        isText: true,
+      },
+      {
+        header: "Channel",
+        key: "notifyMethod",
+        isText: true,
+      },
+      {
+        header: "Document Title",
+        key: "docTitle",
+        isText: true,
+      },
+      {
+        header: "Date & Time",
+        key: "scheduleTime",
+        isDeadline: true,
+      },
+      {
+        header: "Status",
+        key: "status",
+        isStatus: true,
+      },
     ],
   },
 };
@@ -88,7 +150,7 @@ export const getStatusButton = (status) => {
 };
 
 // Function to render cell content based on column key
-export const renderCellContent = (item, columnKey, onAction) => {
+export const renderCellContent = (item, columnKey, onAction, mode, index) => {
   switch (columnKey) {
     case "statusUpdate":
     case "taskDeadline":
@@ -105,7 +167,21 @@ export const renderCellContent = (item, columnKey, onAction) => {
       return getStatusButton(item[columnKey]);
 
     case "actions":
-      return <Dropdown onAction={(actionType) => onAction(actionType, item)} />;
+      return (
+        <Dropdown
+          onAction={(actionType) => onAction(actionType, item)}
+          mode={mode}
+          itemId={item._id || item.id || `${mode}-${index}`}
+        />
+      );
+    case "dueDate":
+      return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
+    case "expire":
+      return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
+    case "createdAt":
+      return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
+    case "updatedAt":
+      return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
     default:
       return item[columnKey] || "N/A";
   }

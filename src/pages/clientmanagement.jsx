@@ -3,8 +3,10 @@ import { useOutletContext } from "react-router-dom";
 import Table from "../Component/Table/table";
 import ImportBulkModal from "./importbulkmodal";
 import AddClientmodal from "./addClientmodal";
-import { getAllClients } from "../api/dashboard.api";
+import { getAllClients, getStaffClient } from "../api/dashboard.api";
 import ClientDetailsModal from "../Component/ClientModals/ClientDetailsModal";
+import EditClientmodal from "../Component/ClientModals/editClientModal";
+import DeleteConfirmationModal from "../Component/DeleteComfermationModal/DeleteConfirmationModal";
 
 const ClientManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -12,7 +14,8 @@ const ClientManagement = () => {
   const [isImportBulkOpen, setIsImportBulkOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [clientDetailsModal, setClientDetailsModal] = useState(false);
-
+  const [clientEditModal, setClientEditModal] = useState(false);
+  const [clientInfo, setClientInfo] = useState();
   const [filters, setFilters] = useState({
     search: "",
     status: "all",
@@ -26,6 +29,8 @@ const ClientManagement = () => {
 
   const [clientsList, setClientsList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
 
   const fetchClients = async () => {
     try {
@@ -121,13 +126,38 @@ const ClientManagement = () => {
     }));
   };
 
-  const handleModalAction = (type, client) => {
+  const handleModalAction = async (type, client) => {
+    if (client?._id) {
+      try {
+        const response = await getStaffClient(client?._id);
+        if (response.success == true) {
+          setClientInfo(response?.data);
+        }
+      } catch (err) {
+        console.error("Error fetching staff members:", err);
+      }
+    }
     switch (type) {
       case "view":
         setClientDetailsModal(true);
         break;
+      case "update":
+        setClientEditModal(true);
+        break;
+      case "delete":
+        setShowDeleteModal(true);
+        setSelectedClient(client);
+
+        break;
     }
   };
+
+  const handleDeleteSuccess = () => {
+    setShowDeleteModal(false);
+    setSelectedClient(null);
+    fetchClients();
+  };
+
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
@@ -277,6 +307,19 @@ const ClientManagement = () => {
             <ClientDetailsModal
               isOpen={clientDetailsModal}
               onClose={() => setClientDetailsModal(false)}
+              data={clientInfo}
+            />
+            <EditClientmodal
+              isOpen={clientEditModal}
+              onClose={() => setClientEditModal(false)}
+              clientData={clientInfo}
+            />
+
+            <DeleteConfirmationModal
+              isOpen={showDeleteModal}
+              onClose={() => setShowDeleteModal(false)}
+              clientData={selectedClient}
+              onDeleteSuccess={handleDeleteSuccess}
             />
           </div>
         )}

@@ -6,3 +6,5 @@ node_modules
 # .env.prod
 # dist
 # dist-ssr
+/node_modules
+*node_modules
