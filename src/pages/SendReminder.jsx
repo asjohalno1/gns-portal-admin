@@ -30,8 +30,6 @@ const SendReminder = () => {
   const [templateData, setTemplateData] = useState("");
   const [clients, setClients] = useState([]);
   const [remainder, setDocumentRemainder] = useState([]);
-
-  console.log("remainder", remainder);
   const [remainderCount, setDocumentRemainderCount] = useState([]);
   const [title, setTitle] = useState([]);
   const [templates, setTemplates] = useState([]);

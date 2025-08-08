@@ -16,7 +16,7 @@ export const headerConfigs = {
 
   clientsListing: {
     columns: [
-      { key: "name", label: "Client Name" },
+      { key: "fullName", label: "Client Name" },
       { key: "email", label: "Email" },
       { key: "phoneNumber", label: "Phone" },
       { key: "assignedTo", label: "Assigned To" },

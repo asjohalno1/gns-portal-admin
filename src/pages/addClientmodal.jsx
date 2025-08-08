@@ -4,6 +4,7 @@ import { addClient, getAllStaff } from "../api/dashboard.api";
 const AddClientmodal = ({ isOpen, onClose, title, children }) => {
   const [formData, setFormData] = useState({
     name: "",
+    lastName: "",
     email: "",
     phoneNumber: "",
     company: "",
@@ -51,6 +52,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
       const response = await addClient(clientData);
       setFormData({
         name: "",
+        lastName: "",
         email: "",
         phoneNumber: "",
         company: "",
@@ -125,6 +127,19 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
                   placeholder="Enter Client Name"
                   className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
                   required
+                />
+              </div>
+              <div>
+                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Enter Last Name"
+                  className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
                 />
               </div>
               <div>

@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Folder, FolderOpen, Tag, X, Edit2, Check } from "lucide-react";
+import {
+  Plus,
+  Folder,
+  FolderOpen,
+  Tag,
+  X,
+  Edit2,
+  Check,
+  Trash,
+} from "lucide-react";
 import {
   addCategoryApi,
   addSubCategoryApi,
+  deleteSubCategoryApi,
   getAllCategoriesApi,
   getSubCategoriesByCategoryIdApi,
+  updateSubCategoryApi,
 } from "../api/documentManagemnet.api";
 
 const AddCat = () => {
@@ -161,19 +172,30 @@ const AddCat = () => {
     }
   };
 
-  const deleteSubCategory = (categoryId, subCategoryId) => {
-    setCategories(
-      categories.map((cat) =>
-        cat.id === categoryId
-          ? {
-              ...cat,
-              subCategories: cat.subCategories.filter(
-                (sub) => sub.id !== subCategoryId
-              ),
-            }
-          : cat
-      )
-    );
+  const deleteSubCategory = async (categoryId, subCategoryId) => {
+    try {
+      const res = await deleteSubCategoryApi(subCategoryId);
+
+      if (res.success) {
+        setCategories((prev) =>
+          prev.map((cat) =>
+            cat.id === categoryId
+              ? {
+                  ...cat,
+                  subCategories: cat.subCategories.filter(
+                    (sub) => sub.id !== subCategoryId
+                  ),
+                }
+              : cat
+          )
+        );
+      } else {
+        alert(res.message || "Failed to delete subcategory");
+      }
+    } catch (error) {
+      alert("Error deleting subcategory");
+      console.error("Delete error:", error);
+    }
   };
 
   const startEditingCategory = (category) => {
@@ -186,14 +208,39 @@ const AddCat = () => {
     setEditValue(subCategory.name);
   };
 
-  const saveEdit = () => {
-    if (editingCategory) {
-      setCategories(
-        categories.map((cat) =>
-          cat.id === editingCategory ? { ...cat, name: editValue.trim() } : cat
-        )
-      );
-      setEditingCategory(null);
+  const saveEdit = async () => {
+    if (editingSubCategory) {
+      const [categoryId, subCategoryId] = editingSubCategory.split("-");
+      try {
+        const res = await updateSubCategoryApi({
+          id: subCategoryId,
+          name: editValue.trim(),
+        });
+
+        if (res.success) {
+          setCategories((prev) =>
+            prev.map((cat) =>
+              cat.id === categoryId
+                ? {
+                    ...cat,
+                    subCategories: cat.subCategories.map((sub) =>
+                      sub.id === subCategoryId
+                        ? { ...sub, name: res.data.name }
+                        : sub
+                    ),
+                  }
+                : cat
+            )
+          );
+          setEditingSubCategory(null);
+          setEditValue("");
+        } else {
+          alert(res.message || "Failed to update subcategory");
+        }
+      } catch (error) {
+        alert("Error updating subcategory");
+        console.error("Update error:", error);
+      }
     } else if (editingSubCategory) {
       const [categoryId, subCategoryId] = editingSubCategory
         .split("-")
@@ -477,13 +524,13 @@ const AddCat = () => {
                                       onClick={saveEdit}
                                       className="text-green-600 hover:text-green-800"
                                     >
-                                      <Check className="w-3 h-3" />
+                                      <Check className="w-4 h-4" />
                                     </button>
                                     <button
                                       onClick={cancelEdit}
                                       className="text-gray-600 hover:text-gray-800"
                                     >
-                                      <X className="w-3 h-3" />
+                                      <X className="w-4 h-4" />
                                     </button>
                                   </div>
                                 ) : (
@@ -502,7 +549,7 @@ const AddCat = () => {
                                   }
                                   className="text-gray-400 hover:text-blue-600 transition-colors"
                                 >
-                                  <Edit2 className="w-3 h-3" />
+                                  <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() =>
@@ -513,7 +560,7 @@ const AddCat = () => {
                                   }
                                   className="text-gray-400 hover:text-red-600 transition-colors"
                                 >
-                                  <X className="w-3 h-3" />
+                                  <Trash className="w-4 h-4" />
                                 </button>
                               </div>
                             </div>

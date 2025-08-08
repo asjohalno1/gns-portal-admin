@@ -29,37 +29,52 @@ const ClientDetailsModal = ({ isOpen, onClose, data }) => {
               ID: <span className="ml-[11px] font-medium">{data?.client?._id}</span>
             </p> */}
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
-              Name: <span className="ml-[11px] font-medium">{data?.client?.name}</span>
+              Name:{" "}
+              <span className="ml-[11px] font-medium">
+                {data?.client?.name + " " + (data?.client?.lastName || "")}
+              </span>
             </p>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               Email:{" "}
-              <span className="ml-[11px] font-medium">{data?.client?.email}</span>
+              <span className="ml-[11px] font-medium">
+                {data?.client?.email}
+              </span>
             </p>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               Phone:{" "}
-              <span className="ml-[11px] font-medium">{data?.client?.phoneNumber}</span>
+              <span className="ml-[11px] font-medium">
+                {data?.client?.phoneNumber}
+              </span>
             </p>
             <p className="mb-[0px] font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50]">
               Company:{" "}
-              <span className="ml-[11px] font-medium">{data?.client?.company}</span>
+              <span className="ml-[11px] font-medium">
+                {data?.client?.company}
+              </span>
             </p>
           </div>
         </div>
         <div className="bg-[#2E7ED40D] rounded-[6px] px-[20px] py-[10px] mb-[21px]">
           <p className="font-medium text-[16px] leading-[100%] tracking-normal capitalize text-[#484848] mb-[12px]">
-          Assign To Staff 
+            Assign To Staff
           </p>
           <div>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               Assigned to:{" "}
-              <span className="ml-[11px] font-medium">{(data?.assignedStaff?.first_name || "") + " " + (data?.assignedStaff?.last_name || "")}</span>
+              <span className="ml-[11px] font-medium">
+                {(data?.assignedStaff?.first_name || "") +
+                  " " +
+                  (data?.assignedStaff?.last_name || "")}
+              </span>
             </p>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
-            Email:{" "}
-              <span className="ml-[11px] font-medium">{data?.assignedStaff?.email}</span>
+              Email:{" "}
+              <span className="ml-[11px] font-medium">
+                {data?.assignedStaff?.email}
+              </span>
             </p>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
-            phoneNumber:{" "}
+              phoneNumber:{" "}
               <span className="ml-[11px] font-medium">
                 {data?.assignedStaff?.phoneNumber || "-"}
               </span>

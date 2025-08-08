@@ -175,3 +175,41 @@ export const getAllTemplates = async (query) => {
     throw error;
   }
 };
+
+export const getDocByReqId = async (id) => {
+  try {
+    const response = await axiosInstance.get(
+      `/staff/getDocumentRequestById/${id}`
+    );
+    return response?.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export const approveDocumentStatus = async (requestId, subCatId, data) => {
+  try {
+    const response = await axiosInstance.patch(
+      `/staff/updateDocumentRequestStatus`,
+      {
+        requestId,
+        subCatId,
+        data,
+      }
+    );
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export const updateSubCategoryApi = async ({ id, name }) => {
+  const res = await axiosInstance.patch(`/update-subcategories/${id}`, {
+    name,
+  });
+  return res.data;
+};
+
+export const deleteSubCategoryApi = async (id) => {
+  const res = await axiosInstance.delete(`/delete-subcategories/${id}`);
+  return res.data;
+};
