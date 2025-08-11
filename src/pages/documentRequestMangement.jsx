@@ -637,6 +637,7 @@ const DocReqManagement = () => {
                 Document Requests
               </h4>
               <button
+                onClick={() => setActiveTab("tab2")}
                 type="button"
                 className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
               >
@@ -714,12 +715,12 @@ const DocReqManagement = () => {
               <h4 className="color-black text-lg font-semibold">
                 Create New Document Request
               </h4>
-              <button
+              {/* <button
                 onClick={() => setActiveTab("tab4")}
                 className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
               >
                 Prefill Data
-              </button>
+              </button> */}
             </div>
             <div className="border border-customGray rounded-[20px] p-5 ">
               <form action="" onSubmit={handleCreateRequest}>

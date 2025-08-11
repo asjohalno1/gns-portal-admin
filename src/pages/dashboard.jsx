@@ -103,6 +103,7 @@ const Dashboard = () => {
   };
 
   const handleActionChange = (action, item) => {
+    console.log("Action:", action, "Item:", item);
     switch (action) {
       case "view":
         setViewDocument(true);
@@ -111,6 +112,9 @@ const Dashboard = () => {
         break;
       case "Request":
         navigate("/admin/documentrequestmanagement");
+        break;
+      case "sendReminder":
+        navigate("/admin/send-reminder");
         break;
 
       default:
