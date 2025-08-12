@@ -31,6 +31,8 @@ const Dropdown = ({ onAction, mode, itemId }) => {
           { label: "Download", value: "download" },
           { label: "Delete", value: "delete" },
         ];
+      case "AuditList":
+        return [{ label: "View", value: "view" }];
       default:
         return [
           { label: "View", value: "view" },

@@ -33,7 +33,8 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
-      tailwindcss(),              // ← add it here
+      tailwindcss(),
+
     ],
     resolve: {
       alias: {
