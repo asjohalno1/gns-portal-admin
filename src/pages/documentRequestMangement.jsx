@@ -27,6 +27,7 @@ const DocReqManagement = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
 
   const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const [clientListing, setClientListing] = useState([]);
   const [catogaryListing, setCategoryListing] = useState([]);
@@ -290,7 +291,7 @@ const DocReqManagement = () => {
   const handleSaveAsTemplate = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      setSaveLoading(true);
 
       // Validate required fields for template
       if (
@@ -343,16 +344,16 @@ const DocReqManagement = () => {
 
       if (res.success) {
         toast.success(res?.message || "Template saved successfully");
-        setLoading(false);
+        setSaveLoading(false);
         setActiveTab("tab4"); // Navigate to templates tab
       } else {
         toast.error(res?.message || "Failed to save template");
-        setLoading(false);
+        setSaveLoading(false);
       }
     } catch (error) {
       console.error("Failed to save template:", error);
       toast.error(error.response?.data?.message || "Failed to save template.");
-      setLoading(false);
+      setSaveLoading(false);
     }
   };
 
@@ -1393,10 +1394,10 @@ const DocReqManagement = () => {
                   <button
                     type="button"
                     onClick={handleSaveAsTemplate}
-                    disabled={loading}
+                    disabled={saveLoading}
                     className="rounded-[10px] py-2 px-6 text-primaryBlue border-1 border-primaryBlue cursor-pointer disabled:opacity-50"
                   >
-                    {loading ? "Saving..." : "Save as Template"}
+                    {saveLoading ? "Saving..." : "Save as Template"}
                   </button>
                   <button
                     type="submit"
