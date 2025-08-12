@@ -38,6 +38,7 @@ const DocReqManagement = () => {
   const [frequency, setFrequency] = useState("Weekly");
   const [selectedDays, setSelectedDays] = useState([]);
   const [notifyMethods, setNotifyMethods] = useState([]);
+  const [linkMethods, setLinkMethod] = useState([]); // schedular logic
 
   const [formData, setFormData] = useState({
     title: "",
@@ -49,6 +50,7 @@ const DocReqManagement = () => {
     dueDate: "",
     instructions: "",
     notifyMethods: [],
+    linkMethods: [],
     // subcategoryPriorities: [],
   });
   const [templateList, setTemplateList] = useState([]);
@@ -181,22 +183,36 @@ const DocReqManagement = () => {
       fetchAllDocumentListing();
     }
   }, [activeTab]);
-
   const handleCreateRequest = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
+
+      // Validate required fields
       if (
-        !formData.clientId ||
-        !formData.categoryId ||
-        !formData.documentId ||
-        !formData.dueDate
+        !formData.clientId?.length ||
+        !formData.categoryId?.length ||
+        !formData.documentId?.length ||
+        !formData.dueDate ||
+        !formData.notifyMethods?.length
       ) {
-        toast.error("Please fill all required fields");
+        toast.error(
+          "Please fill all required fields including notification methods"
+        );
         return;
       }
+
       const selectedClient = clientListing.find(
         (client) => client.clientId === formData.clientId[0]
+      );
+
+      // Convert subcategory priorities array to object
+      const prioritiesObj = formData.subcategoryPriorities.reduce(
+        (acc, curr) => {
+          acc[curr.subCategoryId] = curr.priority;
+          return acc;
+        },
+        {}
       );
 
       const requestData = {
@@ -208,58 +224,53 @@ const DocReqManagement = () => {
         instructions:
           formData.instructions ||
           "<p>Please Upload Your Document Using This Secure Link.</p>",
-        notifyMethod: formData.notifyMethods[0] || "email",
+        notifyMethods: formData.notifyMethods, // Array of notification methods
         remainderSchedule: formData.scheduleReminder
           ? "ThreeDays"
           : "ThreeDays",
         expiration: formData.dueDate,
-        linkMethod: formData.notifyMethods[0] || "email",
-        subcategoryPriorities: formData.subcategoryPriorities.reduce(
-          (acc, curr) => {
-            acc[curr.subCategoryId] = curr.priority;
-            return acc;
-          },
-          {}
-        ),
+        subcategoryPriorities: prioritiesObj,
         userInfo: {
           id: selectedClient?.staff?.staffId,
         },
       };
+
+      // Add scheduler data if enabled
       if (isScheduleEnabled) {
         requestData.scheduler = {
           scheduleTime: customDateTime,
           frequency,
-          notifyMethod: notifyMethods,
+          linkMethods: linkMethods,
           days: selectedDays,
         };
       }
 
-      const cleanPayload = Object.fromEntries(
-        Object.entries(requestData).filter(([_, v]) => v != null)
-      );
-
-      const res = await createDocumentRequest(cleanPayload);
+      const res = await createDocumentRequest(requestData);
 
       if (res.success) {
         toast.success(res?.message || "Document request created successfully");
+
         // Reset form
         setFormData({
           title: "",
-          clientId: "",
-          categoryId: "",
-          documentId: "",
+          clientId: [],
+          categoryId: [],
+          documentId: [],
+          subcategoryPriorities: [],
           otherDocuments: "",
           dueDate: "",
-          priorityLevel: "",
           instructions: "",
           notifyMethods: [],
           scheduleReminder: false,
-          reminderTime: "",
-          reminderFrequency: "Weekly",
-          userInfo: {
-            id: "",
-          },
         });
+
+        // Reset scheduler
+        setIsScheduleEnabled(false);
+        setCustomDateTime("09:00");
+        setFrequency("Weekly");
+        setSelectedDays([]);
+        setNotifyMethods([]);
+
         setLoading(false);
         setActiveTab("tab1");
         fetchDocumentListing();
@@ -471,7 +482,8 @@ const DocReqManagement = () => {
       setCustomDateTime("09:00");
       setFrequency("Weekly");
       setSelectedDays([]);
-      setNotifyMethods([]);
+      // setNotifyMethods([]);
+      setLinkMethod([]);
     }
 
     if (isChecked) {
@@ -1219,72 +1231,34 @@ const DocReqManagement = () => {
                 </div>
                 <div className="mb-5">
                   <label className="block text-[#484848] text-sm font-medium mb-2">
-                    Notify Method
+                    Notify Method*
                   </label>
                   <div className="flex gap-5 text-sm text-[#484848]">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={formData.notifyMethods.includes("email")}
-                        onChange={(e) => {
-                          const method = "email";
-                          setFormData((prev) => ({
-                            ...prev,
-                            notifyMethods: e.target.checked
-                              ? [...prev.notifyMethods, method]
-                              : prev.notifyMethods.filter((m) => m !== method),
-                          }));
-                        }}
-                        className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
-                checked:bg-[#20BF55] checked:border-[#20BF55]
-                checked:after:content-['✓'] checked:after:text-white 
-                checked:after:text-[12px] checked:after:font-bold 
-                checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
-                      />
-                      Email
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={formData.notifyMethods.includes("sms")}
-                        onChange={(e) => {
-                          const method = "sms";
-                          setFormData((prev) => ({
-                            ...prev,
-                            notifyMethods: e.target.checked
-                              ? [...prev.notifyMethods, method]
-                              : prev.notifyMethods.filter((m) => m !== method),
-                          }));
-                        }}
-                        className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
-                checked:bg-[#20BF55] checked:border-[#20BF55]
-                checked:after:content-['✓'] checked:after:text-white 
-                checked:after:text-[12px] checked:after:font-bold 
-                checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
-                      />
-                      SMS
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={formData.notifyMethods.includes("portal")}
-                        onChange={(e) => {
-                          const method = "portal";
-                          setFormData((prev) => ({
-                            ...prev,
-                            notifyMethods: e.target.checked
-                              ? [...prev.notifyMethods, method]
-                              : prev.notifyMethods.filter((m) => m !== method),
-                          }));
-                        }}
-                        className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
-                checked:bg-[#20BF55] checked:border-[#20BF55]
-                checked:after:content-['✓'] checked:after:text-white 
-                checked:after:text-[12px] checked:after:font-bold 
-                checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
-                      />
-                      Portal Notification
-                    </label>
+                    {["email", "sms", "portal"].map((method) => (
+                      <label key={method} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={formData.notifyMethods.includes(method)}
+                          onChange={(e) => {
+                            const newMethods = e.target.checked
+                              ? [...formData.notifyMethods, method]
+                              : formData.notifyMethods.filter(
+                                  (m) => m !== method
+                                );
+                            setFormData((prev) => ({
+                              ...prev,
+                              notifyMethods: newMethods,
+                            }));
+                          }}
+                          className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
+            checked:bg-[#20BF55] checked:border-[#20BF55]
+            checked:after:content-['✓'] checked:after:text-white 
+            checked:after:text-[12px] checked:after:font-bold 
+            checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
+                        />
+                        {method.charAt(0).toUpperCase() + method.slice(1)}
+                      </label>
+                    ))}
                   </div>
                 </div>
 
@@ -1383,36 +1357,31 @@ const DocReqManagement = () => {
 
                         <div className="mb-4">
                           <label className="block text-sm font-medium mb-2">
-                            Notify Methods
+                            Scheduler Notify Methods*
                           </label>
                           <div className="flex flex-wrap gap-4">
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                value="email"
-                                checked={notifyMethods.includes("email")}
-                                onChange={() => handleNotifyChange("email")}
-                              />
-                              Email
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                value="sms"
-                                checked={notifyMethods.includes("sms")}
-                                onChange={() => handleNotifyChange("sms")}
-                              />
-                              SMS
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                value="portal"
-                                checked={notifyMethods.includes("portal")}
-                                onChange={() => handleNotifyChange("portal")}
-                              />
-                              Portal Notification
-                            </label>
+                            {["email", "sms", "portal"].map((method) => (
+                              <label
+                                key={method}
+                                className="flex items-center gap-2"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={linkMethods.includes(method)}
+                                  onChange={() => {
+                                    const newMethods = linkMethods.includes(
+                                      method
+                                    )
+                                      ? linkMethods.filter((m) => m !== method)
+                                      : [...linkMethods, method];
+                                    setLinkMethod(newMethods);
+                                  }}
+                                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                />
+                                {method.charAt(0).toUpperCase() +
+                                  method.slice(1)}
+                              </label>
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -1558,7 +1527,6 @@ const DocReqManagement = () => {
                               fill="#2C3E50"
                             />
                           </svg>
-                          hi
                         </button>
                       </div>
                     </div>
