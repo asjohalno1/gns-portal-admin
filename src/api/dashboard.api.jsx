@@ -61,9 +61,13 @@ export const getAllStaff = async () => {
     throw error;
   }
 };
-export const getAllLogs = async () => {
+export const getAllLogs = async (query) => {
   try {
-    const response = await axiosInstance.get("/logs/getAllLogs");
+    const response = await axiosInstance.get(
+      `/logs/getAllLogs${
+        query ? `?${new URLSearchParams(query).toString()}` : ""
+      }`
+    );
     return response.data;
   } catch (error) {
     throw error;
