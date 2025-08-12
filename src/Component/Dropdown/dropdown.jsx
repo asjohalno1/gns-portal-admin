@@ -23,7 +23,7 @@ const Dropdown = ({ onAction, mode, itemId }) => {
         return [
           { label: "View", value: "view" },
           { label: "Request Document", value: "Request" },
-          { label: "Send Reminder", value: "Send Reminder" },
+          { label: "Send Reminder", value: "sendReminder" },
         ];
       case "secureDocumentListing":
         return [
@@ -31,6 +31,8 @@ const Dropdown = ({ onAction, mode, itemId }) => {
           { label: "Download", value: "download" },
           { label: "Delete", value: "delete" },
         ];
+      case "AuditList":
+        return [{ label: "View", value: "view" }];
       default:
         return [
           { label: "View", value: "view" },
