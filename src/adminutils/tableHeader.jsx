@@ -87,6 +87,17 @@ export const headerConfigs = {
       },
     ],
   },
+
+  staffListing: {
+    columns: [
+      { key: "first_name", label: "Name" },
+      { key: "email", label: "Email" },
+      { key: "phoneNumber", label: "Phone" },
+      { key: "active", label: "Status" },
+      { key: "updatedAt", label: "Last Activity" },
+      { key: "actions", label: "Action" },
+    ],
+  },
 };
 
 // Function to determine status button styling
@@ -182,6 +193,8 @@ export const renderCellContent = (item, columnKey, onAction, mode, index) => {
       return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
     case "updatedAt":
       return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
+    case "active":
+      return getStatusButton(item[columnKey]);
     default:
       return item[columnKey] || "N/A";
   }

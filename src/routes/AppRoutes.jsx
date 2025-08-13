@@ -18,6 +18,8 @@ import AddCat from "../pages/AddCat";
 import SendReminder from "../pages/SendReminder";
 import EmailTemplates from "../pages/EmailTemaplates";
 import AuditLogs from "../pages/AuditLog";
+import AdminSettings from "../pages/AdminSettings";
+import StaffManagement from "../pages/StaffManagement";
 
 const AppRoutes = () => {
   const { authToken } = useAuth(); // ✅ Get token from context
@@ -45,6 +47,8 @@ const AppRoutes = () => {
             <Route path="manage-email-template" element={<EmailTemplates />} />
             <Route path="send-reminder" element={<SendReminder />} />
             <Route path="audit-logs" element={<AuditLogs />} />
+            <Route path="staffmanagement" element={<StaffManagement />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
         </Route>
 

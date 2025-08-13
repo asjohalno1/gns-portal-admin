@@ -3,17 +3,17 @@
   --color-gray-700: #b3b3b3;
   --color-gray-800: #5b5b5b;
   --color-gray-950: #2c3e50;
-  --color-bgBlue:#2E7ED41A;
-  --color-primaryBlue:#2E7ED4;
-  --color-customGray:#EAECED;
-  --color-bgGreen:#D9F1E1;
-  --color-bgOrange:#F8E9D6;
-  --color-bgRed:#F8DFDC;
-  --color-bgPurple: #DFE8FB;
-  --color-body: #2C3E50;
-  --color-green: #1BA3A3;
+  --color-bgBlue: #2e7ed41a;
+  --color-primaryBlue: #2e7ed4;
+  --color-customGray: #eaeced;
+  --color-bgGreen: #d9f1e1;
+  --color-bgOrange: #f8e9d6;
+  --color-bgRed: #f8dfdc;
+  --color-bgPurple: #dfe8fb;
+  --color-body: #2c3e50;
+  --color-green: #1ba3a3;
   --color-textcolor: #303030;
-  --color-tabsBg: #F8FAFC;
+  --color-tabsBg: #f8fafc;
 }
 body {
   @apply text-gray-950;
@@ -21,42 +21,52 @@ body {
 
 /* Global Scrollbar Styling */
 * {
-  scrollbar-width: thin;              /* For Firefox */
-  scrollbar-color: #a7a7a7 #EAECED;   /* For Firefox: thumb and track colors */
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #a7a7a7 #eaeced; /* For Firefox: thumb and track colors */
 }
 
 /* For Chrome, Edge, Safari */
 *::-webkit-scrollbar {
-  width: 8px;          
-  height: 8px;    
+  width: 8px;
+  height: 8px;
 }
 
 *::-webkit-scrollbar-track {
-  background: #EAECED;  
+  background: #eaeced;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #a7a7a7; 
-  border-radius: 10px;       
-  border: 2px solid transparent; 
+  background-color: #a7a7a7;
+  border-radius: 10px;
+  border: 2px solid transparent;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: #1BA3A3; 
+  background-color: #1ba3a3;
 }
 
-
 /* header */
-.close-sidebar .header{
+.close-sidebar .header {
   width: 100%;
 }
 
 @media (max-width: 768px) {
-  .header{
+  .header {
     width: 100%;
   }
 }
 
 .btn-table {
-  @apply w-[163px]
+  @apply w-[163px];
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
