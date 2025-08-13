@@ -15,6 +15,7 @@
   --color-textcolor: #303030;
   --color-tabsBg: #f8fafc;
 }
+
 body {
   @apply text-gray-950;
 }

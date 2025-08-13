@@ -67,25 +67,11 @@ const StaffManagement = () => {
     fetchRecentActivities(nextPage);
   };
 
-  const fetchAllStaffList = async () => {
-    try {
-      let res = await getAllStaffListingApi();
-      if (res.success) {
-        setStaffList(res.data);
-      }
-    } catch (error) {
-      console.error("Error fetching all staff list:", error);
-    }
-  };
-
   useEffect(() => {
     if (activeTab === "Overview") {
       setActivitiesPage(1);
       fetchRecentActivities(1);
       fetchheaderSummary();
-    }
-    if (activeTab === "Staff List") {
-      fetchAllStaffList();
     }
   }, [activeTab]);
 
@@ -510,7 +496,7 @@ const StaffManagement = () => {
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
             Staff List
           </h3>
-          <StafListing staffListdata={staffList} />
+          <StafListing />
         </div>
       )}
 
