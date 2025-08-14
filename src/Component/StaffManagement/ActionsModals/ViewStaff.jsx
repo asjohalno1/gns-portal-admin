@@ -9,7 +9,7 @@ function ViewStaff({ isOpen, onClose, staff }) {
     <div className="fixed inset-0 bg-[#0000005D]  flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-100 animate-in fade-in-0 slide-in-from-bottom-4">
         {/* Header */}
-        <div className="relative bg-blue-700 text-white px-8 py-6 rounded-t-2xl">
+        <div className="relative bg-blue-500 text-white px-8 py-6 rounded-t-2xl">
           <h2 className="text-2xl font-bold tracking-tight">Staff Details</h2>
           <div className="absolute -bottom-3 left-8"></div>
           <button
@@ -111,7 +111,7 @@ function ViewStaff({ isOpen, onClose, staff }) {
         <div className="px-8 pb-6">
           <button
             onClick={onClose}
-            className="w-full bg-blue-700  hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+            className="w-full bg-blue-500  hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
           >
             Close
           </button>

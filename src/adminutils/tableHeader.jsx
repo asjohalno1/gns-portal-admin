@@ -25,6 +25,16 @@ export const headerConfigs = {
       { key: "actions", label: "Action" },
     ],
   },
+  assignToClients: {
+    columns: [
+      { key: "fullName", label: "Client Name" },
+      { key: "email", label: "Email" },
+      { key: "phoneNumber", label: "Phone" },
+      { key: "status", label: "Status" },
+      { key: "updatedAt", label: "Last Activity" },
+      { key: "actions", label: "Action" },
+    ],
+  },
   AuditList: {
     columns: [
       { key: "name", label: "Name" },
@@ -98,6 +108,18 @@ export const headerConfigs = {
       { key: "actions", label: "Action" },
     ],
   },
+  performanceStats: {
+    columns: [
+      { key: "staffName", label: "Staff Name" },
+      { key: "totalTasks", label: "Total Tasks" },
+      { key: "completedTasks", label: "Completed Tasks" },
+      { key: "pendingTasks", label: "Pending Tasks" },
+      { key: "overdueTasks", label: "Overdue Tasks" },
+      { key: "performanceStatus", label: "Performance Status" },
+      { key: "avgTurnaround", label: "Avg Turnaround" },
+      { key: "actions", label: "Action" },
+    ],
+  },
 };
 
 // Function to determine status button styling
@@ -148,6 +170,43 @@ export const getStatusButton = (status) => {
           Inactive
         </button>
       );
+
+    case "Bad":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEE2E2] text-[#B91C1C] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Bad
+        </button>
+      );
+    case "Good":
+      return (
+        <button
+          type="button"
+          className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Good
+        </button>
+      );
+    case "Excellent":
+      return (
+        <button
+          type="button"
+          className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Excellent
+        </button>
+      );
+    case "Average":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Average
+        </button>
+      );
     default:
       return (
         <button
@@ -175,6 +234,9 @@ export const renderCellContent = (item, columnKey, onAction, mode, index) => {
           })
         : "N/A";
     case "status":
+      return getStatusButton(item[columnKey]);
+
+    case "performanceStatus":
       return getStatusButton(item[columnKey]);
 
     case "actions":
