@@ -120,6 +120,17 @@ export const headerConfigs = {
       { key: "actions", label: "Action" },
     ],
   },
+  documentManagementListing: {
+    columns: [
+      { key: "title", label: "Document Name" },
+      { key: "clientName", label: "Client Name" },
+      { key: "status", label: "Status" },
+      { key: "created", label: "Created Date" },
+      { key: "progress", label: "Progress" },
+      { key: "dueDate", label: "Due Date" },
+      { key: "actions", label: "Actions" },
+    ],
+  },
 };
 
 // Function to determine status button styling

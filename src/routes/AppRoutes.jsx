@@ -20,6 +20,7 @@ import EmailTemplates from "../pages/EmailTemaplates";
 import AuditLogs from "../pages/AuditLog";
 import AdminSettings from "../pages/AdminSettings";
 import StaffManagement from "../pages/StaffManagement";
+import DocumentManagemnet from "../pages/documentManagemnet";
 
 const AppRoutes = () => {
   const { authToken } = useAuth(); // ✅ Get token from context
@@ -49,6 +50,10 @@ const AppRoutes = () => {
             <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="staffmanagement" element={<StaffManagement />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route
+              path="document-management"
+              element={<DocumentManagemnet />}
+            />
           </Route>
         </Route>
 

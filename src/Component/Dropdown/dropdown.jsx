@@ -41,6 +41,8 @@ const Dropdown = ({ onAction, mode, itemId }) => {
         ];
       case "assignToClients":
         return [{ label: "Assign", value: "assign" }];
+      case "documentManagementListing":
+        return [{ label: "Manage Document", value: "manage" }];
       default:
         return [
           { label: "View", value: "view" },
