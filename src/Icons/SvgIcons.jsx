@@ -134,3 +134,144 @@ export const ImageFallbackIcon = () => {
     />
   </svg>;
 };
+
+export const SendReminderIcon = () => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M22 2L10 14L2 6L22 2Z"
+        stroke="#2C3E50" // dark color
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+};
+
+export const AddDocumentIcon = () => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Document outline */}
+      <path
+        d="M6 2H14L18 6V20C18 21.1 17.1 22 16 22H6C4.9 22 4 21.1 4 20V4C4 2.9 4.9 2 6 2Z"
+        stroke="#8F8F8F"
+        stroke-opacity="0.8"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      {/* Folded corner */}
+      <path
+        d="M14 2V6H18"
+        stroke="#8F8F8F"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      {/* Plus sign */}
+      <path
+        d="M12 10V16M9 13H15"
+        stroke="#8F8F8F"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+export const EmailTemplateIcon = () => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Envelope */}
+      <path
+        d="M3 6H21V18H3V6Z"
+        stroke="#2C3E50"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Envelope flap */}
+      <path
+        d="M3 6L12 13L21 6"
+        stroke="#2C3E50"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+export const DocumentManagementIcon = () => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Folder */}
+      <path
+        d="M3 6H9L11 8H21V18H3V6Z"
+        stroke="#2C3E50"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Document inside folder */}
+      <path
+        d="M13 10H19V16H13V10Z"
+        stroke="#2C3E50"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+export const AuditLogsIcon = () => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Circle for clock */}
+      <circle cx="12" cy="12" r="9" stroke="#2C3E50" strokeWidth="1.5" />
+      {/* Clock hands */}
+      <path
+        d="M12 7V12L15 14"
+        stroke="#2C3E50"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
