@@ -27,9 +27,16 @@ export const getRecentactivitirsApi = async (
   }
 };
 
-export const getAllStaffListingApi = async () => {
+export const getAllStaffListingApi = async (
+  page = 1,
+  limit = 10,
+  search = "",
+  status = "all"
+) => {
   try {
-    const response = await axiosInstance.get("/staff/getAllStaff");
+    const response = await axiosInstance.get("/admin/getAllStaffList", {
+      params: { page, limit, search, status },
+    });
     return response.data;
   } catch (error) {
     console.error(
@@ -46,6 +53,76 @@ export const getDocumentheadersummaryApi = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching document header summary:", error);
+    throw error;
+  }
+};
+
+export const deleteStaffApi = async (staffId) => {
+  try {
+    const response = await axiosInstance.patch(`/admin/deleteStaff/${staffId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting staff:", error);
+    throw error;
+  }
+};
+
+export const updateStaffApi = async (staffId, formData) => {
+  try {
+    const response = await axiosInstance.patch(
+      `/admin/updateStaff/${staffId}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating staff:", error);
+    throw error;
+  }
+};
+
+export const getAllUnassignedClientsApi = async (query) => {
+  try {
+    const response = await axiosInstance.get("/admin/getunassignedClients", {
+      params: {
+        page: query.page,
+        limit: query.limit,
+        search: query.search,
+        status: query.status,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching unassigned clients:", error);
+    throw error;
+  }
+};
+
+export const assignStaffToClientApi = async (data) => {
+  try {
+    const response = await axiosInstance.post(`/admin/assignStaffToClient`, {
+      data,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error assigning staff to client:", error);
+    throw error;
+  }
+};
+
+// staffPerformance.api.js
+export const getStaffPerformanceMetricsApi = async (query = {}) => {
+  try {
+    const response = await axiosInstance.get("/staff/performance-metrics", {
+      params: {
+        page: query.page || 1,
+        limit: query.limit || 10,
+        search: query.search || "",
+        status: query.status || "all",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching performance metrics:", error);
     throw error;
   }
 };

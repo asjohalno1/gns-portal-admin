@@ -33,6 +33,14 @@ const Dropdown = ({ onAction, mode, itemId }) => {
         ];
       case "AuditList":
         return [{ label: "View", value: "view" }];
+      case "staffListing":
+        return [
+          { label: "View", value: "view" },
+          { label: "Edit", value: "edit" },
+          { label: "Delete", value: "delete" },
+        ];
+      case "assignToClients":
+        return [{ label: "Assign", value: "assign" }];
       default:
         return [
           { label: "View", value: "view" },

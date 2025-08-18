@@ -37,7 +37,7 @@ const ClientManagement = () => {
       setLoading(true);
       const query = {
         pageNumber: pagination.currentPage,
-        pageLimit: pagination.limit,
+        limit: pagination.limit,
         name: filters.search,
         email: filters.search,
         status: filters.status,

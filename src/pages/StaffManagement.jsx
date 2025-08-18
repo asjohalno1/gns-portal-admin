@@ -8,8 +8,10 @@ import {
 } from "../api/staffManagement.api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import Table from "../Component/Table/table";
 import StafListing from "../Component/StaffManagement/staffTabs/StafListing";
+import DeleteConfirmationModal from "../Component/DeleteComfermationModal/DeleteConfirmationModal";
+import AssignToClients from "../Component/StaffManagement/staffTabs/AssignToClients";
+import PerformanceMetrics from "../Component/StaffManagement/staffTabs/PerformanceMetrics";
 
 dayjs.extend(relativeTime);
 
@@ -25,6 +27,7 @@ const StaffManagement = () => {
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
   const [staffList, setStaffList] = useState([]);
   const [headerSummary, setHeaderSummary] = useState({});
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const fetchheaderSummary = async () => {
     try {
@@ -494,9 +497,28 @@ const StaffManagement = () => {
       {activeTab === "Staff List" && (
         <div className="bg-white rounded-[20px] p-8 border border-gray-200">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
-            Staff List
+            Staff Records
           </h3>
           <StafListing />
+        </div>
+      )}
+
+      {activeTab === "Client Assignment" && (
+        <div className="bg-white rounded-[20px] p-8 border border-gray-200">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            Assign Clients to Staff
+          </h3>
+
+          <AssignToClients />
+        </div>
+      )}
+
+      {activeTab === "Performance" && (
+        <div className="bg-white w-[100%] rounded-[20px] p-8 border border-gray-200">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            Performance Metrics
+          </h3>
+          <PerformanceMetrics />
         </div>
       )}
 
