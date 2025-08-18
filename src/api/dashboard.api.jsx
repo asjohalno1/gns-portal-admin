@@ -1,5 +1,15 @@
 import axiosInstance from "./axiosInstance";
 
+export const profileInformation = async () => {
+  try {
+    const response = await axiosInstance.get("/admin/profile");
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+};
+
 export const dashboarData = async (params = {}) => {
   try {
     const response = await axiosInstance.get("/admin/dashboard", {

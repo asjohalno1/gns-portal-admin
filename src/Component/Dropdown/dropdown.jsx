@@ -13,24 +13,14 @@ const Dropdown = ({ onAction, mode, itemId }) => {
           { label: "Update", value: "update" },
           { label: "Delete", value: "delete" },
         ];
-      case "documentRequestListing":
-        return [
-          { label: "Update", value: "update" },
-          { label: "Delete", value: "delete" },
-          { label: "Mark as Complete", value: "markComplete" },
-        ];
+
       case "dashboardListing":
         return [
           { label: "View", value: "view" },
           { label: "Request Document", value: "Request" },
           { label: "Send Reminder", value: "sendReminder" },
         ];
-      case "secureDocumentListing":
-        return [
-          { label: "View", value: "view" },
-          { label: "Download", value: "download" },
-          { label: "Delete", value: "delete" },
-        ];
+
       case "AuditList":
         return [{ label: "View", value: "view" }];
       case "staffListing":
@@ -43,6 +33,16 @@ const Dropdown = ({ onAction, mode, itemId }) => {
         return [{ label: "Assign", value: "assign" }];
       case "documentManagementListing":
         return [{ label: "Manage Document", value: "manage" }];
+      case "documentRequestListing":
+        return [
+          { label: "Send Reminder", value: "reminder" },
+          { label: "Document Request", value: "request" },
+        ];
+      case "secureDocumentListing":
+        return [
+          { label: "Send Reminder", value: "reminder" },
+          { label: "Document Request", value: "request" },
+        ];
       default:
         return [
           { label: "View", value: "view" },

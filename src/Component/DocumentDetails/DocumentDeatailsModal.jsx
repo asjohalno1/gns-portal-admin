@@ -19,7 +19,7 @@ const DocumentDeatailsModal = ({
   const [process, setProcess] = useState();
   const nevigate = useNavigate();
 
-  console.log("Data", data);
+  console.log("Data===========================", data);
   const getStatusStyle = (status) => {
     switch (status?.toLowerCase()) {
       case "submitted":
@@ -49,9 +49,11 @@ const DocumentDeatailsModal = ({
     }
   };
 
+  console.log("process.....", data);
+
   const fetchAllSubDocuments = async () => {
     try {
-      const response = await getDocByReqId(data?.findByrequest);
+      const response = await getDocByReqId(data?.requestById[0]?._id);
       setRequiredDocuments(response.data.documents || []);
       setProcess(response.data.progressBar || {});
     } catch (error) {
@@ -135,19 +137,21 @@ const DocumentDeatailsModal = ({
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               Name:{" "}
               <span className="ml-[11px] font-medium">
-                {data?.clientName || "N/A"}
+                {data?.clientName || data?.name || "N/A"}
               </span>
             </p>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               Email:{" "}
               <span className="ml-[11px] font-medium">
-                {data?.clientEmail || "N/A"}
+                {data?.clientEmail || data?.email || "N/A"}
               </span>
             </p>
             <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
               Created:{" "}
               <span className="ml-[11px] font-medium">
-                {formatDate(data?.created) || " - -"}
+                {formatDate(data?.created) ||
+                  formatDate(data?.createdAt) ||
+                  " - -"}
               </span>
             </p>
             {/* <p className="mb-[0px] font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50]">

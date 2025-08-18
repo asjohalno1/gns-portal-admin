@@ -18,6 +18,7 @@ import {
   PendingIcon,
 } from "../Icons/SvgIcons";
 import getPlainText from "../adminutils/commonutils";
+import { useNavigate } from "react-router-dom";
 
 const DocReqManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -40,6 +41,8 @@ const DocReqManagement = () => {
   const [selectedDays, setSelectedDays] = useState([]);
   const [notifyMethods, setNotifyMethods] = useState([]);
   const [linkMethods, setLinkMethod] = useState([]); // schedular logic
+
+  const nevigate = useNavigate();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -536,6 +539,19 @@ const DocReqManagement = () => {
   const handleClear = () => {
     setQuery((prev) => ({ ...prev, search: "", page: 1, limit: 10 }));
   };
+
+  const handleAction = (action, data) => {
+    switch (action) {
+      case "request":
+        setActiveTab("tab2");
+        break;
+      case "reminder":
+        nevigate("/admin/send-reminder");
+        break;
+      default:
+        console.warn("Unknown action:", action);
+    }
+  };
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
@@ -718,6 +734,7 @@ const DocReqManagement = () => {
                 onNextPage={onNextPage}
                 onPrevPage={onPrevPage}
                 onLimitChange={onLimitChange}
+                onAction={handleAction}
               />
             </div>
           </div>
@@ -1476,6 +1493,7 @@ const DocReqManagement = () => {
                 onNextPage={onNextPage}
                 onPrevPage={onPrevPage}
                 onLimitChange={onLimitChange}
+                onAction={handleAction}
               />
             </div>
           </div>
