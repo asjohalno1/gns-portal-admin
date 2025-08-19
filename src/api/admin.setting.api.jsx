@@ -25,3 +25,43 @@ export const updateProfileApi = async (data) => {
     throw error;
   }
 };
+
+export const getDriveMappingApi = async () => {
+  try {
+    const response = await axiosInstance.get("admin/getAllGoogleDocs");
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching drive mapping details:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+export const getAssociatedClientsApi = async (staffId) => {
+  try {
+    let response = await axiosInstance.get(
+      `/admin/getAssociatedClient/${staffId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching drive mapping details:",
+      error.response?.data || error.message
+    );
+  }
+};
+
+export const createDriveMappingApi = async (data) => {
+  try {
+    const response = await axiosInstance.post("/admin/addGoogleMapping", data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error creating drive mapping:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

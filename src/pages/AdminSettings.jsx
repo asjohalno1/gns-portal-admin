@@ -1,7 +1,13 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, use } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { ImageFallbackIcon } from "../Icons/SvgIcons";
-import { getProfileApi, updateProfileApi } from "../api/admin.setting.api";
+import {
+  getDriveMappingApi,
+  getProfileApi,
+  updateProfileApi,
+  getAssociatedClientsApi,
+  createDriveMappingApi,
+} from "../api/admin.setting.api";
 import axiosInstance from "../api/axiosInstance";
 
 const AdminSettings = () => {
@@ -61,6 +67,19 @@ const AdminSettings = () => {
         dob: dob || "",
         address: address || "",
       });
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      toast.error("Failed to fetch profile details");
+    } finally {
+      setLoading((prev) => ({ ...prev, profile: false }));
+    }
+  }, []);
+
+  const fetchAssociatedClients = useCallback(async (id) => {
+    try {
+      setLoading((prev) => ({ ...prev, profile: true }));
+      const response = await getAssociatedClientsApi(id);
+      setClientsListing(response.data);
     } catch (error) {
       console.error("Error fetching profile:", error);
       toast.error("Failed to fetch profile details");
@@ -234,25 +253,125 @@ const AdminSettings = () => {
   };
 
   const handleAddGoogleMapping = async () => {
-    const { selectedClientId, clientFolderName, selectedFolderId } =
-      driveSettings;
+    const {
+      selectedStaffId,
+      selectedClientId,
+      uncategorized,
+      standardFolder,
+      additionalSubfolders,
+    } = driveSettings;
 
-    if (!selectedClientId || !clientFolderName || !selectedFolderId) {
-      toast.error("Please fill all required fields");
+    // Validate required fields
+    if (!selectedStaffId || !selectedClientId) {
+      toast.error("Please select staff, client, and provide a folder name");
       return;
     }
 
     try {
       setLoading((prev) => ({ ...prev, drive: true }));
-      // Add your API call here
-      // await createDriveMappingApi({...driveSettings});
-      toast.success("Drive mapping created successfully");
+
+      const mappingData = {
+        staffId: selectedStaffId,
+        clientId: selectedClientId,
+        uncategorized,
+        standardFolder,
+        additionalSubfolders,
+      };
+
+      const response = await createDriveMappingApi(mappingData);
+
+      if (response.success) {
+        toast.success("Drive mapping created successfully");
+        // Refresh the folder tree to show the new mapping
+        fetchDriveMapping();
+        // Reset form
+        setDriveSettings((prev) => ({
+          ...prev,
+          selectedClientId: "",
+          additionalSubfolders: [],
+          newSubfolder: "",
+        }));
+      } else {
+        toast.error(response.message || "Failed to create mapping");
+      }
     } catch (error) {
       console.error("Error creating drive mapping:", error);
-      toast.error("Failed to create drive mapping");
+      toast.error(
+        error.response?.data?.message || "Failed to create drive mapping"
+      );
     } finally {
       setLoading((prev) => ({ ...prev, drive: false }));
     }
+  };
+  const fetchDriveMapping = useCallback(async () => {
+    try {
+      setLoading((prev) => ({ ...prev, drive: true }));
+      const response = await getDriveMappingApi();
+
+      if (response.data) {
+        setFolderTreeData(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching drive mapping:", error);
+      toast.error("Failed to fetch drive mapping");
+    } finally {
+      setLoading((prev) => ({ ...prev, drive: false }));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "drive") {
+      fetchDriveMapping();
+    }
+  }, [activeTab]);
+
+  const FolderItem = ({
+    item,
+    level = 0,
+    selectedFolderId,
+    onFolderSelect,
+  }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const toggleFolder = () => setIsOpen(!isOpen);
+
+    return (
+      <div className="ml-4">
+        <div
+          className={`flex items-center p-2 rounded cursor-pointer ${
+            selectedFolderId === item.id ? "bg-blue-100" : "hover:bg-gray-50"
+          }`}
+          onClick={() => onFolderSelect(item.id, item.name)}
+        >
+          {item.folders?.length > 0 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFolder();
+              }}
+              className="mr-2"
+            >
+              {isOpen ? "▼" : "►"}
+            </button>
+          )}
+          <span>{item.name}</span>
+        </div>
+
+        {isOpen && item.folders?.length > 0 && (
+          <div className="ml-4">
+            {item.folders.map((subFolder) => (
+              <FolderItem
+                key={subFolder.id}
+                item={subFolder}
+                level={level + 1}
+                selectedFolderId={selectedFolderId}
+                onFolderSelect={onFolderSelect}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   // Render functions
@@ -430,211 +549,307 @@ const AdminSettings = () => {
     </>
   );
 
-  const renderDriveTab = () => (
-    <>
-      <div className="flex items-center justify-between mb-[30px]">
-        <h3 className="text-[18px] font-semibold leading-[100%] tracking-[0] text-[#2C3E50]">
-          Add Client Drive Mapping
-        </h3>
-      </div>
-      <div className="mt-[20px]">
-        <div className="bg-white border border-[#2C3E501A] rounded-lg p-4 space-y-2">
-          <div className="flex flex-col gap-1 sm:flex-row sm:gap-[10px] items-center justify-between mb-[30px]">
-            <h3 className="font-medium text-[16px] leading-[100%] tracking-[0%] text-[#2C3E50]">
-              Map Client to Google Drive Folder
-            </h3>
-          </div>
-          <div className="mb-[20px]">
-            <label className="block font-medium text-[14px] leading-[100%] tracking-[0%] align-middle text-[#484848] mb-[13px]">
-              Select Client
-            </label>
-            <select
-              className="w-full border border-gray-200 rounded-md px-4 py-2 text-sm focus:outline-none"
-              onChange={handleClientSelect}
-              value={driveSettings.selectedClientId}
-              disabled={loading.drive}
-            >
-              <option value="" disabled hidden>
-                Select Client
-              </option>
-              {clientsListing?.map((client) => (
-                <option key={client._id} value={client._id}>
-                  {client.name}
-                </option>
-              ))}
-            </select>
-          </div>
+  const renderDriveTab = () => {
+    // Recursive component to render the folder hierarchy
+    const renderFolderTree = (data, level = 0, path = "Admin") => {
+      return (
+        <div className="ml-4">
+          {data.map((staff) => (
+            <div key={staff.staffId} className="mb-2">
+              {/* Staff level */}
+              <div
+                className={`p-2 rounded cursor-pointer ${
+                  level === 0 ? "font-semibold" : ""
+                }`}
+              >
+                {staff.staffName}
+              </div>
 
-          <div className="mb-[20px]">
-            <label className="block font-medium text-[14px] leading-[100%] tracking-[0%] align-middle text-[#484848] mb-[13px]">
-              Select Parent Folder
-            </label>
-            <div className="border border-gray-200 rounded-lg p-4 text-[14px] text-gray-800 max-h-[300px] overflow-y-auto leading-[1.5]">
-              {loading.drive ? (
-                <div>Loading folders...</div>
-              ) : (
-                <>
-                  {folderTreeData && (
+              {/* Client level */}
+              {staff.driveData?.folders?.map((clientFolder) => (
+                <div key={clientFolder.id} className="ml-4">
+                  <div className="p-2 rounded cursor-pointer">
+                    {clientFolder.name}
+                  </div>
+
+                  {/* Subfolder level */}
+                  {clientFolder.folders?.map((subfolder) => (
+                    <div key={subfolder.id} className="ml-8">
+                      <div className="p-2 rounded cursor-pointer">
+                        {subfolder.name}
+                      </div>
+
+                      {/* Additional nested levels if needed */}
+                      {subfolder.folders?.length > 0 &&
+                        renderFolderTree(
+                          subfolder.folders,
+                          level + 3,
+                          `${path}/${subfolder.name}`
+                        )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+    };
+
+    return (
+      <>
+        <div className="flex items-center justify-between mb-[30px]">
+          <h3 className="text-[18px] font-semibold leading-[100%] tracking-[0] text-[#2C3E50]">
+            Drive Mapping Overview
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+          {/* Mapping Configuration Section */}
+          <div className="bg-white border border-[#2C3E501A] rounded-lg p-4">
+            <h3 className="font-medium text-[16px] leading-[100%] tracking-[0%] text-[#2C3E50] mb-4">
+              Add New Mapping
+            </h3>
+
+            <div className="space-y-4">
+              {/* Staff Selection */}
+              <div>
+                <label className="block font-medium text-[14px] leading-[100%] tracking-[0%] text-[#484848] mb-2">
+                  Select Staff
+                </label>
+                <select
+                  className="w-full border border-gray-200 rounded-md px-4 py-2 text-sm focus:outline-none"
+                  disabled={loading.drive}
+                  value={driveSettings.selectedStaffId}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    setDriveSettings((prev) => ({
+                      ...prev,
+                      selectedStaffId: selectedId,
+                    }));
+                    if (selectedId) {
+                      fetchAssociatedClients(selectedId);
+                    }
+                  }}
+                >
+                  <option value="">Select Staff Member</option>
+                  {folderTreeData?.map((staff) => (
+                    <option key={staff.staffId} value={staff.staffId}>
+                      {staff.staffName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Client Selection */}
+              <div>
+                <label className="block font-medium text-[14px] leading-[100%] tracking-[0%] text-[#484848] mb-2">
+                  Select Client
+                </label>
+                <select
+                  className="w-full border border-gray-200 rounded-md px-4 py-2 text-sm focus:outline-none"
+                  disabled={loading.drive || !driveSettings.selectedStaffId}
+                  value={driveSettings.selectedClientId}
+                  onChange={handleClientSelect}
+                >
+                  <option value="">Select Client</option>
+                  {clientsListing?.map((client) => (
+                    <option key={client._id} value={client._id}>
+                      {client.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Parent Folder Selection */}
+              <div>
+                <label className="block font-medium text-[14px] leading-[100%] tracking-[0%] text-[#484848] mb-2">
+                  Select Parent Folder
+                </label>
+                <div className="border border-gray-200 rounded-md p-2 max-h-[200px] overflow-y-auto">
+                  {loading.drive ? (
+                    <div className="flex justify-center items-center h-20">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                    </div>
+                  ) : (
                     <div className="space-y-1">
                       <div
-                        className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
+                        className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
                           driveSettings.selectedFolderId === "root"
                             ? "bg-blue-100 border-2 border-blue-500"
                             : "hover:bg-gray-50"
                         }`}
                         onClick={() =>
-                          handleFolderSelect("root", folderTreeData.name)
+                          handleFolderSelect("root", "Root Folder")
                         }
                       >
                         <div className="font-medium text-[14px] text-[#2C3E50]">
-                          {folderTreeData.name}
+                          Root Folder
                         </div>
                       </div>
-
-                      {folderTreeData.folders?.map((folder) => (
-                        <div
-                          key={folder.id}
-                          className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
-                            driveSettings.selectedFolderId === folder.id
-                              ? "bg-blue-100 border-2 border-blue-500"
-                              : "hover:bg-gray-50"
-                          }`}
-                          onClick={() =>
-                            handleFolderSelect(folder.id, folder.name)
-                          }
-                        >
-                          <div className="font-medium text-[14px] text-[#2C3E50]">
-                            {folder.name}
-                          </div>
-                        </div>
+                      {folderTreeData?.map((staff) => (
+                        <FolderItem
+                          key={staff.staffId}
+                          item={{
+                            id: staff.staffId,
+                            name: staff.staffName,
+                            folders: staff.driveData?.folders || [],
+                          }}
+                          selectedFolderId={driveSettings.selectedFolderId}
+                          onFolderSelect={handleFolderSelect}
+                        />
                       ))}
                     </div>
                   )}
-                </>
-              )}
-            </div>
-            {driveSettings.selectedFolderPath && (
-              <div className="mt-2 text-sm text-blue-600">
-                Selected: {driveSettings.selectedFolderPath}
+                </div>
+                {driveSettings.selectedFolderPath && (
+                  <div className="mt-2 text-sm text-blue-600">
+                    Selected: {driveSettings.selectedFolderPath}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="mb-6">
-            <label className="block font-medium text-[14px] leading-[100%] tracking-[0%] align-middle text-[#484848] mb-[13px]">
-              Client Folder Name
-            </label>
-            <input
-              type="text"
-              name="clientFolderName"
-              value={driveSettings.clientFolderName}
-              onChange={handleDriveSettingChange}
-              className="w-full border border-gray-200 rounded-md px-4 py-2 text-sm focus:outline-none"
-              disabled={loading.drive}
-            />
-          </div>
+              {/* Client Folder Name */}
+              {/* <div>
+                <label className="block font-medium text-[14px] leading-[100%] tracking-[0%] text-[#484848] mb-2">
+                  Client Folder Name
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-200 rounded-md px-4 py-2 text-sm focus:outline-none"
+                  disabled={loading.drive}
+                  value={driveSettings.clientFolderName}
+                  onChange={(e) =>
+                    setDriveSettings((prev) => ({
+                      ...prev,
+                      clientFolderName: e.target.value,
+                    }))
+                  }
+                />
+              </div> */}
 
-          <div className="space-y-2">
-            <label className="flex items-start space-x-2 mb-[30px]">
-              <input
-                type="checkbox"
-                name="uncategorized"
-                checked={driveSettings.uncategorized}
-                onChange={handleDriveSettingChange}
-                className="accent-green-600"
-                disabled={loading.drive}
-              />
-              <span className="-top-[3px] relative font-medium text-[14px] leading-[100%] tracking-[0%] text-[#2C3E50]">
-                Create Uncategorized subfolder
-                <span className="block font-normal text-[14px] leading-[100%] tracking-[0%] text-[#2C3E50] opacity-[0.6] mt-[6px]">
-                  Client uploads will be automatically stored in this subfolder.
-                </span>
-              </span>
-            </label>
+              {/* Folder Options */}
+              <div className="space-y-2">
+                <label className="flex items-start space-x-2">
+                  <input
+                    type="checkbox"
+                    className="accent-green-600"
+                    checked={driveSettings.standardFolder}
+                    onChange={(e) =>
+                      setDriveSettings((prev) => ({
+                        ...prev,
+                        standardFolder: e.target.checked,
+                      }))
+                    }
+                    disabled={loading.drive}
+                  />
+                  <span className="font-medium text-[14px] leading-[100%] tracking-[0%] text-[#2C3E50]">
+                    Create standard document category subfolders
+                    <span className="block font-normal text-[14px] leading-[100%] tracking-[0%] text-[#2C3E50] opacity-[0.6] mt-[6px]">
+                      Creates Tax Returns and Bookkeeping standard subfolders.
+                    </span>
+                  </span>
+                </label>
 
-            <label className="flex items-start space-x-2">
-              <input
-                type="checkbox"
-                name="standardFolder"
-                checked={driveSettings.standardFolder}
-                onChange={handleDriveSettingChange}
-                className="accent-green-600"
-                disabled={loading.drive}
-              />
-              <span className="-top-[3px] relative font-medium text-[14px] leading-[100%] tracking-[0%] text-[#2C3E50]">
-                Create standard document category subfolders
-                <span className="block font-normal text-[14px] leading-[100%] tracking-[0%] text-[#2C3E50] opacity-[0.6] mt-[6px]">
-                  Creates Tax Returns and Bookkeeping standard subfolders.
-                </span>
-              </span>
-            </label>
-          </div>
-          <div className="mb-6 mt-[20px]">
-            <label className="block text-[14px] text-[#2C3E50] font-medium mb-2">
-              Additional Subfolders
-            </label>
-            <div className="flex max-[375px]:flex-col flex-row gap-3">
-              <input
-                type="text"
-                name="newSubfolder"
-                value={driveSettings.newSubfolder}
-                onChange={handleDriveSettingChange}
-                placeholder="Subfolder name"
-                className="flex-1 border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none"
-                disabled={loading.drive}
-              />
-            </div>
-            <button
-              className="bg-[#ffffff] text-[#2E7ED4] border border-[#2E7ED4] rounded-[10px] px-4 py-2 text-sm mt-[10px]"
-              onClick={handleAddSubfolder}
-              disabled={loading.drive}
-            >
-              Add Subfolder
-            </button>
-            {driveSettings.additionalSubfolders.length > 0 && (
-              <div className="mt-4">
-                <h4 className="text-sm font-medium mb-2">Added Subfolders:</h4>
-                <ul className="space-y-2">
-                  {driveSettings.additionalSubfolders.map((folder, index) => (
-                    <li
-                      key={index}
-                      className="flex items-center justify-between shadow ring-1 ring-gray-200 p-2 rounded-md"
-                    >
-                      <span>{folder}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveSubfolder(index)}
-                        className="text-red-500 hover:text-red-700"
-                        disabled={loading.drive}
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                {/* <label className="flex items-start space-x-2">
+                  <input
+                    type="checkbox"
+                    className="accent-green-600"
+                    checked={driveSettings.uncategorized}
+                    onChange={(e) =>
+                      setDriveSettings((prev) => ({
+                        ...prev,
+                        uncategorized: e.target.checked,
+                      }))
+                    }
+                    disabled={loading.drive}
+                  />
+                  <span className="font-medium text-[14px] leading-[100%] tracking-[0%] text-[#2C3E50]">
+                    Create Uncategorized subfolder
+                    <span className="block font-normal text-[14px] leading-[100%] tracking-[0%] text-[#2C3E50] opacity-[0.6] mt-[6px]">
+                      Client uploads will be automatically stored in this
+                      subfolder.
+                    </span>
+                  </span>
+                </label> */}
               </div>
-            )}
-          </div>
 
-          <div className="mt-[20px] flex justify-end">
-            <button
-              type="button"
-              onClick={handleAddGoogleMapping}
-              disabled={loading.drive}
-              className={`text-white text-sm px-6 py-2 rounded transition ${
-                loading.drive
-                  ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-primaryBlue hover:bg-blue-700"
-              }`}
-            >
-              {loading.drive ? "Creating..." : "Create Mapping"}
-            </button>
+              {/* Additional Subfolders */}
+              <div>
+                <label className="block text-[14px] text-[#2C3E50] font-medium mb-2">
+                  Additional Subfolders
+                </label>
+                <div className="flex max-[375px]:flex-col flex-row gap-3">
+                  <input
+                    type="text"
+                    placeholder="Subfolder name"
+                    className="flex-1 border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none"
+                    value={driveSettings.newSubfolder}
+                    onChange={(e) =>
+                      setDriveSettings((prev) => ({
+                        ...prev,
+                        newSubfolder: e.target.value,
+                      }))
+                    }
+                    disabled={loading.drive}
+                  />
+                  <button
+                    className="bg-[#ffffff] text-[#2E7ED4] border border-[#2E7ED4] rounded-[10px] px-4 py-2 text-sm"
+                    onClick={handleAddSubfolder}
+                    disabled={loading.drive}
+                  >
+                    Add Subfolder
+                  </button>
+                </div>
+                {driveSettings.additionalSubfolders.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium mb-2">
+                      Added Subfolders:
+                    </h4>
+                    <ul className="space-y-2">
+                      {driveSettings.additionalSubfolders.map(
+                        (folder, index) => (
+                          <li
+                            key={index}
+                            className="flex items-center justify-between shadow ring-1 ring-gray-200 p-2 rounded-md"
+                          >
+                            <span>{folder}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveSubfolder(index)}
+                              className="text-red-500 hover:text-red-700"
+                              disabled={loading.drive}
+                            >
+                              Remove
+                            </button>
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Create Mapping Button */}
+              <div className="mt-4 flex justify-end">
+                <button
+                  className={`text-white text-sm px-6 py-2 rounded transition ${
+                    loading.drive
+                      ? "bg-blue-300 cursor-not-allowed"
+                      : "bg-primaryBlue hover:bg-blue-700"
+                  }`}
+                  onClick={handleAddGoogleMapping}
+                  disabled={loading.drive}
+                >
+                  {loading.drive ? "Creating..." : "Create Mapping"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </>
-  );
-
+      </>
+    );
+  };
   return (
     <>
       <ToastContainer
