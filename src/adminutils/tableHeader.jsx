@@ -31,6 +31,19 @@ export const headerConfigs = {
       { key: "email", label: "Email" },
       { key: "phoneNumber", label: "Phone" },
       { key: "status", label: "Status" },
+      { key: "assignedTo", label: "Assigned To" },
+      { key: "updatedAt", label: "Last Activity" },
+
+      { key: "actions", label: "Action" },
+    ],
+  },
+  unassignedClients: {
+    columns: [
+      { key: "fullName", label: "Client Name" },
+      { key: "email", label: "Email" },
+      { key: "phoneNumber", label: "Phone" },
+      { key: "status", label: "Status" },
+      { key: "assignedTo", label: "Assigned To" },
       { key: "updatedAt", label: "Last Activity" },
       { key: "actions", label: "Action" },
     ],

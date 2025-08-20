@@ -5,8 +5,10 @@ import AssignClientModal from "../ActionsModals/AssignClientModal";
 import {
   assignStaffToClientApi,
   getAllUnassignedClientsApi,
+  mapClientApi,
 } from "../../../api/staffManagement.api";
 import { getAllStaff } from "../../../api/dashboard.api";
+import MapClientModal from "../ActionsModals/MapClientModal";
 
 const AssignToClients = () => {
   const [unassignedClients, setUnassignedClients] = useState({
@@ -24,6 +26,7 @@ const AssignToClients = () => {
   const [viewAssignToClientModal, setViewAssignToClientModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [staffMembers, setStaffMembers] = useState([]);
+  const [isMapClientModalOpen, setIsMapClientModalOpen] = useState(false);
 
   const fetchAllClients = async (
     page = 1,
@@ -163,8 +166,26 @@ const AssignToClients = () => {
         setViewAssignToClientModal(true);
         setSelectedClient(client);
         break;
+      case "mapping":
+        setSelectedClient(client);
+        setIsMapClientModalOpen(true);
+        break;
       default:
         console.warn("Unknown action:", action);
+    }
+  };
+
+  const handleMapingClient = async (clientId) => {
+    try {
+      let res = await mapClientApi(clientId);
+      if (res.success) {
+        toast.success("Client mapped successfully");
+        fetchAllClients();
+      } else {
+        toast.error(res.message || "Failed to map client");
+      }
+    } catch (error) {
+      console.error("Error fetching staff members:", error);
     }
   };
 
@@ -194,7 +215,7 @@ const AssignToClients = () => {
         pagination={unassignedClients.pagination}
         onPageChange={handlePageChange}
         onLimitChange={handleLimitChange}
-        mode="assignToClients"
+        mode="unassignedClients"
         onNextPage={handleNextPage}
         onPrevPage={handlePrevPage}
         onAction={handleActionClick}
@@ -210,6 +231,13 @@ const AssignToClients = () => {
         staffList={staffMembers}
         clientData={selectedClient}
         onAssign={handleAssignToClient}
+      />
+
+      <MapClientModal
+        isOpen={isMapClientModalOpen}
+        onClose={() => setIsMapClientModalOpen(false)}
+        clientData={selectedClient}
+        onMap={handleMapingClient}
       />
     </div>
   );

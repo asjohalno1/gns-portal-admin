@@ -126,3 +126,18 @@ export const getStaffPerformanceMetricsApi = async (query = {}) => {
     throw error;
   }
 };
+
+export const mapClientApi = async (clientId) => {
+  try {
+    const response = await axiosInstance.post(`admin/client-mapping`, {
+      clientId,
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    console.error("Unexpected API error:", error);
+    return { success: false, message: "Unexpected error occurred" };
+  }
+};

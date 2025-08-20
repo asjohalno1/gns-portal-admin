@@ -43,6 +43,12 @@ const Dropdown = ({ onAction, mode, itemId }) => {
           { label: "Send Reminder", value: "reminder" },
           { label: "Document Request", value: "request" },
         ];
+      case "unassignedClients":
+        return [
+          { label: "Assign", value: "assign" },
+          { label: "Client Mapping", value: "mapping" },
+        ];
+
       default:
         return [
           { label: "View", value: "view" },

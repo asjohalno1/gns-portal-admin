@@ -1,21 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
 import Table from "../Component/Table/table";
 import ImportBulkModal from "./importbulkmodal";
 import AddClientmodal from "./addClientmodal";
-import { getAllClients, getStaffClient } from "../api/dashboard.api";
+import {
+  getAllClients,
+  getAllStaff,
+  getStaffClient,
+} from "../api/dashboard.api";
 import ClientDetailsModal from "../Component/ClientModals/ClientDetailsModal";
 import EditClientmodal from "../Component/ClientModals/editClientModal";
 import DeleteConfirmationModal from "../Component/DeleteComfermationModal/DeleteConfirmationModal";
+import {
+  assignStaffToClientApi,
+  getAllUnassignedClientsApi,
+  mapClientApi,
+} from "../api/staffManagement.api";
+import AssignClientModal from "../Component/StaffManagement/ActionsModals/AssignClientModal";
+import { toast } from "react-toastify";
+import MapClientModal from "../Component/StaffManagement/ActionsModals/MapClientModal";
 
 const ClientManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
   const [isImportBulkOpen, setIsImportBulkOpen] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [clientDetailsModal, setClientDetailsModal] = useState(false);
   const [clientEditModal, setClientEditModal] = useState(false);
   const [clientInfo, setClientInfo] = useState();
+  const [staffMembers, setStaffMembers] = useState([]);
   const [filters, setFilters] = useState({
     search: "",
     status: "all",
@@ -26,11 +37,14 @@ const ClientManagement = () => {
     totalClients: 0,
     limit: 10,
   });
-
   const [clientsList, setClientsList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [unAssignedClientsList, setUnAssignedClientsList] = useState([]);
+  const [isAssignToClientModalOpen, setIsAssignToClientModalOpen] =
+    useState(false);
+  const [isMapClientModalOpen, setIsMapClientModalOpen] = useState(false);
 
   const fetchClients = async () => {
     try {
@@ -59,22 +73,59 @@ const ClientManagement = () => {
     }
   };
 
+  const fetchUnassignedClients = async () => {
+    const query = {
+      pageNumber: pagination.currentPage,
+      limit: pagination.limit,
+      name: filters.search,
+      email: filters.search,
+      status: filters.status,
+    };
+
+    try {
+      setLoading(true);
+      const response = await getAllUnassignedClientsApi(query);
+      setUnAssignedClientsList(response?.data.clients);
+      const { clients, totalPages, totalClients } = response.data;
+      setUnAssignedClientsList(clients);
+      setPagination((prev) => ({
+        ...prev,
+        totalPages,
+        totalClients,
+      }));
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllStaff = async () => {
+    try {
+      let res = await getAllStaff();
+      setStaffMembers(res.data || []);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching staff members:", error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === "tab2") {
-      setFilters((prev) => ({
-        ...prev,
-        status: false,
-      }));
-    } else {
-      setFilters((prev) => ({
-        ...prev,
-        status: "true",
-      }));
+      fetchUnassignedClients();
+      fetchAllStaff();
     }
   }, [activeTab]);
 
   useEffect(() => {
     fetchClients();
+    if (activeTab === "tab2") {
+      fetchUnassignedClients();
+    }
+    if (activeTab === "tab1") {
+      fetchClients();
+    }
   }, [filters, pagination.currentPage, pagination.limit]);
 
   const handleFilterChange = (e) => {
@@ -158,6 +209,51 @@ const ClientManagement = () => {
     fetchClients();
   };
 
+  const handleActionUnassignedClient = (type, client) => {
+    switch (type) {
+      case "assign":
+        setSelectedClient(client);
+        setIsAssignToClientModalOpen(true);
+        break;
+      case "mapping":
+        setSelectedClient(client);
+        setIsMapClientModalOpen(true);
+        break;
+      default:
+        console.warn("Unknown action:", type);
+    }
+  };
+
+  const handleAssignedStaffToClient = async (clientId, staffId) => {
+    try {
+      const payload = { clientId, staffId };
+      let response = await assignStaffToClientApi(payload);
+
+      if (response.success) {
+        toast.success("Staff assigned successfully");
+        fetchUnassignedClients();
+      } else {
+        toast.error(response.message || "Failed to assign client");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to assign client");
+    }
+  };
+
+  const handleMapingClient = async (clientId) => {
+    try {
+      let res = await mapClientApi(clientId);
+      if (res.success) {
+        toast.success("Client mapped successfully");
+        fetchUnassignedClients();
+        fetchClients();
+      } else {
+        toast.error(res.message || "Failed to map client");
+      }
+    } catch (error) {
+      console.error("Error fetching staff members:", error);
+    }
+  };
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
@@ -327,7 +423,7 @@ const ClientManagement = () => {
           <div className="">
             <div className="flex items-center justify-between mb-2.5">
               <h4 className="color-black text-lg font-semibold">
-                Manage Client Maping
+                Manage Client Maping---
               </h4>
             </div>
             <div className="border border-customGray rounded-[20px] p-5">
@@ -400,7 +496,7 @@ const ClientManagement = () => {
                 </div>
               ) : (
                 <Table
-                  data={clientsList}
+                  data={unAssignedClientsList}
                   pagination={{
                     page: pagination.currentPage,
                     totalPages: pagination.totalPages,
@@ -411,13 +507,28 @@ const ClientManagement = () => {
                   onLimitChange={handleLimitChange}
                   onNextPage={handleNextPage}
                   onPrevPage={handlePrevPage}
-                  mode="clientsListing"
+                  onAction={handleActionUnassignedClient}
+                  mode="unassignedClients"
                 />
               )}
             </div>
           </div>
         )}
       </div>
+      <AssignClientModal
+        isOpen={isAssignToClientModalOpen}
+        onClose={() => setIsAssignToClientModalOpen(false)}
+        clientData={selectedClient}
+        onAssign={handleAssignedStaffToClient}
+        staffList={staffMembers}
+      />
+
+      <MapClientModal
+        isOpen={isMapClientModalOpen}
+        onClose={() => setIsMapClientModalOpen(false)}
+        clientData={selectedClient}
+        onMap={handleMapingClient}
+      />
     </div>
   );
 };
