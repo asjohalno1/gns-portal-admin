@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, use } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { ImageFallbackIcon } from "../Icons/SvgIcons";
+import { FolderIconC, ImageFallbackIcon, RootIcon } from "../Icons/SvgIcons";
 import {
   getDriveMappingApi,
   getProfileApi,
@@ -9,6 +9,7 @@ import {
   createDriveMappingApi,
 } from "../api/admin.setting.api";
 import axiosInstance from "../api/axiosInstance";
+import { FolderIcon } from "lucide-react";
 
 const AdminSettings = () => {
   // State management
@@ -42,7 +43,7 @@ const AdminSettings = () => {
   const [clientsListing, setClientsListing] = useState([]);
   const [folderTreeData, setFolderTreeData] = useState(null);
   const [image, setImage] = useState("");
-
+  const [openFolders, setOpenFolders] = useState({});
   const fetchProfileDetails = useCallback(async () => {
     try {
       setLoading((prev) => ({ ...prev, profile: true }));
@@ -220,14 +221,6 @@ const AdminSettings = () => {
     }));
   };
 
-  const handleFolderSelect = (id, path) => {
-    setDriveSettings((prev) => ({
-      ...prev,
-      selectedFolderId: id,
-      selectedFolderPath: path,
-    }));
-  };
-
   const handleAddSubfolder = () => {
     const { newSubfolder, additionalSubfolders } = driveSettings;
 
@@ -307,6 +300,13 @@ const AdminSettings = () => {
     try {
       setLoading((prev) => ({ ...prev, drive: true }));
       const response = await getDriveMappingApi();
+      setDriveSettings((prev) => ({
+        ...prev,
+        selectedClientId: "",
+        additionalSubfolders: [],
+        newSubfolder: "",
+        selectedFolderPath: "",
+      }));
 
       if (response.data) {
         setFolderTreeData(response.data);
@@ -330,35 +330,97 @@ const AdminSettings = () => {
     level = 0,
     selectedFolderId,
     onFolderSelect,
+    path = "",
   }) => {
-    const [isOpen, setIsOpen] = useState(false);
+    const currentPath = path ? `${path}/${item.name}` : item.name;
+    const isOpen = openFolders[item.id] || false;
 
-    const toggleFolder = () => setIsOpen(!isOpen);
+    const toggleFolder = (e) => {
+      e.stopPropagation(); // Prevent event from bubbling up
+      setOpenFolders((prev) => ({
+        ...prev,
+        [item.id]: !prev[item.id],
+      }));
+    };
+
+    const handleClick = (e) => {
+      e.stopPropagation(); // Prevent event from bubbling up
+      onFolderSelect(item.id, currentPath);
+    };
 
     return (
       <div className="ml-4">
         <div
-          className={`flex items-center p-2 rounded cursor-pointer ${
-            selectedFolderId === item.id ? "bg-blue-100" : "hover:bg-gray-50"
+          className={`flex items-center p-2 rounded cursor-pointer transition-colors ${
+            selectedFolderId === item.id
+              ? "bg-blue-100 border-2 border-blue-500"
+              : "hover:bg-gray-50 border-2 border-transparent"
           }`}
-          onClick={() => onFolderSelect(item.id, item.name)}
+          onClick={handleClick}
         >
-          {item.folders?.length > 0 && (
+          {item.folders && item.folders.length > 0 && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFolder();
-              }}
-              className="mr-2"
+              onClick={toggleFolder}
+              className="mr-2 w-4 h-4 flex items-center justify-center text-gray-500"
             >
-              {isOpen ? "▼" : "►"}
+              {isOpen ? (
+                <>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`transition-transform duration-200 ${
+                      isOpen ? "rotate-90" : ""
+                    }`}
+                  >
+                    <path
+                      d="M9 18L15 12L9 6"
+                      stroke="#2C3E50"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </>
+              ) : (
+                <>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`transition-transform duration-200 ${
+                      isOpen ? "rotate-90" : ""
+                    }`}
+                  >
+                    <path
+                      d="M9 18L15 12L9 6"
+                      stroke="#2C3E50"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </>
+              )}
             </button>
           )}
-          <span>{item.name}</span>
+          <span className="text-sm flex items-center gap-2 font-medium text-[#2C3E50]">
+            <FolderIconC />
+            {item.name}
+          </span>
+          {selectedFolderId === item.id && (
+            <span className="ml-2 text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+              Selected
+            </span>
+          )}
         </div>
 
-        {isOpen && item.folders?.length > 0 && (
-          <div className="ml-4">
+        {isOpen && item.folders && item.folders.length > 0 && (
+          <div className="ml-4 border-l-2 border-gray-200 pl-2">
             {item.folders.map((subFolder) => (
               <FolderItem
                 key={subFolder.id}
@@ -366,6 +428,7 @@ const AdminSettings = () => {
                 level={level + 1}
                 selectedFolderId={selectedFolderId}
                 onFolderSelect={onFolderSelect}
+                path={currentPath}
               />
             ))}
           </div>
@@ -374,6 +437,15 @@ const AdminSettings = () => {
     );
   };
 
+  // Update the folder selection handler to not close the dropdown
+  const handleFolderSelect = (id, path) => {
+    setDriveSettings((prev) => ({
+      ...prev,
+      selectedFolderId: id,
+      selectedFolderPath: path,
+    }));
+    // Don't close the dropdown - just update the selection
+  };
   // Render functions
   const renderGeneralTab = () => (
     <>
@@ -416,7 +488,7 @@ const AdminSettings = () => {
                 }`}
               >
                 {loading.image ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -666,10 +738,10 @@ const AdminSettings = () => {
                 <label className="block font-medium text-[14px] leading-[100%] tracking-[0%] text-[#484848] mb-2">
                   Select Parent Folder
                 </label>
-                <div className="border border-gray-200 rounded-md p-2 max-h-[200px] overflow-y-auto">
+                <div className="border border-gray-200 rounded-md p-2 max-h-[300px] overflow-y-auto">
                   {loading.drive ? (
-                    <div className="flex justify-center items-center h-20">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                    <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-3 bg-blue-500 rounded-full animate-slow-slide"></div>
                     </div>
                   ) : (
                     <div className="space-y-1">
@@ -683,7 +755,8 @@ const AdminSettings = () => {
                           handleFolderSelect("root", "Root Folder")
                         }
                       >
-                        <div className="font-medium text-[14px] text-[#2C3E50]">
+                        <div className="flex items-center gap-2 font-medium text-[14px] text-[#2C3E50]">
+                          <RootIcon />
                           Root Folder
                         </div>
                       </div>

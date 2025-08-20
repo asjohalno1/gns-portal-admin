@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Table from "../Component/Table/table";
 import {
+  addSubCategoryApi,
   addTemplate,
   createDocumentRequest,
   getAllAssociatedSubCategories,
@@ -19,6 +20,7 @@ import {
 } from "../Icons/SvgIcons";
 import getPlainText from "../adminutils/commonutils";
 import { useNavigate } from "react-router-dom";
+import AddCustomSubcat from "../Component/settings/AddCustomSubcat";
 
 const DocReqManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -41,6 +43,10 @@ const DocReqManagement = () => {
   const [selectedDays, setSelectedDays] = useState([]);
   const [notifyMethods, setNotifyMethods] = useState([]);
   const [linkMethods, setLinkMethod] = useState([]); // schedular logic
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [isAddSubcategoryModalOpen, setIsAddSubcategoryModalOpen] =
+    useState(false);
+  const [currentCategory, setCurrentCategory] = useState(null);
 
   const nevigate = useNavigate();
 
@@ -552,6 +558,22 @@ const DocReqManagement = () => {
         console.warn("Unknown action:", action);
     }
   };
+
+  const handleAddNewSubcategory = async (newName) => {
+    try {
+      let res = await addSubCategoryApi({
+        name: newName,
+        categoryId: currentCategory._id,
+      });
+      if (res.success) {
+        toast.success(res.message);
+        // await handleCategoryChange(currentCategoryForSubcategory);
+      }
+    } catch (error) {
+      console.error("Error fetching staff members:", error);
+    }
+  };
+
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
@@ -858,35 +880,69 @@ const DocReqManagement = () => {
 
                       {/* Document Type Selection Dropdown */}
                       <div className="relative mb-4">
-                        <select
-                          value=""
-                          onChange={(e) => {
-                            const categoryId = e.target.value;
-                            if (
-                              categoryId &&
-                              !formData.categoryId.includes(categoryId)
-                            ) {
-                              setFormData((prev) => ({
-                                ...prev,
-                                categoryId: [...prev.categoryId, categoryId],
-                              }));
-                              handleCategoryChange(categoryId);
-                            }
-                          }}
-                          className="border border-[#eaeaea] rounded-[10px] py-3 px-4 w-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        <div
+                          className="border border-[#eaeaea] rounded-[10px] py-3 px-4 w-full bg-white cursor-pointer flex items-center justify-between"
+                          onClick={() =>
+                            setShowCategoryDropdown(!showCategoryDropdown)
+                          }
                         >
-                          <option value="">+ Add Document Type...</option>
-                          {(catogaryListing || [])
-                            .filter(
+                          <span className="text-gray-500">
+                            + Add Document Type...
+                          </span>
+                          <svg
+                            className={`w-4 h-4 transition-transform ${
+                              showCategoryDropdown ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+
+                        {/* Scrollable dropdown */}
+                        {showCategoryDropdown && (
+                          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            {catogaryListing
+                              .filter(
+                                (category) =>
+                                  !formData.categoryId.includes(category._id)
+                              )
+                              .map((category) => (
+                                <div
+                                  key={category._id}
+                                  onClick={() => {
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      categoryId: [
+                                        ...prev.categoryId,
+                                        category._id,
+                                      ],
+                                    }));
+                                    handleCategoryChange(category._id);
+                                    setShowCategoryDropdown(false);
+                                  }}
+                                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                >
+                                  {category.name}
+                                </div>
+                              ))}
+                            {catogaryListing.filter(
                               (category) =>
                                 !formData.categoryId.includes(category._id)
-                            )
-                            .map((category) => (
-                              <option key={category._id} value={category._id}>
-                                {category.name}
-                              </option>
-                            ))}
-                        </select>
+                            ).length === 0 && (
+                              <div className="px-4 py-3 text-gray-500 text-sm">
+                                All categories selected
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                     {/* Selected Document Types with Their Subcategories */}
@@ -917,7 +973,7 @@ const DocReqManagement = () => {
                               key={categoryId}
                               className="border-2 border-blue-100 rounded-xl p-5 bg-[#fafafa] from-blue-50 to-indigo-50 shadow-sm"
                             >
-                              {/* Category Header with Badge Style */}
+                              {/* Category Header */}
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
                                   <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
@@ -929,48 +985,81 @@ const DocReqManagement = () => {
                                     selected
                                   </span>
                                 </div>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    // Remove category and its subcategories
-                                    const subcatsToRemove = subDocumentListing
-                                      .filter((sub) =>
-                                        categorySubcategories.includes(sub._id)
-                                      )
-                                      .map((sub) => sub._id);
-
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      categoryId: prev.categoryId.filter(
-                                        (id) => id !== categoryId
-                                      ),
-                                      documentId: prev.documentId.filter(
-                                        (id) => !subcatsToRemove.includes(id)
-                                      ),
-                                      subcategoryPriorities:
-                                        prev.subcategoryPriorities.filter(
-                                          (item) =>
-                                            !subcatsToRemove.includes(
-                                              item.subCategoryId
-                                            )
-                                        ),
-                                    }));
-                                  }}
-                                  className="flex items-center gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-all duration-200"
-                                >
-                                  <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
+                                <div className="flex items-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setCurrentCategory(category);
+                                      setIsAddSubcategoryModalOpen(true);
+                                    }}
+                                    aria-label="Add document"
+                                    title="Add document"
+                                    className="inline-flex items-center justify-center rounded-lg p-2 hover:bg-blue-50 text-blue-600 hover:text-blue-700 transition-colors"
                                   >
-                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                                  </svg>
-                                  Remove Type
-                                </button>
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      className="text-blue-600 hover:text-blue-700"
+                                    >
+                                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                      <path d="M14 2v6h6" />
+                                      <path d="M12 12v6" />
+                                      <path d="M9 15h6" />
+                                    </svg>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      // Remove category and its subcategories
+                                      const subcatsToRemove = subDocumentListing
+                                        .filter((sub) =>
+                                          categorySubcategories.includes(
+                                            sub._id
+                                          )
+                                        )
+                                        .map((sub) => sub._id);
+
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        categoryId: prev.categoryId.filter(
+                                          (id) => id !== categoryId
+                                        ),
+                                        documentId: prev.documentId.filter(
+                                          (id) => !subcatsToRemove.includes(id)
+                                        ),
+                                        subcategoryPriorities:
+                                          prev.subcategoryPriorities.filter(
+                                            (item) =>
+                                              !subcatsToRemove.includes(
+                                                item.subCategoryId
+                                              )
+                                          ),
+                                      }));
+                                    }}
+                                    className="flex items-center gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-all duration-200"
+                                  >
+                                    <svg
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                    >
+                                      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                                    </svg>
+                                    Remove Type
+                                  </button>
+                                </div>
                               </div>
 
-                              {/* Subcategory Selection Dropdown */}
+                              {/* Subcategory Selection Dropdown - FIXED */}
                               <div className="mb-4">
                                 <select
                                   value=""
@@ -1001,7 +1090,9 @@ const DocReqManagement = () => {
                                   {subDocumentListing
                                     .filter(
                                       (sub) =>
-                                        !formData.documentId.includes(sub._id)
+                                        !formData.documentId.includes(
+                                          sub._id
+                                        ) && sub.parentCategoryId === categoryId // Only show subcategories for this category
                                     )
                                     .map((subCategory) => (
                                       <option
@@ -1428,6 +1519,13 @@ const DocReqManagement = () => {
                 </div>
               </form>
             </div>
+            {/* locopoco */}
+            <AddCustomSubcat
+              isOpen={isAddSubcategoryModalOpen}
+              onClose={() => setIsAddSubcategoryModalOpen(false)}
+              onSubmit={handleAddNewSubcategory}
+              categoryName={currentCategory ? currentCategory.name : "Category"}
+            />
           </div>
         )}
 
