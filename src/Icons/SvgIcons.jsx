@@ -167,9 +167,9 @@ export const AddDocumentIcon = () => {
       {/* Document outline */}
       <path
         d="M6 2H14L18 6V20C18 21.1 17.1 22 16 22H6C4.9 22 4 21.1 4 20V4C4 2.9 4.9 2 6 2Z"
-        stroke="#8F8F8F"
-        stroke-opacity="0.8"
-        strokeWidth="1.5"
+        stroke="#1E293B"
+        strokeOpacity="0.95"
+        strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -177,8 +177,8 @@ export const AddDocumentIcon = () => {
       {/* Folded corner */}
       <path
         d="M14 2V6H18"
-        stroke="#8F8F8F"
-        strokeWidth="1.5"
+        stroke="#1E293B"
+        strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -186,8 +186,8 @@ export const AddDocumentIcon = () => {
       {/* Plus sign */}
       <path
         d="M12 10V16M9 13H15"
-        stroke="#8F8F8F"
-        strokeWidth="1.5"
+        stroke="#1E293B"
+        strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -263,11 +263,11 @@ export const AuditLogsIcon = () => {
       xmlns="http://www.w3.org/2000/svg"
     >
       {/* Circle for clock */}
-      <circle cx="12" cy="12" r="9" stroke="#2C3E50" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="9" stroke="#1E293B" strokeWidth="1.5" />
       {/* Clock hands */}
       <path
         d="M12 7V12L15 14"
-        stroke="#2C3E50"
+        stroke="#1E293B"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -292,9 +292,6 @@ export const RootIcon = () => {
     </svg>
   );
 };
-
-/*************  ✨ Windsurf Command ⭐  *************/
-/*******  e31c181c-545c-46aa-a36e-d3294c84b34f  *******/
 
 export const FolderIconC = () => {
   return (
