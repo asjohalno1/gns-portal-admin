@@ -170,7 +170,11 @@ const SendReminder = () => {
   };
 
   const addDefaultRemainder = async () => {
-    if (notifyMethods.length === 0) {
+    const selectedNotifyMethods = Object.keys(notifyMethods).filter(
+      (key) => notifyMethods[key]
+    );
+
+    if (selectedNotifyMethods.length === 0) {
       toast.error("Please select at least one notify method.");
       return;
     }
@@ -180,7 +184,7 @@ const SendReminder = () => {
         scheduleTime: customDateTime,
         frequency: frequency,
         days: selectedDays,
-        notifyMethod: notifyMethods,
+        notifyMethod: selectedNotifyMethods,
       };
 
       const res = await addReminderDefault(payloadDefault);
@@ -951,7 +955,7 @@ const SendReminder = () => {
                         { label: "Email", value: "email" },
                         { label: "SMS", value: "sms" },
                         { label: "Portal Notification", value: "portal" },
-                        { label: "AI Call", value: "AiCall" },
+                        { label: "AI Call", value: "AiCall" }, // optional
                       ].map((method) => (
                         <label
                           key={method.value}
@@ -960,20 +964,18 @@ const SendReminder = () => {
                           <input
                             type="checkbox"
                             value={method.value}
-                            checked={notifyMethods.includes(method.value)}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setNotifyMethods((prev) =>
-                                prev.includes(value)
-                                  ? prev.filter((m) => m !== value)
-                                  : [...prev, value]
-                              );
+                            checked={notifyMethods[method.value]}
+                            onChange={() => {
+                              setNotifyMethods((prev) => ({
+                                ...prev,
+                                [method.value]: !prev[method.value],
+                              }));
                             }}
                             className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
-                  checked:bg-[#20BF55] checked:border-[#20BF55]
-                  checked:after:content-['✓'] checked:after:text-white 
-                  checked:after:text-[12px] checked:after:font-bold 
-                  checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
+            checked:bg-[#20BF55] checked:border-[#20BF55]
+            checked:after:content-['✓'] checked:after:text-white 
+            checked:after:text-[12px] checked:after:font-bold 
+            checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
                           />
                           {method.label}
                         </label>
