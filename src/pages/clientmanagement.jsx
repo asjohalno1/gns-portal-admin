@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Table from "../Component/Table/table";
 import ImportBulkModal from "./importbulkmodal";
 import AddClientmodal from "./addClientmodal";
@@ -27,16 +27,32 @@ const ClientManagement = () => {
   const [clientEditModal, setClientEditModal] = useState(false);
   const [clientInfo, setClientInfo] = useState();
   const [staffMembers, setStaffMembers] = useState([]);
-  const [filters, setFilters] = useState({
+  const [tab1LimitDebounce, setTab1LimitDebounce] = useState(null);
+  const [tab2LimitDebounce, setTab2LimitDebounce] = useState(null);
+
+  // Separate filters and pagination for each tab
+  const [tab1Filters, setTab1Filters] = useState({
     search: "",
     status: "all",
   });
-  const [pagination, setPagination] = useState({
+  const [tab1Pagination, setTab1Pagination] = useState({
     currentPage: 1,
     totalPages: 1,
     totalClients: 0,
     limit: 10,
   });
+
+  const [tab2Filters, setTab2Filters] = useState({
+    search: "",
+    status: "all",
+  });
+  const [tab2Pagination, setTab2Pagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalClients: 0,
+    limit: 10,
+  });
+
   const [clientsList, setClientsList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -50,18 +66,17 @@ const ClientManagement = () => {
     try {
       setLoading(true);
       const query = {
-        pageNumber: pagination.currentPage,
-        limit: pagination.limit,
-        name: filters.search,
-        email: filters.search,
-        status: filters.status,
+        pageNumber: tab1Pagination.currentPage,
+        limit: tab1Pagination.limit,
+        search: tab1Filters.search, // Using search key instead of name/email
+        status: tab1Filters.status,
       };
 
       const response = await getAllClients(query);
       setClientsList(response?.data.clients);
       const { clients, totalPages, totalClients } = response.data;
       setClientsList(clients);
-      setPagination((prev) => ({
+      setTab1Pagination((prev) => ({
         ...prev,
         totalPages,
         totalClients,
@@ -75,11 +90,10 @@ const ClientManagement = () => {
 
   const fetchUnassignedClients = async () => {
     const query = {
-      pageNumber: pagination.currentPage,
-      limit: pagination.limit,
-      name: filters.search,
-      email: filters.search,
-      status: filters.status,
+      page: tab2Pagination.currentPage, // Note: API uses 'page' instead of 'pageNumber'
+      limit: tab2Pagination.limit,
+      search: tab2Filters.search, // Using search key
+      status: tab2Filters.status,
     };
 
     try {
@@ -88,7 +102,7 @@ const ClientManagement = () => {
       setUnAssignedClientsList(response?.data.clients);
       const { clients, totalPages, totalClients } = response.data;
       setUnAssignedClientsList(clients);
-      setPagination((prev) => ({
+      setTab2Pagination((prev) => ({
         ...prev,
         totalPages,
         totalClients,
@@ -118,64 +132,160 @@ const ClientManagement = () => {
     }
   }, [activeTab]);
 
+  // Separate useEffects for each tab
   useEffect(() => {
-    fetchClients();
-    if (activeTab === "tab2") {
-      fetchUnassignedClients();
-    }
     if (activeTab === "tab1") {
       fetchClients();
     }
-  }, [filters, pagination.currentPage, pagination.limit]);
+  }, [tab1Filters, tab1Pagination.currentPage, tab1Pagination.limit]);
 
-  const handleFilterChange = (e) => {
+  useEffect(() => {
+    if (activeTab === "tab2") {
+      fetchUnassignedClients();
+    }
+  }, [tab2Filters, tab2Pagination.currentPage, tab2Pagination.limit]);
+
+  useEffect(() => {
+    return () => {
+      if (tab1LimitDebounce) clearTimeout(tab1LimitDebounce);
+      if (tab2LimitDebounce) clearTimeout(tab2LimitDebounce);
+    };
+  }, [tab1LimitDebounce, tab2LimitDebounce]);
+
+  // Tab 1 handlers
+  const handleTab1FilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({
+    setTab1Filters((prev) => ({
       ...prev,
       [name]: value,
     }));
-    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+    setTab1Pagination((prev) => ({ ...prev, currentPage: 1 }));
   };
 
-  const handleSearch = (e) => {
-    handleFilterChange(e);
+  const handleTab1Search = (e) => {
+    handleTab1FilterChange(e);
   };
 
-  const handleStatusChange = (e) => {
-    handleFilterChange(e);
+  const handleTab1StatusChange = (e) => {
+    handleTab1FilterChange(e);
   };
 
-  const handleClearFilters = () => {
-    setFilters({
+  const handleTab1ClearFilters = () => {
+    setTab1Filters({
       search: "",
       status: "all",
     });
-    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+    setTab1Pagination((prev) => ({ ...prev, currentPage: 1 }));
   };
 
-  const handleNextPage = () => {
-    if (pagination.currentPage < pagination.totalPages) {
-      setPagination((prev) => ({ ...prev, currentPage: prev.currentPage + 1 }));
+  const handleTab1NextPage = () => {
+    if (tab1Pagination.currentPage < tab1Pagination.totalPages) {
+      setTab1Pagination((prev) => ({
+        ...prev,
+        currentPage: prev.currentPage + 1,
+      }));
     }
   };
 
-  const handlePrevPage = () => {
-    if (pagination.currentPage > 1) {
-      setPagination((prev) => ({ ...prev, currentPage: prev.currentPage - 1 }));
+  const handleTab1PrevPage = () => {
+    if (tab1Pagination.currentPage > 1) {
+      setTab1Pagination((prev) => ({
+        ...prev,
+        currentPage: prev.currentPage - 1,
+      }));
     }
   };
 
-  const handlePageChange = (newPage) => {
-    setPagination((prev) => ({ ...prev, currentPage: newPage }));
+  const handleTab1PageChange = (newPage) => {
+    setTab1Pagination((prev) => ({ ...prev, currentPage: newPage }));
   };
 
-  const handleLimitChange = (newLimit) => {
-    setPagination((prev) => ({
+  const handleTab1LimitChange = useCallback(
+    (newLimit) => {
+      // Clear existing timeout
+      if (tab1LimitDebounce) {
+        clearTimeout(tab1LimitDebounce);
+      }
+
+      // Set new timeout
+      const timeoutId = setTimeout(() => {
+        setTab1Pagination((prev) => ({
+          ...prev,
+          limit: newLimit,
+          currentPage: 1,
+        }));
+      }, 500); // 500ms delay
+
+      setTab1LimitDebounce(timeoutId);
+    },
+    [tab1LimitDebounce]
+  );
+
+  // Tab 2 handlers
+  const handleTab2FilterChange = (e) => {
+    const { name, value } = e.target;
+    setTab2Filters((prev) => ({
       ...prev,
-      limit: newLimit,
-      currentPage: 1,
+      [name]: value,
     }));
+    setTab2Pagination((prev) => ({ ...prev, currentPage: 1 }));
   };
+
+  const handleTab2Search = (e) => {
+    handleTab2FilterChange(e);
+  };
+
+  const handleTab2StatusChange = (e) => {
+    handleTab2FilterChange(e);
+  };
+
+  const handleTab2ClearFilters = () => {
+    setTab2Filters({
+      search: "",
+      status: "all",
+    });
+    setTab2Pagination((prev) => ({ ...prev, currentPage: 1 }));
+  };
+
+  const handleTab2NextPage = () => {
+    if (tab2Pagination.currentPage < tab2Pagination.totalPages) {
+      setTab2Pagination((prev) => ({
+        ...prev,
+        currentPage: prev.currentPage + 1,
+      }));
+    }
+  };
+
+  const handleTab2PrevPage = () => {
+    if (tab2Pagination.currentPage > 1) {
+      setTab2Pagination((prev) => ({
+        ...prev,
+        currentPage: prev.currentPage - 1,
+      }));
+    }
+  };
+
+  const handleTab2PageChange = (newPage) => {
+    setTab2Pagination((prev) => ({ ...prev, currentPage: newPage }));
+  };
+
+  const handleTab2LimitChange = useCallback(
+    (newLimit) => {
+      if (tab2LimitDebounce) {
+        clearTimeout(tab2LimitDebounce);
+      }
+      const timeoutId = setTimeout(() => {
+        setTab2Pagination((prev) => ({
+          ...prev,
+          limit: newLimit,
+          currentPage: 1,
+        }));
+      }, 500);
+
+      setTab2LimitDebounce(timeoutId);
+    },
+    [tab2LimitDebounce]
+  );
 
   const handleModalAction = async (type, client) => {
     if (client?._id) {
@@ -198,7 +308,6 @@ const ClientManagement = () => {
       case "delete":
         setShowDeleteModal(true);
         setSelectedClient(client);
-
         break;
     }
   };
@@ -254,6 +363,7 @@ const ClientManagement = () => {
       console.error("Error fetching staff members:", error);
     }
   };
+
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
@@ -319,8 +429,8 @@ const ClientManagement = () => {
                   <input
                     type="text"
                     name="search"
-                    value={filters.search}
-                    onChange={handleSearch}
+                    value={tab1Filters.search}
+                    onChange={handleTab1Search}
                     placeholder="Search by name, email or status"
                     className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
                   />
@@ -345,8 +455,8 @@ const ClientManagement = () => {
                   <div className="relative">
                     <select
                       name="status"
-                      value={filters.status}
-                      onChange={handleStatusChange}
+                      value={tab1Filters.status}
+                      onChange={handleTab1StatusChange}
                       className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
                     >
                       <option value="all">All</option>
@@ -369,7 +479,7 @@ const ClientManagement = () => {
                     </svg>
                   </div>
                   <button
-                    onClick={handleClearFilters}
+                    onClick={handleTab1ClearFilters}
                     className="ml-5 color-black font-medium text-sm underline"
                   >
                     Clear
@@ -385,15 +495,15 @@ const ClientManagement = () => {
                 <Table
                   data={clientsList}
                   pagination={{
-                    page: pagination.currentPage,
-                    totalPages: pagination.totalPages,
-                    total: pagination.totalClients,
-                    limit: pagination.limit,
+                    page: tab1Pagination.currentPage,
+                    totalPages: tab1Pagination.totalPages,
+                    total: tab1Pagination.totalClients,
+                    limit: tab1Pagination.limit,
                   }}
-                  onPageChange={handlePageChange}
-                  onLimitChange={handleLimitChange}
-                  onNextPage={handleNextPage}
-                  onPrevPage={handlePrevPage}
+                  onPageChange={handleTab1PageChange}
+                  onLimitChange={handleTab1LimitChange}
+                  onNextPage={handleTab1NextPage}
+                  onPrevPage={handleTab1PrevPage}
                   onAction={handleModalAction}
                   mode="clientsListing"
                 />
@@ -423,7 +533,7 @@ const ClientManagement = () => {
           <div className="">
             <div className="flex items-center justify-between mb-2.5">
               <h4 className="color-black text-lg font-semibold">
-                Manage Client Maping---
+                Manage Client Mapping
               </h4>
             </div>
             <div className="border border-customGray rounded-[20px] p-5">
@@ -432,8 +542,8 @@ const ClientManagement = () => {
                   <input
                     type="text"
                     name="search"
-                    value={filters.search}
-                    onChange={handleSearch}
+                    value={tab2Filters.search}
+                    onChange={handleTab2Search}
                     placeholder="Search by name, email or status"
                     className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
                   />
@@ -458,8 +568,8 @@ const ClientManagement = () => {
                   <div className="relative">
                     <select
                       name="status"
-                      value={filters.status}
-                      onChange={handleStatusChange}
+                      value={tab2Filters.status}
+                      onChange={handleTab2StatusChange}
                       className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
                     >
                       <option value="all">All</option>
@@ -482,7 +592,7 @@ const ClientManagement = () => {
                     </svg>
                   </div>
                   <button
-                    onClick={handleClearFilters}
+                    onClick={handleTab2ClearFilters}
                     className="ml-5 color-black font-medium text-sm underline"
                   >
                     Clear
@@ -498,15 +608,15 @@ const ClientManagement = () => {
                 <Table
                   data={unAssignedClientsList}
                   pagination={{
-                    page: pagination.currentPage,
-                    totalPages: pagination.totalPages,
-                    total: pagination.totalClients,
-                    limit: pagination.limit,
+                    page: tab2Pagination.currentPage,
+                    totalPages: tab2Pagination.totalPages,
+                    total: tab2Pagination.totalClients,
+                    limit: tab2Pagination.limit,
                   }}
-                  onPageChange={handlePageChange}
-                  onLimitChange={handleLimitChange}
-                  onNextPage={handleNextPage}
-                  onPrevPage={handlePrevPage}
+                  onPageChange={handleTab2PageChange}
+                  onLimitChange={handleTab2LimitChange}
+                  onNextPage={handleTab2NextPage}
+                  onPrevPage={handleTab2PrevPage}
                   onAction={handleActionUnassignedClient}
                   mode="unassignedClients"
                 />

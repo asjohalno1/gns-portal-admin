@@ -36,7 +36,7 @@ const SendReminder = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showRemainderModal, setShowRemainderModal] = useState(false);
   const [showRemainderEditModal, setShowEditRemainderModal] = useState(false);
-  const [notifyMethods, setNotifyMethods] = useState([]);
+
   const [selectedClientIds, setSelectedClientIds] = useState([]);
   const [isDefaultselect, setIsDefaultselect] = useState(false);
   const [sendAsDefaultReminder, setSendAsDefaultReminder] = useState(false);
@@ -53,6 +53,12 @@ const SendReminder = () => {
   };
 
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const [notifyMethods, setNotifyMethods] = useState({
+    email: false,
+    sms: false,
+    portal: false,
+    AiCall: false,
+  });
   const handleDayToggle = (day) => {
     if (frequency === "Daily") {
       setSelectedDays((prev) =>
@@ -221,12 +227,14 @@ const SendReminder = () => {
         payload.isDefault = true;
       } else {
         // When using custom settings
+
+        const selectedMethods = Object.entries(notifyMethods)
+          .filter(([method, isSelected]) => isSelected)
+          .map(([method]) => method);
         payload.scheduleTime = customDateTime;
         payload.frequency = frequency;
         payload.days = selectedDays;
-        payload.notifyMethod = Object.keys(notifyMethods).filter(
-          (method) => notifyMethods[method]
-        );
+        payload.notifyMethod = selectedMethods;
       }
 
       const res = await sendClientReminder(payload);
@@ -649,23 +657,18 @@ const SendReminder = () => {
                               <input
                                 type="checkbox"
                                 value={method.value}
-                                checked={notifyMethods.includes(method.value)}
+                                checked={notifyMethods[method.value]}
                                 onChange={(e) => {
                                   if (!sendAsDefaultReminder) {
-                                    const value = e.target.value;
-                                    setNotifyMethods((prev) =>
-                                      prev.includes(value)
-                                        ? prev.filter((m) => m !== value)
-                                        : [...prev, value]
-                                    );
+                                    handleNotifyMethodChange(method.value);
                                   }
                                 }}
                                 disabled={sendAsDefaultReminder}
                                 className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
-          checked:bg-[#20BF55] checked:border-[#20BF55]
-          checked:after:content-['✓'] checked:after:text-white 
-          checked:after:text-[12px] checked:after:font-bold 
-          checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
+        checked:bg-[#20BF55] checked:border-[#20BF55]
+        checked:after:content-['✓'] checked:after:text-white 
+        checked:after:text-[12px] checked:after:font-bold 
+        checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
                               />
                               {method.label}
                             </label>

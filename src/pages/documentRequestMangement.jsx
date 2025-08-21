@@ -21,6 +21,7 @@ import {
 import getPlainText from "../adminutils/commonutils";
 import { useNavigate } from "react-router-dom";
 import AddCustomSubcat from "../Component/settings/AddCustomSubcat";
+import SuccessrequestModal from "../CommonPages/SuccessModal/SuccessrequestModal";
 
 const DocReqManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -28,6 +29,7 @@ const DocReqManagement = () => {
   const [headerSummery, setHeaderSummery] = useState({});
   const [secureLink, setSecureLink] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -280,10 +282,9 @@ const DocReqManagement = () => {
         setFrequency("Weekly");
         setSelectedDays([]);
         setNotifyMethods([]);
-
         setLoading(false);
-        setActiveTab("tab1");
         fetchDocumentListing();
+        setIsSuccessModalOpen(true);
       } else {
         toast.error(res?.message || "Failed to create document request");
         setLoading(false);
@@ -1527,6 +1528,14 @@ const DocReqManagement = () => {
               onSubmit={handleAddNewSubcategory}
               categoryName={currentCategory ? currentCategory.name : "Category"}
             />
+            {isSuccessModalOpen && (
+              <SuccessrequestModal
+                onClose={() => {
+                  setIsSuccessModalOpen(false);
+                }}
+                title={"Document request created successfully"}
+              />
+            )}
           </div>
         )}
 
@@ -1627,7 +1636,7 @@ const DocReqManagement = () => {
                         >
                           Use Template !
                         </button>
-                        <button
+                        {/* <button
                           type="button"
                           className="text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer p-1"
                           title="Edit Template"
@@ -1645,7 +1654,7 @@ const DocReqManagement = () => {
                               fill="#2C3E50"
                             />
                           </svg>
-                        </button>
+                        </button> */}
                       </div>
                     </div>
 
