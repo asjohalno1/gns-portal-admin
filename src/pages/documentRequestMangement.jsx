@@ -986,7 +986,7 @@ const DocReqManagement = () => {
                                   </span>
                                 </div>
                                 <div className="flex items-center">
-                                  <button
+                                  {/* <button
                                     type="button"
                                     onClick={() => {
                                       setCurrentCategory(category);
@@ -1013,7 +1013,7 @@ const DocReqManagement = () => {
                                       <path d="M12 12v6" />
                                       <path d="M9 15h6" />
                                     </svg>
-                                  </button>
+                                  </button> */}
 
                                   <button
                                     type="button"
@@ -1288,7 +1288,7 @@ const DocReqManagement = () => {
                     )}
                   </div>
                 </div>
-                <div className="mb-5">
+                {/* <div className="mb-5">
                   <label className="block text-[#484848] text-sm font-medium mb-2">
                     Add other Documents (eg. Insurance, Petant document, ...)
                   </label>
@@ -1297,8 +1297,25 @@ const DocReqManagement = () => {
                     rows="2"
                     placeholder="Add Other Documents  seperated by ‘Comma’"
                   />
-                </div>
+                </div> */}
                 <div className="grid grid-cols-2 gap-5 mb-5">
+                  <div className="mb-5">
+                    <label className="block text-[#484848] text-sm font-medium mb-2">
+                      Instructions & Requirements
+                    </label>
+                    <textarea
+                      value={formData.instructions}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          instructions: e.target.value,
+                        }))
+                      }
+                      className="w-full border border-[#eaeaea]  text-[#484848] p-3 rounded-[10px] font-normal text-[12px] leading-[100%] tracking-[0] capitalize focus:outline-dark h-[45px] resize-none"
+                      rows="2"
+                      placeholder="Add instructions..."
+                    />
+                  </div>
                   <div className="w-full">
                     <label
                       for="fname"
@@ -1321,23 +1338,7 @@ const DocReqManagement = () => {
                     />
                   </div>
                 </div>
-                <div className="mb-5">
-                  <label className="block text-[#484848] text-sm font-medium mb-2">
-                    Instructions & Requirements
-                  </label>
-                  <textarea
-                    value={formData.instructions}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        instructions: e.target.value,
-                      }))
-                    }
-                    className="w-full border border-[#eaeaea] bg-[#FAFAFA] text-[#484848] p-3 rounded-[10px] font-normal text-[12px] leading-[100%] tracking-[0] capitalize focus:outline-none h-[60px] resize-none"
-                    rows="2"
-                    placeholder="Add instructions..."
-                  />
-                </div>
+
                 <div className="mb-5">
                   <label className="block text-[#484848] text-sm font-medium mb-2">
                     Notify Method*
