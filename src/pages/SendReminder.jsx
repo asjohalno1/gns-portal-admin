@@ -24,9 +24,7 @@ const SendReminder = () => {
   const [frequency, setFrequency] = useState("Weekly");
   const [selectedDays, setSelectedDays] = useState(["Tue", "Wed"]);
   const [customDateTime, setCustomDateTime] = useState("10:00");
-  const [customMessage, setCustomMessage] = useState(
-    "Important: Your Tax Filing Deadline Is Approaching On [DATE]. Please Ensure All Required Documents Are Submitted. We're Here To Help - Contact Us At [PHONE] Or [EMAIL]."
-  );
+  const [customMessage, setCustomMessage] = useState("");
   const [templateData, setTemplateData] = useState("");
   const [clients, setClients] = useState([]);
   const [remainder, setDocumentRemainder] = useState([]);
