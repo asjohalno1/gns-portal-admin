@@ -226,8 +226,6 @@ const SendReminder = () => {
         payload.notifyMethod = defaultSettings.notifyMethod;
         payload.isDefault = true;
       } else {
-        // When using custom settings
-
         const selectedMethods = Object.entries(notifyMethods)
           .filter(([method, isSelected]) => isSelected)
           .map(([method]) => method);
