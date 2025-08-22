@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { PERMISSIONS } from "../../../adminutils/commonutils";
 
 function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
   const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
     dob: "",
     address: "",
     active: true,
+    rolePermissions: [],
   });
 
   useEffect(() => {
@@ -21,6 +23,7 @@ function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
         dob: staff.dob || "",
         address: staff.address || "",
         active: staff.active ?? true,
+        rolePermissions: staff.rolePermissions || [],
       });
     }
   }, [staff]);
@@ -35,30 +38,43 @@ function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
     }));
   };
 
+  const handlePermissionChange = (key) => {
+    setFormData((prev) => {
+      const alreadySelected = prev.rolePermissions.includes(key);
+      return {
+        ...prev,
+        rolePermissions: alreadySelected
+          ? prev.rolePermissions.filter((p) => p !== key)
+          : [...prev.rolePermissions, key],
+      };
+    });
+  };
+
   const handleSubmit = () => {
     onUpdate(formData);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-[#0000005D] flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-100 animate-in fade-in-0 slide-in-from-bottom-4">
-        {/* Header */}
-        <div className="relative bg-blue-500 text-white px-8 py-6 rounded-t-2xl">
-          <h2 className="text-2xl font-bold tracking-tight">Edit Staff</h2>
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center transition-all duration-200"
-          >
-            <span className="text-black text-lg">✕</span>
-          </button>
-        </div>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 ">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto  relative">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
+        >
+          ✕
+        </button>
+
+        {/* Title */}
+        <h2 className="text-xl font-semibold mb-6">Edit Staff</h2>
 
         {/* Form */}
-        <div className="px-8 py-8 pt-6 space-y-5">
+        <div className="space-y-4">
+          {/* Name Fields */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-gray-500 uppercase font-medium mb-1">
+              <label className="text-sm text-gray-600 font-medium">
                 First Name
               </label>
               <input
@@ -71,7 +87,7 @@ function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
             </div>
 
             <div>
-              <label className="text-sm text-gray-500 uppercase font-medium mb-1">
+              <label className="text-sm text-gray-600 font-medium">
                 Last Name
               </label>
               <input
@@ -85,9 +101,7 @@ function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
           </div>
 
           <div>
-            <label className="text-sm text-gray-500 uppercase font-medium mb-1">
-              Email
-            </label>
+            <label className="text-sm text-gray-600 font-medium">Email</label>
             <input
               type="email"
               name="email"
@@ -98,9 +112,7 @@ function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
           </div>
 
           <div>
-            <label className="text-sm text-gray-500 uppercase font-medium mb-1">
-              Phone
-            </label>
+            <label className="text-sm text-gray-600 font-medium">Phone</label>
             <input
               type="text"
               name="phoneNumber"
@@ -111,7 +123,7 @@ function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
           </div>
 
           <div>
-            <label className="text-sm text-gray-500 uppercase font-medium mb-1">
+            <label className="text-sm text-gray-600 font-medium">
               Date of Birth
             </label>
             <input
@@ -124,9 +136,7 @@ function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
           </div>
 
           <div>
-            <label className="text-sm text-gray-500 uppercase font-medium mb-1">
-              Address
-            </label>
+            <label className="text-sm text-gray-600 font-medium">Address</label>
             <textarea
               name="address"
               value={formData.address}
@@ -136,6 +146,7 @@ function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
             />
           </div>
 
+          {/* Active */}
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
@@ -144,15 +155,35 @@ function EditStaffModal({ isOpen, onClose, staff, onUpdate }) {
               onChange={handleChange}
               className="w-4 h-4"
             />
-            <label className="text-sm text-gray-500 font-medium">Active</label>
+            <label className="text-sm text-gray-600 font-medium">Active</label>
+          </div>
+
+          {/* Role Permissions */}
+          <div>
+            <label className="block text-sm text-gray-600 font-medium mb-2">
+              Role Permissions
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {PERMISSIONS.map((perm) => (
+                <label key={perm.key} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.rolePermissions.includes(perm.key)}
+                    onChange={() => handlePermissionChange(perm.key)}
+                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <span>{perm.label}</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-8 pb-6">
+        <div className="mt-6 flex justify-end">
           <button
             onClick={handleSubmit}
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+            className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-all"
           >
             Update
           </button>

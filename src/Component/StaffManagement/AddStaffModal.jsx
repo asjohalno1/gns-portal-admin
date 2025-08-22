@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { AddStaff } from "../../api/staffManagement.api";
 import { toast } from "react-toastify";
+import { PERMISSIONS } from "../../adminutils/commonutils";
 
 const AddStaffModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -8,11 +9,12 @@ const AddStaffModal = ({ isOpen, onClose }) => {
     last_name: "",
     email: "",
     password: "",
-    role_id: "2", // Default to staff role
+    role_id: "2",
     active: true,
     phoneNumber: "",
     address: "",
     dob: "",
+    rolePermissions: [],
   });
 
   const handleChange = (e) => {
@@ -36,6 +38,18 @@ const AddStaffModal = ({ isOpen, onClose }) => {
     } catch (error) {
       console.error("Error adding staff:", error);
     }
+  };
+
+  const handlePermissionChange = (key) => {
+    setFormData((prev) => {
+      const alreadySelected = prev.rolePermissions.includes(key);
+      return {
+        ...prev,
+        rolePermissions: alreadySelected
+          ? prev.rolePermissions.filter((p) => p !== key)
+          : [...prev.rolePermissions, key],
+      };
+    });
   };
 
   if (!isOpen) return null;
@@ -160,38 +174,22 @@ const AddStaffModal = ({ isOpen, onClose }) => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <label className="block text-gray-900 font-medium mb-2">
-                Role
-              </label>
-              <select
-                name="role_id"
-                value={formData.role_id}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="1">Admin</option>
-                <option value="2">Staff</option>
-                <option value="3">Client</option>
-              </select>
-            </div>
-            <div className="flex items-center mt-6 gap-2">
-              <input
-                type="checkbox"
-                name="active"
-                id="active"
-                checked={formData.active}
-                onChange={handleChange}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="active"
-                className="ml-2 block text-gray-900 font-medium"
-              >
-                Active Status
-              </label>
+          <div className="mb-6">
+            <label className="block text-gray-900 font-medium mb-2">
+              Assign Permissions
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {PERMISSIONS.map((perm) => (
+                <label key={perm.key} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.rolePermissions.includes(perm.key)}
+                    onChange={() => handlePermissionChange(perm.key)}
+                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <span>{perm.label}</span>
+                </label>
+              ))}
             </div>
           </div>
 
