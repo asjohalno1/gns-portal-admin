@@ -116,7 +116,7 @@ const AddStaffModal = ({ isOpen, onClose }) => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-gray-900 font-medium mb-2">
                 Password
               </label>
@@ -129,7 +129,7 @@ const AddStaffModal = ({ isOpen, onClose }) => {
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div>
+            </div> */}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

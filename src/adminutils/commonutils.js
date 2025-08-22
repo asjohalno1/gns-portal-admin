@@ -90,9 +90,11 @@ export const getTime = (date) => {
 
 export const PERMISSIONS = [
     { key: "send_reminder", label: "Send Reminder" },
-    { key: "generate_document_request", label: "Generate Document Request" },
+    { key: "generate_doc_request", label: "Generate Document Request" },
     { key: "approve_document", label: "Approve Document" },
     { key: "reject_document", label: "Reject Document" },
     { key: "approve_entire_request", label: "Approve Entire Document Request" },
     { key: "add_mapping", label: "Add Mapping" }
 ];
+
+
