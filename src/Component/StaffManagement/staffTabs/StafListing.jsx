@@ -99,15 +99,14 @@ const StafListing = () => {
       const response = await updateStaffApi(id, formData);
 
       if (response.data.success) {
-        toast.success(response.message);
-        // Refresh the current page after update
+        toast.success(response.message || "Staff updated successfully");
         fetchAllStaffList(
           staffData.pagination.page,
           staffData.pagination.limit
         );
         setEditModalOpen(false);
       } else {
-        toast.error(response.data.message || "Failed to update staff");
+        // toast.error(response.data.message || "Failed to update staff");
       }
     } catch (error) {
       console.error("Error updating staff:", error);
