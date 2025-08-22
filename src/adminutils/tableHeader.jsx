@@ -129,8 +129,6 @@ export const headerConfigs = {
       { key: "pendingTasks", label: "Pending Tasks" },
       { key: "overdueTasks", label: "Overdue Tasks" },
       { key: "performanceStatus", label: "Performance Status" },
-      { key: "avgTurnaround", label: "Avg Turnaround" },
-      { key: "actions", label: "Action" },
     ],
   },
   documentManagementListing: {

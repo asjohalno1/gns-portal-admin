@@ -86,31 +86,6 @@ const PerformanceMetrics = () => {
   return (
     <>
       <div className="flex gap-6 w-full mb-6">
-        {/* Avg Turnaround */}
-        <div className="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-gray-200 px-6 py-4 flex-1">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">Avg Turnaround</p>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {stats.avgTurnaround}
-            </h2>
-          </div>
-          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-            <svg
-              className="w-6 h-6 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-        </div>
-
         {/* Total Task */}
         <div className="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-gray-200 px-6 py-4 flex-1">
           <div>
@@ -133,6 +108,15 @@ const PerformanceMetrics = () => {
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
+          </div>
+        </div>
+        {/* Avg Turnaround */}
+        <div className="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-gray-200 px-6 py-4 flex-1">
+          <div>
+            <p className="text-gray-500 text-sm font-medium">Pending Tasks</p>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {stats.totalTasks - stats.totalCompleted}
+            </h2>
           </div>
         </div>
 
@@ -176,8 +160,10 @@ const PerformanceMetrics = () => {
           className="px-4 py-2 border rounded-md"
         >
           <option value="all">All Status</option>
-          <option value="active">Active Only</option>
-          <option value="inactive">Inactive Only</option>
+          <option value="bad">Bad</option>
+          <option value="average">Average </option>{" "}
+          <option value="good">Good</option>
+          <option value="excellent">Excellent</option>
         </select>
       </div>
 
