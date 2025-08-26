@@ -299,23 +299,13 @@ const DocReqManagement = () => {
   };
 
   const handleSaveAsTemplate = async (e) => {
+    if (!formData.title) {
+      toast.error("Please enter a title !");
+      return;
+    }
     e.preventDefault();
     try {
       setSaveLoading(true);
-
-      // Validate required fields for template
-      if (
-        !formData.title ||
-        !formData.categoryId?.length ||
-        !formData.documentId?.length
-      ) {
-        toast.error(
-          "Please fill title, select at least one document type and documents to save as template"
-        );
-        return;
-      }
-
-      // Convert subcategoryPriorities array to object if needed
       const prioritiesObj = Array.isArray(formData.subcategoryPriorities)
         ? formData.subcategoryPriorities.reduce((acc, curr) => {
             acc[curr.subCategoryId] = curr.priority;
@@ -325,9 +315,9 @@ const DocReqManagement = () => {
 
       const templateData = {
         name: formData.title,
-        clientIds: formData.clientId || [], // Array of client IDs
-        categoryIds: formData.categoryId, // Array of category IDs
-        subCategoryId: formData.documentId, // Array of document IDs
+        clientIds: formData.clientId || [],
+        categoryIds: formData.categoryId,
+        subCategoryId: formData.documentId,
         notifyMethod: formData.notifyMethods[0] || "email",
         remainderSchedule: formData.scheduleReminder
           ? "ThreeDays"
@@ -337,7 +327,7 @@ const DocReqManagement = () => {
           "<p>Please Upload Your Document Using This Secure Link.</p>",
         subcategoryPriorities: prioritiesObj,
         expiration: formData.dueDate,
-        linkMethod: formData.linkMethod, // Default or from form
+        linkMethod: formData.linkMethod,
         active: true,
       };
 
@@ -413,7 +403,6 @@ const DocReqManagement = () => {
       if (clientListing.length === 0) await fetchAllClient();
       if (catogaryListing.length === 0) await fetchAllDocumentListing();
 
-      // Small delay to allow data population (optional safeguard)
       await new Promise((res) => setTimeout(res, 100));
 
       const clientIds = templateData.clientNames
@@ -447,7 +436,6 @@ const DocReqManagement = () => {
 
       // ✅ SET FORM DATA FIRST
       setFormData({
-        title: templateData.name || "",
         clientId: clientIds,
         categoryId: categoryIds,
         documentId: documentIds,

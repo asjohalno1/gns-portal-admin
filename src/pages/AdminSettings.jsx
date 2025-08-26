@@ -9,7 +9,7 @@ import {
   createDriveMappingApi,
 } from "../api/admin.setting.api";
 import axiosInstance from "../api/axiosInstance";
-import { FolderIcon } from "lucide-react";
+import { FileIcon, FolderIcon } from "lucide-react";
 
 const AdminSettings = () => {
   // State management
@@ -418,6 +418,35 @@ const AdminSettings = () => {
             </span>
           )}
         </div>
+        {item.files && item.files.length > 0 && (
+          <div className="ml-8 mt-2">
+            {item.files.map((file) => (
+              <div
+                key={file.id}
+                className="flex items-center p-2 gap-2 rounded hover:bg-gray-50 border-2 border-transparent"
+              >
+                <FileIcon />
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-[#2C3E50]">
+                    {file.name}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {(parseInt(file.size) / 1024).toFixed(1)} KB
+                  </span>
+
+                  <a // Fixed: Added the opening <a> tag
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-600 hover:text-blue-800"
+                  >
+                    View
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {isOpen && item.folders && item.folders.length > 0 && (
           <div className="ml-4 border-l-2 border-gray-200 pl-2">
@@ -760,14 +789,10 @@ const AdminSettings = () => {
                           Root Folder
                         </div>
                       </div>
-                      {folderTreeData?.map((staff) => (
+                      {folderTreeData?.map((item) => (
                         <FolderItem
-                          key={staff.staffId}
-                          item={{
-                            id: staff.staffId,
-                            name: staff.staffName,
-                            folders: staff.driveData?.folders || [],
-                          }}
+                          key={item.id}
+                          item={item}
                           selectedFolderId={driveSettings.selectedFolderId}
                           onFolderSelect={handleFolderSelect}
                         />
