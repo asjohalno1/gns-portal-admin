@@ -5,14 +5,13 @@ import {
   getDriveMappingApi,
   getProfileApi,
   updateProfileApi,
-  getAssociatedClientsApi,
   createDriveMappingApi,
 } from "../api/admin.setting.api";
 import axiosInstance from "../api/axiosInstance";
-import { FileIcon, FolderIcon } from "lucide-react";
+import { FileIcon } from "lucide-react";
+import { getAllClientsAdmin } from "../api/documentManagemnet.api";
 
 const AdminSettings = () => {
-  // State management
   const [activeTab, setActiveTab] = useState("general");
   const [userDetail, setUserDetail] = useState(null);
   const [formData, setFormData] = useState({
@@ -44,6 +43,7 @@ const AdminSettings = () => {
   const [folderTreeData, setFolderTreeData] = useState(null);
   const [image, setImage] = useState("");
   const [openFolders, setOpenFolders] = useState({});
+  const [mappingLoading, setMappingLoading] = useState(false);
   const fetchProfileDetails = useCallback(async () => {
     try {
       setLoading((prev) => ({ ...prev, profile: true }));
@@ -76,10 +76,11 @@ const AdminSettings = () => {
     }
   }, []);
 
-  const fetchAssociatedClients = useCallback(async (id) => {
+  const fetchAllClients = useCallback(async (id) => {
     try {
       setLoading((prev) => ({ ...prev, profile: true }));
-      const response = await getAssociatedClientsApi(id);
+      const response = await getAllClientsAdmin();
+      console.log(response.data);
       setClientsListing(response.data);
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -92,6 +93,9 @@ const AdminSettings = () => {
   useEffect(() => {
     if (activeTab === "general" && !userDetail) {
       fetchProfileDetails();
+    }
+    if (activeTab === "drive") {
+      fetchAllClients();
     }
   }, [activeTab, userDetail, fetchProfileDetails]);
 
@@ -247,24 +251,16 @@ const AdminSettings = () => {
 
   const handleAddGoogleMapping = async () => {
     const {
-      selectedStaffId,
       selectedClientId,
       uncategorized,
       standardFolder,
       additionalSubfolders,
     } = driveSettings;
 
-    // Validate required fields
-    if (!selectedStaffId || !selectedClientId) {
-      toast.error("Please select staff, client, and provide a folder name");
-      return;
-    }
-
     try {
-      setLoading((prev) => ({ ...prev, drive: true }));
+      setMappingLoading(true);
 
       const mappingData = {
-        staffId: selectedStaffId,
         clientId: selectedClientId,
         uncategorized,
         standardFolder,
@@ -275,9 +271,7 @@ const AdminSettings = () => {
 
       if (response.success) {
         toast.success("Drive mapping created successfully");
-        // Refresh the folder tree to show the new mapping
         fetchDriveMapping();
-        // Reset form
         setDriveSettings((prev) => ({
           ...prev,
           selectedClientId: "",
@@ -293,7 +287,7 @@ const AdminSettings = () => {
         error.response?.data?.message || "Failed to create drive mapping"
       );
     } finally {
-      setLoading((prev) => ({ ...prev, drive: false }));
+      setMappingLoading(false);
     }
   };
   const fetchDriveMapping = useCallback(async () => {
@@ -332,11 +326,16 @@ const AdminSettings = () => {
     onFolderSelect,
     path = "",
   }) => {
+    const [openFolders, setOpenFolders] = React.useState({});
     const currentPath = path ? `${path}/${item.name}` : item.name;
     const isOpen = openFolders[item.id] || false;
 
+    const hasChildren =
+      (item.folders && item.folders.length > 0) ||
+      (item.files && item.files.length > 0);
+
     const toggleFolder = (e) => {
-      e.stopPropagation(); // Prevent event from bubbling up
+      e.stopPropagation();
       setOpenFolders((prev) => ({
         ...prev,
         [item.id]: !prev[item.id],
@@ -344,7 +343,7 @@ const AdminSettings = () => {
     };
 
     const handleClick = (e) => {
-      e.stopPropagation(); // Prevent event from bubbling up
+      e.stopPropagation();
       onFolderSelect(item.id, currentPath);
     };
 
@@ -358,53 +357,31 @@ const AdminSettings = () => {
           }`}
           onClick={handleClick}
         >
-          {item.folders && item.folders.length > 0 && (
+          {hasChildren && (
             <button
               onClick={toggleFolder}
-              className="mr-2 w-4 h-4 flex items-center justify-center text-gray-500"
+              className="w-4 h-4 flex items-center justify-center mr-2"
             >
               {isOpen ? (
-                <>
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className={`transition-transform duration-200 ${
-                      isOpen ? "rotate-90" : ""
-                    }`}
-                  >
-                    <path
-                      d="M9 18L15 12L9 6"
-                      stroke="#2C3E50"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M6 9L12 15L18 9"
+                    stroke="#2C3E50"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               ) : (
-                <>
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className={`transition-transform duration-200 ${
-                      isOpen ? "rotate-90" : ""
-                    }`}
-                  >
-                    <path
-                      d="M9 18L15 12L9 6"
-                      stroke="#2C3E50"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M9 6L15 12L9 18"
+                    stroke="#2C3E50"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               )}
             </button>
           )}
@@ -418,75 +395,77 @@ const AdminSettings = () => {
             </span>
           )}
         </div>
-        {item.files && item.files.length > 0 && (
-          <div className="ml-8 mt-2">
-            {item.files.map((file) => (
-              <div
-                key={file.id}
-                className="flex items-center p-2 gap-2 rounded hover:bg-gray-50 border-2 border-transparent"
-              >
-                <FileIcon />
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-[#2C3E50]">
-                    {file.name}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {(parseInt(file.size) / 1024).toFixed(1)} KB
-                  </span>
-
-                  <a // Fixed: Added the opening <a> tag
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:text-blue-800"
+        {isOpen && (
+          <div className="ml-6 border-l-2 border-gray-200 pl-2">
+            {item.files && item.files.length > 0 && (
+              <div className="mt-2">
+                {item.files.map((file) => (
+                  <div
+                    key={file.id}
+                    className="flex items-center p-2 gap-2 rounded hover:bg-gray-50 border-2 border-transparent"
                   >
-                    View
-                  </a>
-                </div>
+                    <FileIcon />
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-[#2C3E50]">
+                        {file.name}
+                      </span>
+                      {file.size && (
+                        <span className="text-xs text-gray-400">
+                          {(parseInt(file.size) / 1024).toFixed(1)} KB
+                        </span>
+                      )}
+                      {file.url && (
+                        <a
+                          href={file.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:text-blue-800"
+                        >
+                          View
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-
-        {isOpen && item.folders && item.folders.length > 0 && (
-          <div className="ml-4 border-l-2 border-gray-200 pl-2">
-            {item.folders.map((subFolder) => (
-              <FolderItem
-                key={subFolder.id}
-                item={subFolder}
-                level={level + 1}
-                selectedFolderId={selectedFolderId}
-                onFolderSelect={onFolderSelect}
-                path={currentPath}
-              />
-            ))}
+            )}
+            {item.folders && item.folders.length > 0 && (
+              <div className="mt-2">
+                {item.folders.map((subFolder) => (
+                  <FolderItem
+                    key={subFolder.id}
+                    item={subFolder}
+                    level={level + 1}
+                    selectedFolderId={selectedFolderId}
+                    onFolderSelect={onFolderSelect}
+                    path={currentPath}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
     );
   };
 
-  // Update the folder selection handler to not close the dropdown
   const handleFolderSelect = (id, path) => {
     setDriveSettings((prev) => ({
       ...prev,
       selectedFolderId: id,
       selectedFolderPath: path,
     }));
-    // Don't close the dropdown - just update the selection
   };
-  // Render functions
   const renderGeneralTab = () => (
     <>
       <h3 className="text-[18px] font-semibold leading-[100%] tracking-[0] text-[#2C3E50] mb-6">
         Personal Information
       </h3>
       <div className="bg-white border border-[#2C3E501A] rounded-xl p-8">
-        {/* Profile Image Upload */}
         <div className="flex items-end gap-6 mb-8">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="relative w-[120px] h-[120px] rounded-[16px] bg-gray-100 flex items-center justify-center">
-              {image ? ( // Temporary preview during upload
+              {image ? (
                 <img
                   src={`${import.meta.env.VITE_API_BASE_URL_IMAGE}${image}`}
                   alt="Profile preview"
@@ -505,7 +484,6 @@ const AdminSettings = () => {
                   }}
                 />
               ) : (
-                // Fallback icon
                 <ImageFallbackIcon />
               )}
               <button
@@ -657,7 +635,6 @@ const AdminSettings = () => {
         <div className="ml-4">
           {data.map((staff) => (
             <div key={staff.staffId} className="mb-2">
-              {/* Staff level */}
               <div
                 className={`p-2 rounded cursor-pointer ${
                   level === 0 ? "font-semibold" : ""
@@ -665,22 +642,16 @@ const AdminSettings = () => {
               >
                 {staff.staffName}
               </div>
-
-              {/* Client level */}
               {staff.driveData?.folders?.map((clientFolder) => (
                 <div key={clientFolder.id} className="ml-4">
                   <div className="p-2 rounded cursor-pointer">
                     {clientFolder.name}
                   </div>
-
-                  {/* Subfolder level */}
                   {clientFolder.folders?.map((subfolder) => (
                     <div key={subfolder.id} className="ml-8">
                       <div className="p-2 rounded cursor-pointer">
                         {subfolder.name}
                       </div>
-
-                      {/* Additional nested levels if needed */}
                       {subfolder.folders?.length > 0 &&
                         renderFolderTree(
                           subfolder.folders,
@@ -706,42 +677,12 @@ const AdminSettings = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
-          {/* Mapping Configuration Section */}
           <div className="bg-white border border-[#2C3E501A] rounded-lg p-4">
             <h3 className="font-medium text-[16px] leading-[100%] tracking-[0%] text-[#2C3E50] mb-4">
               Add New Mapping
             </h3>
 
             <div className="space-y-4">
-              {/* Staff Selection */}
-              <div>
-                <label className="block font-medium text-[14px] leading-[100%] tracking-[0%] text-[#484848] mb-2">
-                  Select Staff
-                </label>
-                <select
-                  className="w-full border border-gray-200 rounded-md px-4 py-2 text-sm focus:outline-none"
-                  disabled={loading.drive}
-                  value={driveSettings.selectedStaffId}
-                  onChange={(e) => {
-                    const selectedId = e.target.value;
-                    setDriveSettings((prev) => ({
-                      ...prev,
-                      selectedStaffId: selectedId,
-                    }));
-                    if (selectedId) {
-                      fetchAssociatedClients(selectedId);
-                    }
-                  }}
-                >
-                  <option value="">Select Staff Member</option>
-                  {folderTreeData?.map((staff) => (
-                    <option key={staff.staffId} value={staff.staffId}>
-                      {staff.staffName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               {/* Client Selection */}
               <div>
                 <label className="block font-medium text-[14px] leading-[100%] tracking-[0%] text-[#484848] mb-2">
@@ -749,14 +690,14 @@ const AdminSettings = () => {
                 </label>
                 <select
                   className="w-full border border-gray-200 rounded-md px-4 py-2 text-sm focus:outline-none"
-                  disabled={loading.drive || !driveSettings.selectedStaffId}
+                  disabled={loading.drive}
                   value={driveSettings.selectedClientId}
                   onChange={handleClientSelect}
                 >
                   <option value="">Select Client</option>
                   {clientsListing?.map((client) => (
-                    <option key={client._id} value={client._id}>
-                      {client.name}
+                    <option key={client.clientId} value={client.clientId}>
+                      {client.clientName}
                     </option>
                   ))}
                 </select>
@@ -774,6 +715,7 @@ const AdminSettings = () => {
                     </div>
                   ) : (
                     <div className="space-y-1">
+                      {/* Root folder option */}
                       <div
                         className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
                           driveSettings.selectedFolderId === "root"
@@ -789,14 +731,107 @@ const AdminSettings = () => {
                           Root Folder
                         </div>
                       </div>
-                      {folderTreeData?.map((item) => (
-                        <FolderItem
-                          key={item.id}
-                          item={item}
-                          selectedFolderId={driveSettings.selectedFolderId}
-                          onFolderSelect={handleFolderSelect}
-                        />
-                      ))}
+
+                      {/* Render folder tree data */}
+                      {folderTreeData && folderTreeData.length > 0 && (
+                        <>
+                          {folderTreeData.map((item) => {
+                            if (
+                              item.mimeType !==
+                              "application/vnd.google-apps.folder"
+                            ) {
+                              return null;
+                            }
+
+                            return (
+                              <div key={item.id}>
+                                {/* Main folder (Clients) */}
+                                <div
+                                  className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
+                                    driveSettings.selectedFolderId === item.id
+                                      ? "bg-blue-100 border-2 border-blue-500"
+                                      : "hover:bg-gray-50"
+                                  }`}
+                                  onClick={() =>
+                                    handleFolderSelect(item.id, item.name)
+                                  }
+                                >
+                                  {item.folders && item.folders.length > 0 && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenFolders((prev) => ({
+                                          ...prev,
+                                          [item.id]: !prev[item.id],
+                                        }));
+                                      }}
+                                      className="w-4 h-4 flex items-center justify-center mr-2"
+                                      disabled={
+                                        !item.folders ||
+                                        item.folders.length === 0
+                                      }
+                                    >
+                                      {item.folders &&
+                                        item.folders.length > 0 &&
+                                        (openFolders[item.id] ? (
+                                          <svg
+                                            width="12"
+                                            height="12"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                          >
+                                            <path
+                                              d="M6 9L12 15L18 9"
+                                              stroke="#2C3E50"
+                                              strokeWidth="2"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                            />
+                                          </svg>
+                                        ) : (
+                                          <svg
+                                            width="12"
+                                            height="12"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                          >
+                                            <path
+                                              d="M9 6L15 12L9 18"
+                                              stroke="#2C3E50"
+                                              strokeWidth="2"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                            />
+                                          </svg>
+                                        ))}
+                                    </button>
+                                  )}
+                                  <div className="flex items-center gap-2 font-medium text-[14px] text-[#2C3E50]">
+                                    <FolderIconC />
+                                    {item.name}
+                                  </div>
+                                </div>
+                                {openFolders[item.id] &&
+                                  item.folders &&
+                                  item.folders.length > 0 && (
+                                    <div className="ml-4 border-l-2 border-gray-200 pl-2">
+                                      {item.folders.map((clientFolder) => (
+                                        <FolderItem
+                                          key={clientFolder.id}
+                                          item={clientFolder}
+                                          selectedFolderId={
+                                            driveSettings.selectedFolderId
+                                          }
+                                          onFolderSelect={handleFolderSelect}
+                                        />
+                                      ))}
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          })}
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -904,7 +939,7 @@ const AdminSettings = () => {
                     <h4 className="text-sm font-medium mb-2">
                       Added Subfolders:
                     </h4>
-                    <ul className="space-y-2">
+                    <ul className="space-y-2 bg-gray-50">
                       {driveSettings.additionalSubfolders.map(
                         (folder, index) => (
                           <li
@@ -932,14 +967,14 @@ const AdminSettings = () => {
               <div className="mt-4 flex justify-end">
                 <button
                   className={`text-white text-sm px-6 py-2 rounded transition ${
-                    loading.drive
+                    mappingLoading
                       ? "bg-blue-300 cursor-not-allowed"
                       : "bg-primaryBlue hover:bg-blue-700"
                   }`}
                   onClick={handleAddGoogleMapping}
-                  disabled={loading.drive}
+                  disabled={mappingLoading}
                 >
-                  {loading.drive ? "Creating..." : "Create Mapping"}
+                  {mappingLoading ? "Creating..." : "Create Mapping"}
                 </button>
               </div>
             </div>
