@@ -3,6 +3,7 @@ import Table from "../Component/Table/table";
 import ImportBulkModal from "./importbulkmodal";
 import AddClientmodal from "./addClientmodal";
 import {
+  deleteClient,
   getAllClients,
   getAllStaff,
   getStaffClient,
@@ -137,7 +138,13 @@ const ClientManagement = () => {
     if (activeTab === "tab1") {
       fetchClients();
     }
-  }, [tab1Filters, tab1Pagination.currentPage, tab1Pagination.limit]);
+  }, [
+    tab1Filters,
+    tab1Pagination.currentPage,
+    tab1Pagination.limit,
+    activeTab,
+    clientEditModal === false,
+  ]);
 
   useEffect(() => {
     if (activeTab === "tab2") {
@@ -313,9 +320,17 @@ const ClientManagement = () => {
   };
 
   const handleDeleteSuccess = () => {
-    setShowDeleteModal(false);
-    setSelectedClient(null);
-    fetchClients();
+    try {
+      let res = deleteClient(selectedClient._id);
+      if (res) {
+        toast.success("Client deleted successfully");
+        setShowDeleteModal(false);
+        setSelectedClient(null);
+        fetchClients();
+      }
+    } catch (error) {
+      console.error("Error deleting client:", error);
+    }
   };
 
   const handleActionUnassignedClient = (type, client) => {
@@ -525,7 +540,7 @@ const ClientManagement = () => {
               isOpen={showDeleteModal}
               onClose={() => setShowDeleteModal(false)}
               clientData={selectedClient}
-              onDeleteSuccess={handleDeleteSuccess}
+              onConfirm={handleDeleteSuccess}
             />
           </div>
         )}
