@@ -27,15 +27,15 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
   useEffect(() => {
     if (clientData) {
       setFormData({
-        name: clientData?.client.name || "",
-        lastName: clientData?.client.lastName || "",
-        email: clientData?.client.email || "",
-        phoneNumber: clientData?.client.phoneNumber || "",
-        company: clientData?.client.company || "",
-        status: clientData?.client.status === true ? true : false, // or use boolean
-        staffId: clientData?.assignedStaff._id || "",
-        address: clientData?.client.address || "",
-        notes: clientData?.client.notes || "",
+        name: clientData?.client?.name || "",
+        lastName: clientData?.client?.lastName || "",
+        email: clientData?.client?.email || "",
+        phoneNumber: clientData?.client?.phoneNumber || "",
+        company: clientData?.client?.company || "",
+        status: clientData?.client?.status === true ? true : false, // or use boolean
+        staffId: clientData?.assignedStaff?._id || "",
+        address: clientData?.client?.address || "",
+        notes: clientData?.client?.notes || "",
       });
     }
   }, [clientData]);
@@ -157,7 +157,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                   <input
                     type="text"
                     name="name"
-                    value={formData.name}
+                    value={formData?.name}
                     onChange={handleChange}
                     placeholder="Enter Client Name"
                     className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
@@ -172,7 +172,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                   <input
                     type="text"
                     name="lastName"
-                    value={formData.lastName || ""}
+                    value={formData?.lastName || ""}
                     onChange={handleChange}
                     placeholder="Enter Last Name"
                     className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
@@ -187,7 +187,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                   <input
                     type="email"
                     name="email"
-                    value={formData.email}
+                    value={formData?.email}
                     onChange={handleChange}
                     placeholder="Enter Email Address"
                     className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
@@ -201,7 +201,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                   <input
                     type="text"
                     name="phoneNumber"
-                    value={formData.phoneNumber}
+                    value={formData?.phoneNumber}
                     onChange={handleChange}
                     placeholder="Enter Phone Number"
                     className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
@@ -215,7 +215,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                   <input
                     type="text"
                     name="company"
-                    value={formData.company}
+                    value={formData?.company}
                     onChange={handleChange}
                     placeholder="Enter Company Name"
                     className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
@@ -228,7 +228,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                   </label>
                   <select
                     name="status"
-                    value={formData.status}
+                    value={formData?.status}
                     onChange={handleChange}
                     className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm"
                   >
@@ -243,7 +243,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                   </label>
                   <select
                     name="staffId"
-                    value={formData.staffId}
+                    value={formData?.staffId}
                     onChange={handleChange}
                     className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm "
                     disabled={loading}
@@ -257,7 +257,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                         key={staff._id}
                         value={staff._id}
                       >
-                        {staff.first_name}
+                        {staff?.first_name}
                       </option>
                     ))}
                   </select>
@@ -271,7 +271,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                 <textarea
                   rows="3"
                   name="address"
-                  value={formData.address}
+                  value={formData?.address}
                   onChange={handleChange}
                   placeholder="Enter Complete Address"
                   className="w-full rounded-[6px] px-3 py-2 text-sm resize-none bg-[#F8F8F8] text-[12px]"
@@ -285,7 +285,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                 <textarea
                   rows="3"
                   name="notes"
-                  value={formData.notes}
+                  value={formData?.notes}
                   onChange={handleChange}
                   placeholder="Enter Additional Notes About Client"
                   className="w-full rounded-[6px] px-3 py-2 text-sm resize-none bg-[#F8F8F8] text-[12px]"

@@ -310,6 +310,7 @@ const ClientManagement = () => {
         setClientDetailsModal(true);
         break;
       case "update":
+        setSelectedClient(client);
         setClientEditModal(true);
         break;
       case "delete":
