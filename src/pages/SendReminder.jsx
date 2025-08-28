@@ -10,12 +10,15 @@ import {
   getAllTitleDocument,
   getAllRemainderTemplates,
   getTemplateById,
+  sendReminderNow,
 } from "../api/reminder.api";
 import Table from "../Component/Table/table";
 import RemainderModal from "../Component/Reminder/RemainderModal";
 import EditReminderModal from "../Component/Reminder/EditReminderModal";
 import QuillEditor from "../CommonPages/QuerillEditor/QuillEditor";
 import getPlainText from "../adminutils/commonutils";
+import SuccessrequestModal from "../CommonPages/SuccessModal/SuccessrequestModal";
+import Loader from "../Component/Loader/Loader";
 
 const SendReminder = () => {
   const [activeTab, setActiveTab] = useState("reminder");
@@ -45,7 +48,9 @@ const SendReminder = () => {
     page: 1,
     limit: 10,
   });
-
+  const [loading, setLoading] = useState(false);
+  const [showSuccessRemainderModal, setShowSuccessRemainderModal] =
+    useState(false);
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -306,6 +311,37 @@ const SendReminder = () => {
       getCountRemainder();
     }
   }, [activeTab]);
+
+  const handleInstantRemainder = async (id) => {
+    try {
+      setLoading(true);
+      const res = await sendReminderNow(id);
+      if (res?.success === true) {
+        getAllRemainder();
+        setLoading(false);
+        setShowSuccessRemainderModal(true);
+      } else {
+        toast.error(res?.message || "Failed to send reminder.");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Instant reminder error:", error);
+      toast.error("Something went wrong. Please try again.");
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAction = (actionType, item) => {
+    switch (actionType) {
+      case "instantRemainder":
+        handleInstantRemainder(item._id);
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <>
@@ -1002,30 +1038,43 @@ const SendReminder = () => {
             <div>
               {/* Reminder History Content Here */}
               <h2 className="text-lg font-semibold mb-4">Reminder History</h2>
-              {/* Add logs, history table etc. */}
-              <div>
-                <Table
-                  data={remainder}
-                  mode="remainderHistory"
-                  pagination={pagination}
-                  onPageChange={(newPage) =>
-                    setPagination((prev) => ({ ...prev, page: newPage }))
-                  }
-                  onLimitChange={(newLimit) => {
-                    setPagination((prev) => ({
-                      ...prev,
-                      limit: newLimit,
-                      page: 1,
-                    }));
-                  }}
-                  onNextPage={handleNextPage}
-                  onPrevPage={handlePrevPage}
-                />
-              </div>
+
+              {loading ? (
+                <Loader />
+              ) : (
+                <>
+                  <div>
+                    <Table
+                      data={remainder}
+                      mode="remainderHistory"
+                      pagination={pagination}
+                      onPageChange={(newPage) =>
+                        setPagination((prev) => ({ ...prev, page: newPage }))
+                      }
+                      onLimitChange={(newLimit) => {
+                        setPagination((prev) => ({
+                          ...prev,
+                          limit: newLimit,
+                          page: 1,
+                        }));
+                      }}
+                      onNextPage={handleNextPage}
+                      onPrevPage={handlePrevPage}
+                      onAction={handleAction}
+                    />
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
       </div>
+      {showSuccessRemainderModal && (
+        <SuccessrequestModal
+          onClose={() => setShowSuccessRemainderModal(false)}
+          title="Reminder Sent Successfully"
+        />
+      )}
     </>
   );
 };

@@ -84,29 +84,28 @@ export const headerConfigs = {
   remainderHistory: {
     columns: [
       {
-        header: "Client Name",
+        label: "Client Name",
         key: "clientName",
-        isText: true,
       },
       {
-        header: "Channel",
+        label: "Channel",
         key: "notifyMethod",
-        isText: true,
       },
       {
-        header: "Document Title",
+        label: "Document Title",
         key: "docTitle",
-        isText: true,
       },
       {
-        header: "Date & Time",
+        label: "Date & Time",
         key: "scheduleTime",
-        isDeadline: true,
       },
       {
-        header: "Status",
+        label: "Status",
         key: "status",
-        isStatus: true,
+      },
+      {
+        label: "Action",
+        key: "actions",
       },
     ],
   },

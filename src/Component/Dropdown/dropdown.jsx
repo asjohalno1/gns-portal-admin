@@ -49,6 +49,14 @@ const Dropdown = ({ onAction, mode, itemId }) => {
           { label: "Client Mapping", value: "mapping" },
         ];
 
+      case "remainderHistory":
+        return [
+          {
+            label: "Instant Remainder",
+            value: "instantRemainder",
+          },
+        ];
+
       default:
         return [
           { label: "View", value: "view" },

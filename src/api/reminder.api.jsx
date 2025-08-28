@@ -105,3 +105,17 @@ export const updateReminderTemplate = async (data) => {
     throw error.response?.data || error;
   }
 };
+
+// send reminder now using params
+// route /api/admin/send-reminder-mail
+
+export const sendReminderNow = async (id) => {
+  try {
+    const response = await axiosInstance.post(
+      `/admin/send-reminder-mail/${id}`
+    );
+    return response?.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
