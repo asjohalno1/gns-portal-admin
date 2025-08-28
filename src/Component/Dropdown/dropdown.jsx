@@ -122,9 +122,17 @@ const Dropdown = ({ onAction, mode, itemId }) => {
             {actions.map((action) => (
               <button
                 key={action.value}
-                className="block w-full px-4 py-2 text-left text-sm text-gray-900 hover:bg-gray-100 hover:text-gray-900"
+                className={`block w-full px-4 py-2 text-left text-sm 
+      ${
+        action.value === "instantRemainder"
+          ? "text-blue-600 bg-blue-100 rounded-xl border border-blue-600 h-full w-full hover:text-blue-700 font-semibold"
+          : "text-gray-900 hover:bg-gray-100 hover:text-gray-900"
+      }`}
                 onClick={() => handleActionClick(action.value)}
               >
+                {action.value === "instantRemainder" && (
+                  <i className="fa-solid fa-clock mr-2"></i>
+                )}
                 {action.label}
               </button>
             ))}

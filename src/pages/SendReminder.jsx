@@ -734,7 +734,7 @@ const SendReminder = () => {
                     </div>
 
                     {/* Client List */}
-                    <div className="space-y-1 p-5 mb-5 border border-[#eaeaea] rounded-[10px] min-h-[250px] overflow-auto">
+                    <div className="space-y-1 p-5 mb-5 border border-[#eaeaea] rounded-[10px] max-h-[300px] overflow-y-auto">
                       {clients.map((client) => (
                         <div
                           key={client.clientId}
