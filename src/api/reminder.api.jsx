@@ -119,3 +119,17 @@ export const sendReminderNow = async (id) => {
     throw error.response?.data || error;
   }
 };
+
+export const getAllReminderClients = async ({ ids, search }) => {
+  try {
+    const response = await axiosInstance.get("admin/get-reminder-clients", {
+      params: {
+        id: ids, // Changed from clientId to ids
+        search: search, // Changed from searchTerm to search
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};

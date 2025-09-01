@@ -525,7 +525,10 @@ const StaffManagement = () => {
       {/* Add Staff Modal */}
       <AddStaffModal
         isOpen={addStaffModalOpen}
-        onClose={() => setAddStaffModalOpen(false)}
+        onClose={() => {
+          setAddStaffModalOpen(false);
+          setActiveTab("Staff List");
+        }}
       />
     </div>
   );

@@ -12,7 +12,6 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
     staffId: "",
     address: "",
     notes: "",
-    sendInvitation: false,
   });
 
   const [staffMembers, setStaffMembers] = useState([]);
@@ -254,7 +253,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
               ></textarea>
             </div>
 
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="invite"
@@ -266,20 +265,27 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
               <label htmlFor="invite" className="text-sm text-body">
                 Send invitation to client
               </label>
-            </div>
+            </div> */}
 
             <div className="text-right">
               <button
                 type="button"
                 onClick={onClose}
-                className="mr-2 border border-[#2E7ED4] text-[#2E7ED4] px-4 py-2 rounded-[8px] text-sm font-medium"
+                className={`mr-2 border border-[#2E7ED4] text-[#2E7ED4] px-4 py-2 rounded-[8px] text-sm font-medium 
+      ${loading ? "opacity-50 cursor-not-allowed" : "hover:bg-[#E4F0F3]"}`}
                 disabled={loading}
               >
                 Cancel
               </button>
+
               <button
                 type="submit"
-                className="bg-[#2E7ED4] border border-[#2E7ED4] text-white px-4 py-2 rounded-[8px] text-sm font-medium"
+                className={`px-4 py-2 rounded-[8px] text-sm font-medium border border-[#2E7ED4] 
+      ${
+        loading
+          ? "bg-[#2E7ED4] text-white opacity-50 cursor-not-allowed"
+          : "bg-[#2E7ED4] text-white hover:bg-[#1E5FB6]"
+      }`}
                 disabled={loading}
               >
                 {loading ? "Processing..." : "Add Client"}

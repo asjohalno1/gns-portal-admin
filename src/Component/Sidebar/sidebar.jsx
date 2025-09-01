@@ -181,10 +181,11 @@ const SideBarTab = () => {
                 <span className="ml-4">Settings</span>
               </Link>
               <Link
-                to="/setting"
+                to="/"
+                onClick={logout}
                 className="flex items-center hover:bg-[#2E7ED41A] hover:text-[#2E7ED4] rounded-[50px] mb-[10px] px-4 py-3 font-medium text-[#5B5B5B] text-sm   transition-colors"
               >
-                <button onClick={logout} className="flex items-center">
+                <button className="flex items-center">
                   <svg
                     width="16"
                     height="16"

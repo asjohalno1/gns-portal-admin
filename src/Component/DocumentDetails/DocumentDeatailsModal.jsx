@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { getDocByReqId } from "../../api/documentManagemnet.api";
 import DocumentRequestDetails from "./SubDocumentDetailsModal/SubDocumentDetails";
 import { formatDate } from "../../adminutils/commonutils";
+import { approvedRequestDocument } from "../../api/documentmanagement.api";
+import { toast } from "react-toastify";
 
 const DocumentDeatailsModal = ({
   isOpen,
@@ -19,7 +21,6 @@ const DocumentDeatailsModal = ({
   const [process, setProcess] = useState();
   const nevigate = useNavigate();
 
-  console.log("Data===========================", data);
   const getStatusStyle = (status) => {
     switch (status?.toLowerCase()) {
       case "submitted":
@@ -48,8 +49,6 @@ const DocumentDeatailsModal = ({
         return { bg: "#F3F4F6", text: "#6B7280", label: status || "Unknown" };
     }
   };
-
-  console.log("process.....", data);
 
   const fetchAllSubDocuments = async () => {
     try {
@@ -90,6 +89,21 @@ const DocumentDeatailsModal = ({
   const handleCloseSubCategoryModal = () => {
     setIsSubCategoryOpen(false);
     fetchAllSubDocuments();
+  };
+  const allDocumentsUploaded = requiredDocuments
+    .filter((doc) => !(doc.subCategory.name === "Others" && !doc.isUploaded))
+    .every((doc) => doc.isUploaded);
+
+  const handleApproveRequest = async (id) => {
+    try {
+      const response = await approvedRequestDocument(id);
+      if (response?.success) {
+        toast.success("Request Approved Successfully");
+        onClose();
+      }
+    } catch (error) {
+      console.error("Error approving request:", error);
+    }
   };
 
   return (
@@ -177,51 +191,38 @@ const DocumentDeatailsModal = ({
           Required Documents
         </p>
         <div className="grid grid-cols-3 gap-4">
-          {requiredDocuments.map((doc, index) => {
-            const documentStatus = getDocumentStatus(doc);
-            const isClickable = doc.isUploaded;
-
-            return (
-              <button
-                key={index}
-                onClick={() => handleSubCategoryClick(doc, data)}
-                className={`border rounded-xl px-[19px] py-[15px] bg-white border-[#DDDDDDDD] text-left transition-all duration-200 ${
-                  isClickable
-                    ? "hover:border-[#2E7ED4] hover:shadow-md cursor-pointer"
-                    : "opacity-90 cursor-not-allowed"
-                }`}
-                disabled={!isClickable}
-              >
-                <p className="font-normal not-italic text-[14px] leading-[100%] tracking-[0px] text-[#2C3E50] mb-[6px]">
-                  {doc.subCategory.name}
-                </p>
-                <p
-                  className="font-medium not-italic text-[14px] leading-[100%] tracking-[0px]"
-                  style={{
-                    color: getStatusStyle(documentStatus).text,
-                  }}
+          {requiredDocuments
+            .filter(
+              (doc) => !(doc.subCategory.name === "Others" && !doc.isUploaded)
+            )
+            .map((doc, index) => {
+              const documentStatus = getDocumentStatus(doc);
+              const isClickable = doc.isUploaded;
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleSubCategoryClick(doc, data)}
+                  className={`border rounded-xl px-[19px] py-[15px] bg-white border-[#DDDDDDDD] text-left transition-all duration-200 ${
+                    isClickable
+                      ? "hover:border-[#2E7ED4] hover:shadow-md cursor-pointer"
+                      : "opacity-90 cursor-not-allowed"
+                  }`}
+                  disabled={!isClickable}
                 >
-                  {getStatusStyle(documentStatus).label}
-                </p>
-              </button>
-            );
-          })}
-
-          {Array.from({
-            length: Math.max(0, 1 - requiredDocuments.length),
-          }).map((_, index) => (
-            <div
-              key={`empty-${index}`}
-              className="border rounded-xl px-[19px] py-[15px] bg-white border-[#DDDDDDDD] opacity-50"
-            >
-              <p className="font-normal not-italic text-[14px] leading-[100%] tracking-[0px] text-[#2C3E50] mb-[6px]">
-                Additional Document
-              </p>
-              <p className="text-[#D1D5DB] font-medium not-italic text-[14px] leading-[100%] tracking-[0px]">
-                Not Requested
-              </p>
-            </div>
-          ))}
+                  <p className="font-normal not-italic text-[14px] leading-[100%] tracking-[0px] text-[#2C3E50] mb-[6px]">
+                    {doc.subCategory.name}
+                  </p>
+                  <p
+                    className="font-medium not-italic text-[14px] leading-[100%] tracking-[0px]"
+                    style={{
+                      color: getStatusStyle(documentStatus).text,
+                    }}
+                  >
+                    {getStatusStyle(documentStatus).label}
+                  </p>
+                </button>
+              );
+            })}
         </div>
 
         {/* Footer buttons if needed */}
@@ -229,12 +230,25 @@ const DocumentDeatailsModal = ({
           {/* <button className="font-normal not-italic text-[14px] leading-[100%] tracking-normal text-[#2E7ED4] border border-[#2E7ED4] px-[25px] py-[8px] rounded-[6px] hover:bg-[#2E7ED4] hover:text-white transition-colors duration-200">
               Export Details
           </button> */}
-          <div className="flex gap-[10px]">
+          <div className="flex justify-between w-full ">
             <button
               onClick={() => nevigate("/admin/send-reminder")}
               className="font-normal text-[14px] leading-[100%] tracking-normal text-[#F1F1F1] py-[8px] px-[25px] border border-[#2E7ED4] bg-[#2E7ED4] rounded-[6px] hover:bg-[#256AB4] transition-colors duration-200"
             >
               Send Reminder
+            </button>
+            <button
+              onClick={() => {
+                handleApproveRequest(data?.requestById[0]?._id);
+              }}
+              className={`font-normal text-[14px] leading-[100%] tracking-normal text-[#F1F1F1] py-[8px] px-[25px] border border-green-600 bg-green-600 rounded-[6px] transition-colors duration-200 ${
+                allDocumentsUploaded
+                  ? "hover:bg-green-700 cursor-pointer"
+                  : "opacity-50 cursor-not-allowed"
+              }`}
+              disabled={!allDocumentsUploaded}
+            >
+              Mark as Complete
             </button>
           </div>
         </div>

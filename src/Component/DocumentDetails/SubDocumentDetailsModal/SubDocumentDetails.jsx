@@ -60,7 +60,7 @@ const DocumentRequestDetails = ({
         ...document,
         doc: { ...document.doc, comments: feedback },
       };
-      if (onUpdateDocument) onUpdateDocument(updatedDoc); 
+      if (onUpdateDocument) onUpdateDocument(updatedDoc);
       onClose();
     } catch (error) {
       console.error("Error saving feedback:", error);
@@ -82,7 +82,7 @@ const DocumentRequestDetails = ({
         {/* Header */}
         <div className="flex items-center justify-between p-4 ">
           <h2 className="text-lg font-medium text-gray-900">
-            Document Request Details-
+            Document Request Details
           </h2>
           <button
             onClick={onClose}
