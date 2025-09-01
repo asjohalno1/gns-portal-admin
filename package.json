@@ -12,6 +12,7 @@
     "prod-build": "cross-env VITE_ENV=production vite build",
     "serve": "serve -s dist/ -p 8075",
     "staging": "serve -l 8077 -s dist/",
+    "production": "serve -l 8077 -s dist/",
     "lint": "eslint .",
     "preview": "vite preview"
   },
