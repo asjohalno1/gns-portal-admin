@@ -11,6 +11,7 @@ import {
   getAllRemainderTemplates,
   getTemplateById,
   sendReminderNow,
+  getAllReminderClients,
 } from "../api/reminder.api";
 import Table from "../Component/Table/table";
 import RemainderModal from "../Component/Reminder/RemainderModal";
@@ -85,23 +86,40 @@ const SendReminder = () => {
     }));
   };
   const handleSelectAll = () => {
-    setSelectedClientIds(clients.map((client) => client.clientId));
+    setSelectedClientIds(clients.map((client) => client._id));
   };
-
   const handleClearSelection = () => {
     setSelectedClientIds([]);
   };
   // In fetchClientData function
   const fetchClientData = async () => {
     try {
-      const res = await getActiveClients({ search: searchQuery });
+      setLoading(true);
+      let clientIds = null;
+      if (selectedDoc) {
+        const selectedTitle = title.find((doc) => doc._id === selectedDoc);
+        clientIds = selectedTitle?.clientIds || [];
+        console.log("Selected client IDs:", clientIds);
+      }
+
+      const res = await getAllReminderClients({
+        ids: clientIds,
+        search: searchQuery,
+      });
+
       if (res.success === true) {
-        const validClients =
-          res?.data?.filter((client) => client.clientId) || [];
+        console.log("Fetched clients:", res.data);
+        // Filter by _id instead of clientId
+        const validClients = res?.data?.filter((client) => client._id) || [];
         setClients(validClients);
+      } else {
+        toast.error(res.message || "Failed to fetch clients");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching clients:", error);
+      toast.error("Failed to load clients");
+    } finally {
+      setLoading(false);
     }
   };
   const getDocumentTitle = async () => {
@@ -211,7 +229,7 @@ const SendReminder = () => {
       toast.error("Please select a Document Title.");
       return;
     }
-    const validClientIds = selectedClientIds.filter((clientId) => clientId);
+    const validClientIds = selectedClientIds.filter((id) => id);
 
     if (validClientIds.length === 0) {
       toast.error("Please select at least one valid Client.");
@@ -291,7 +309,10 @@ const SendReminder = () => {
   }, [pagination.page, pagination.limit, activeTab]);
   useEffect(() => {
     fetchClientData();
-  }, [searchQuery]);
+  }, [searchQuery, selectedDoc]);
+  useEffect(() => {
+    setSelectedClientIds([]);
+  }, [selectedDoc]);
 
   useEffect(() => {
     getRemainderTemplateById(selectedTemplate);
@@ -735,45 +756,58 @@ const SendReminder = () => {
 
                     {/* Client List */}
                     <div className="space-y-1 p-5 mb-5 border border-[#eaeaea] rounded-[10px] max-h-[300px] overflow-y-auto">
-                      {clients.map((client) => (
-                        <div
-                          key={client.clientId}
-                          className="flex items-center justify-between p-3 hover:bg-[#f6f6f6] rounded-md transition-colors"
-                        >
-                          {/* Client info */}
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-[18px] bg-gradient-to-r from-[#1BA3A3] to-[#2E7ED4]">
-                              {client.initials}
-                            </div>
-                            <div>
-                              <div className="font-medium text-[16px] text-body">
-                                {client?.clientName}
-                              </div>
-                              <div className="text-[12px] font-[400] text-body">
-                                {client.email}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Checkbox */}
-                          <div className="flex items-center justify-center">
-                            <input
-                              type="checkbox"
-                              checked={selectedClientIds.includes(
-                                client.clientId
-                              )}
-                              onChange={() =>
-                                handleClientSelect(client.clientId)
-                              }
-                              className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
-                  checked:bg-[#20BF55] checked:border-[#20BF55]
-                  checked:after:content-['✓'] checked:after:text-white 
-                  checked:after:text-[12px] checked:after:font-bold 
-                  checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
-                            />
-                          </div>
+                      {loading ? (
+                        <div className="flex justify-center items-center py-4">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
                         </div>
-                      ))}
+                      ) : clients.length === 0 ? (
+                        <div className="text-center py-4 text-gray-500">
+                          {selectedDoc
+                            ? "No clients found for this document"
+                            : "Select a document to see clients"}
+                          {searchQuery && ` matching "${searchQuery}"`}
+                        </div>
+                      ) : (
+                        clients.map((client) => (
+                          <div
+                            key={client._id}
+                            className="flex items-center justify-between p-3 hover:bg-[#f6f6f6] rounded-md transition-colors"
+                          >
+                            {/* Client info */}
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-[18px] bg-gradient-to-r from-[#1BA3A3] to-[#2E7ED4]">
+                                {client.initials ||
+                                  (client.name
+                                    ? client.name.charAt(0).toUpperCase()
+                                    : "C")}
+                              </div>
+                              <div>
+                                <div className="font-medium text-[16px] text-body">
+                                  {client?.name || "Unknown Client"}
+                                </div>
+                                <div className="text-[12px] font-[400] text-body">
+                                  {client.email || "No email"}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Checkbox */}
+                            <div className="flex items-center justify-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedClientIds.includes(client._id)}
+                                onChange={() => handleClientSelect(client._id)}
+                                className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
+              checked:bg-[#20BF55] checked:border-[#20BF55]
+              checked:after:content-['✓'] checked:after:text-white 
+              checked:after:text-[12px] checked:after:font-bold 
+              checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]
+              cursor-pointer"
+                              />
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
@@ -844,69 +878,60 @@ const SendReminder = () => {
                   Create New Template
                 </button>
               </div>
-              {templates.map((template) => (
-                <div
-                  key={template._id}
-                  className="bg-white border border-[#2C3E501A] rounded-[10px] py-[25px] px-[20px] mb-4"
-                >
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2 sm:gap-[10px]">
-                    <h3 className="text-[#2C3E50] font-medium text-[16px] leading-[100%] tracking-[0%]">
-                      {template.name}
-                    </h3>
-                    <div className="flex items-center gap-[10px]">
-                      <button
-                        className="bg-[#1BA3A3] text-[#ffffff] px-[20px] py-[10px] rounded-md font-normal text-[14px] leading-[100%] tracking-[0%] cursor-pointer"
-                        onClick={() => {
-                          setSelectedTemplate(template._id),
+              {templates && templates.length > 0 ? (
+                templates.map((template) => (
+                  <div
+                    key={template._id}
+                    className="bg-white border border-[#2C3E501A] rounded-[10px] py-[25px] px-[20px] mb-4"
+                  >
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2 sm:gap-[10px]">
+                      <h3 className="text-[#2C3E50] font-medium text-[16px] leading-[100%] tracking-[0%]">
+                        {template.name}
+                      </h3>
+                      <div className="flex items-center gap-[10px]">
+                        <button
+                          className="bg-[#1BA3A3] text-[#ffffff] px-[20px] py-[10px] rounded-md font-normal text-[14px] leading-[100%] tracking-[0%] cursor-pointer"
+                          onClick={() => {
+                            setSelectedTemplate(template._id);
                             setActiveTab("reminder");
-                        }}
-                      >
-                        Use
-                      </button>
-                      <button
-                        type="button"
-                        className="text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer p-1"
-                        title="Edit Template"
-                        onClick={() => {
-                          setSelectedTemplate(template._id); // Set the selected template or template._id
-                          setShowEditRemainderModal(true); // Open the modal
-                        }}
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="transition-colors duration-200"
+                          }}
                         >
-                          <path
-                            d="M4.76 18.8096H4.87L7.8 18.5396C8.21 18.4996 8.59 18.3196 8.88 18.0296L19.94 6.96961C20.46 6.44961 20.75 5.75961 20.75 5.02961C20.75 4.29961 20.46 3.60961 19.94 3.08961L19.23 2.37961C18.19 1.33961 16.38 1.33961 15.34 2.37961L13.93 3.78961L4.29 13.4296C4 13.7196 3.82 14.0996 3.79 14.5096L3.52 17.4396C3.49 17.8096 3.62 18.1696 3.88 18.4396C4.12 18.6796 4.43 18.8096 4.76 18.8096ZM17.29 3.06961C17.61 3.06961 17.93 3.18961 18.17 3.43961L18.88 4.14961C18.9968 4.26446 19.0896 4.40142 19.153 4.55251C19.2163 4.70359 19.2489 4.86578 19.2489 5.02961C19.2489 5.19344 19.2163 5.35562 19.153 5.50671C19.0896 5.6578 18.9968 5.79476 18.88 5.90961L18 6.78961L15.53 4.31961L16.41 3.43961C16.65 3.19961 16.97 3.06961 17.29 3.06961ZM5.28 14.6496C5.28 14.5896 5.31 14.5396 5.35 14.4996L14.46 5.37961L16.93 7.84961L7.82 16.9596C7.82 16.9596 7.72 17.0296 7.67 17.0296L5.04 17.2696L5.28 14.6396V14.6496ZM22.75 21.9996C22.75 22.4096 22.41 22.7496 22 22.7496H2C1.59 22.7496 1.25 22.4096 1.25 21.9996C1.25 21.5896 1.59 21.2496 2 21.2496H22C22.41 21.2496 22.75 21.5896 22.75 21.9996Z"
-                            fill="#2C3E50"
-                          />
-                        </svg>
-                      </button>
+                          Use
+                        </button>
+                        <button
+                          type="button"
+                          className="text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer p-1"
+                          title="Edit Template"
+                          onClick={() => {
+                            setSelectedTemplate(template._id);
+                            setShowEditRemainderModal(true);
+                          }}
+                        ></button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <p
-                      dangerouslySetInnerHTML={{ __html: template.message }}
-                      className="mb-2 font-normal text-[16px] leading-[100%] tracking-[0%] text-[#2C3E50]"
-                    />
-                    <p className="sr-only">
-                      {" "}
-                      {/* Screen reader only text */}
-                      {getPlainText(template.message)}
+                    <div>
+                      <p
+                        dangerouslySetInnerHTML={{ __html: template.message }}
+                        className="mb-2 font-normal text-[16px] leading-[100%] tracking-[0%] text-[#2C3E50]"
+                      />
+                      <p className="sr-only">
+                        {getPlainText(template.message)}
+                      </p>
+                    </div>
+
+                    <p className="text-[#2C3E50] font-normal text-[14px] leading-[100%] tracking-[0%] opacity-[0.6]">
+                      Created:{" "}
+                      {new Date(template.createdAt).toLocaleDateString()} |
+                      Used: {template.usedCount || 0} times
                     </p>
                   </div>
-
-                  <p className="text-[#2C3E50] font-normal text-[14px] leading-[100%] tracking-[0%] opacity-[0.6]">
-                    Created: {new Date(template.createdAt).toLocaleDateString()}{" "}
-                    | Used: {template.usedCount || 0} times
-                  </p>
+                ))
+              ) : (
+                <div className=" rounded-[10px] py-[25px] px-[20px] text-center text-gray-500">
+                  No templates available.
                 </div>
-              ))}
+              )}
 
               {/* Add template management UI */}
             </div>

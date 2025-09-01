@@ -15,7 +15,7 @@ const EmailTemplates = () => {
     templateName: "",
     title: "",
     description: "",
-    listType: ""
+    listType: "",
   });
 
   // Quill modules configuration
@@ -25,8 +25,8 @@ const EmailTemplates = () => {
       ["bold", "italic", "underline", "strike"],
       [{ list: "ordered" }, { list: "bullet" }],
       ["link"],
-      ["clean"]
-    ]
+      ["clean"],
+    ],
   };
 
   const fetchAllTemplates = async () => {
@@ -66,7 +66,7 @@ const EmailTemplates = () => {
       templateName: template.templateName || "",
       title: template.title,
       description: template.description,
-      listType: template.listType || ""
+      listType: template.listType || "",
     });
     setShowModal(true);
   };
@@ -110,7 +110,12 @@ const EmailTemplates = () => {
 
       setShowModal(false);
       setEditingTemplate(null);
-      setFormData({ templateName: "", title: "", description: "", listType: "" });
+      setFormData({
+        templateName: "",
+        title: "",
+        description: "",
+        listType: "",
+      });
     } catch (error) {
       toast.error("Something went wrong while saving template.");
     }
@@ -168,54 +173,60 @@ const EmailTemplates = () => {
           <h5 className="font-medium text-[20px] leading-[100%] tracking-[0%] mb-[10px]">
             Email Templates ({templates.length})
           </h5>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {templates.map((template) => (
-              <div
-                key={template._id}
-                className="bg-white border border-[#2C3E501A] rounded-[20px] p-6 hover:shadow-lg transition-shadow"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <h6 className="font-semibold text-lg text-[#2C3E50]">
-                    {template.templateName || "Untitled Template"}
-                  </h6>
-                  <span className="text-xs text-gray-500">
-                    {formatDate(template.updatedAt)}
-                  </span>
-                </div>
+            {templates && templates.length > 0 ? (
+              templates.map((template) => (
+                <div
+                  key={template._id}
+                  className="bg-white border border-[#2C3E501A] rounded-[20px] p-6 hover:shadow-lg transition-shadow"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <h6 className="font-semibold text-lg text-[#2C3E50]">
+                      {template.templateName || "Untitled Template"}
+                    </h6>
+                    <span className="text-xs text-gray-500">
+                      {formatDate(template.updatedAt)}
+                    </span>
+                  </div>
 
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-1">
-                    Subject: {template.title}
-                  </p>
-                  <div 
-                    className="text-sm text-gray-600 line-clamp-2 quill-content"
-                    dangerouslySetInnerHTML={{ __html: template.description }}
-                  />
-                </div>
+                  <div className="mb-4">
+                    <p className="text-sm font-medium text-gray-700 mb-1">
+                      Subject: {template.title}
+                    </p>
+                    <div
+                      className="text-sm text-gray-600 line-clamp-2 quill-content"
+                      dangerouslySetInnerHTML={{ __html: template.description }}
+                    />
+                  </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                    {template.listType || "General"}
-                  </span>
-                  
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleViewDetails(template)}
-                      className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
-                    >
-                      View Details
-                    </button>
-                    <button
-                      onClick={() => handleEdit(template)}
-                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 transition-colors"
-                    >
-                      Edit
-                    </button>
+                  <div className="flex justify-between items-center">
+                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                      {template.listType || "General"}
+                    </span>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleViewDetails(template)}
+                        className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                      >
+                        View Details
+                      </button>
+                      <button
+                        onClick={() => handleEdit(template)}
+                        className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 transition-colors"
+                      >
+                        Edit
+                      </button>
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="col-span-full flex justify-center items-center py-10 text-gray-400 text-sm">
+                No templates available
               </div>
-            ))}
+            )}
           </div>
         </div>
       ) : (
@@ -299,9 +310,11 @@ const EmailTemplates = () => {
                     Description
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    <div 
+                    <div
                       className="quill-content"
-                      dangerouslySetInnerHTML={{ __html: selectedTemplate.description }}
+                      dangerouslySetInnerHTML={{
+                        __html: selectedTemplate.description,
+                      }}
                     />
                   </td>
                 </tr>
