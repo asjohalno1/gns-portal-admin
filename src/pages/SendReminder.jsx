@@ -933,7 +933,7 @@ const SendReminder = () => {
                 </div>
               )}
 
-              {/* Add template management UI */}
+              {/* Add template m anagement UI */}
             </div>
           )}
 
