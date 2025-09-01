@@ -4,11 +4,11 @@ import { formatDate } from "./commonutils";
 export const headerConfigs = {
   dashboardListing: {
     columns: [
-      { key: "title", label: "Document Request Title" },
+      // { key: "title", label: "Document Request Titlessss" },
       { key: "name", label: "Client Name" },
       { key: "documentRequest", label: "Document Request" },
-      { key: "process", label: "Task Process" },
-      { key: "processStatus", label: "Status Update" },
+      { key: "taskDeadline", label: "Task Deadline" },
+      { key: "statusUpdate", label: "Status Update" },
       { key: "lastActivity", label: "Log Activity" },
       { key: "actions", label: "Action" },
     ],
@@ -228,60 +228,6 @@ export const getStatusButton = (status) => {
           Average
         </button>
       );
-    case "Not started":
-      return (
-        <button
-          type="button"
-          className="bg-[#cfd1d0] text-[#696e6a] px-8 py-1.5 rounded-full cursor-pointer"
-        >
-          {status}
-        </button>
-      );
-    case "25% Completed":
-      return (
-        <button
-          type="button"
-          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
-        >
-          {status}
-        </button>
-      );
-    case "50% Completed":
-      return (
-        <button
-          type="button"
-          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
-        >
-          {status}
-        </button>
-      );
-    case "75% Completed":
-      return (
-        <button
-          type="button"
-          className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
-        >
-          {status}
-        </button>
-      );
-    case "Almost Done":
-      return (
-        <button
-          type="button"
-          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
-        >
-          {status}
-        </button>
-      );
-    case "Completed":
-      return (
-        <button
-          type="button"
-          className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
-        >
-          {status}
-        </button>
-      );
     default:
       return (
         <button
@@ -309,8 +255,6 @@ export const renderCellContent = (item, columnKey, onAction, mode, index) => {
           })
         : "N/A";
     case "status":
-      return getStatusButton(item[columnKey]);
-    case "processStatus":
       return getStatusButton(item[columnKey]);
 
     case "performanceStatus":
