@@ -16,6 +16,7 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
       console.log("[Axios] Authorization header set");
     }
+    console.log("VITE_API_BASE_URL", import.meta.env.VITE_API_BASE_URL);
     
     return config;
   },
