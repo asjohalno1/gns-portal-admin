@@ -16,7 +16,7 @@ const Dropdown = ({ onAction, mode, itemId }) => {
 
       case "dashboardListing":
         return [
-          { label: "View", value: "view" },
+          // { label: "View", value: "view" },
           { label: "Request Document", value: "Request" },
           { label: "Send Reminder", value: "sendReminder" },
         ];
