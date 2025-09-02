@@ -237,7 +237,7 @@ export const getStatusButton = (status) => {
           {status}
         </button>
       );
-    case "25% Completed":
+    case "Pendingg":
       return (
         <button
           type="button"
@@ -246,7 +246,7 @@ export const getStatusButton = (status) => {
           {status}
         </button>
       );
-    case "50% Completed":
+    case "Under Review":
       return (
         <button
           type="button"
@@ -255,7 +255,7 @@ export const getStatusButton = (status) => {
           {status}
         </button>
       );
-    case "75% Completed":
+    case "In Progress":
       return (
         <button
           type="button"
@@ -264,7 +264,7 @@ export const getStatusButton = (status) => {
           {status}
         </button>
       );
-    case "Almost Done":
+    case "Finalizing":
       return (
         <button
           type="button"
@@ -334,7 +334,15 @@ export const renderCellContent = (item, columnKey, onAction, mode, index) => {
       return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
     case "active":
       return getStatusButton(item[columnKey]);
+    case "process":
+      return addPostfix(item[columnKey]);
     default:
       return item[columnKey] || "N/A";
   }
+};
+
+// post fos as "%"
+
+export const addPostfix = (value) => {
+  return value + "%";
 };
