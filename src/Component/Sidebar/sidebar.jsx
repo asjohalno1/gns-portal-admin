@@ -10,11 +10,16 @@ import {
   SendReminderIcon,
 } from "../../Icons/SvgIcons";
 
-const SideBarTab = () => {
+const SideBarTab = ({ isOpen }) => {
   const { logout } = useAuth();
   return (
     <>
-      <div className="main-sidebar w-[256px] top-0 h-full fixed z-30 ">
+      <div
+        className={`main-sidebar w-[256px] top-0 h-full fixed z-30 transition-all duration-300 ease-in-out ${
+          isOpen ? "left-0" : "-left-64"
+        }`}
+      >
+        {" "}
         <div className=" w-full  left-0 bg-[#F6F6F6] transition-all  duration-300 ease-in-out  h-full ">
           <nav className="flex flex-col h-full pt-3  p-3">
             <div className="logo mb-9">
