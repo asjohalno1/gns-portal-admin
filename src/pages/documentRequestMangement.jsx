@@ -70,10 +70,13 @@ const DocReqManagement = () => {
   const [query, setQuery] = useState({
     search: "",
     page: 1,
+    status: "all",
     limit: 10,
     total: 0,
     totalPages: 0,
   });
+
+  console.log("query", query);
 
   useEffect(() => {
     if (activeTab === "tab1") {
@@ -102,7 +105,7 @@ const DocReqManagement = () => {
     if (activeTab === "tab3") {
       fetchAllDocuments(query);
     }
-  }, [query.page, query.limit]);
+  }, [query.page, query.limit, query.status]);
 
   const fetchDocumentListing = async (queryParams = query) => {
     try {
@@ -532,7 +535,7 @@ const DocReqManagement = () => {
     setQuery((prev) => ({ ...prev, limit: newLimit, page: 1 }));
   };
   const handleClear = () => {
-    setQuery((prev) => ({ ...prev, search: "", page: 1, limit: 10 }));
+    setQuery((prev) => ({ ...prev, status: "all", page: 1, limit: 10 }));
   };
 
   const handleAction = (action, data) => {
@@ -705,15 +708,23 @@ const DocReqManagement = () => {
                 <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
                   <div className="relative">
                     <select
-                      name="cars"
-                      id="cars"
+                      value={query.status || "all"}
+                      onChange={(e) =>
+                        setQuery((prev) => ({
+                          ...prev,
+                          status: e.target.value,
+                          page: 1,
+                        }))
+                      }
                       className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
                     >
-                      <option value="volvo">Newest First</option>
-                      <option value="saab">Saab</option>
-                      <option value="opel">Opel</option>
-                      <option value="audi">Audi</option>
+                      <option value="all">All</option>
+                      <option value="pending">Pending</option>
+                      <option value="completed">Complete</option>
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
                     </select>
+
                     <svg
                       className="absolute right-[14px] top-[14px]"
                       width="12"
@@ -1549,15 +1560,23 @@ const DocReqManagement = () => {
                 <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
                   <div className="relative">
                     <select
-                      name="cars"
-                      id="cars"
+                      name="status"
+                      id="status"
+                      value={query.status || "all"}
+                      onChange={(e) =>
+                        setQuery((prev) => ({
+                          ...prev,
+                          status: e.target.value,
+                          page: 1,
+                        }))
+                      }
                       className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
                     >
-                      <option value="volvo">Newest First</option>
-                      <option value="saab">Saab</option>
-                      <option value="opel">Opel</option>
-                      <option value="audi">Audi</option>
+                      <option value="all">All</option>
+                      <option value="sent">Sent</option>
+                      <option value="Used">Used</option>
                     </select>
+
                     <svg
                       className="absolute right-[14px] top-[14px]"
                       width="12"
