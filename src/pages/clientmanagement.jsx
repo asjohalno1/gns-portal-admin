@@ -421,7 +421,10 @@ const ClientManagement = () => {
                 </button>
                 <AddClientmodal
                   isOpen={isAddClientOpen}
-                  onClose={() => setIsAddClientOpen(false)}
+                  onClose={() => {
+                    setIsAddClientOpen(false);
+                    fetchClients();
+                  }}
                   title="Add Client"
                 />
                 <button

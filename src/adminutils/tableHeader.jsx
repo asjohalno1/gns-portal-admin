@@ -4,11 +4,11 @@ import { formatDate } from "./commonutils";
 export const headerConfigs = {
   dashboardListing: {
     columns: [
-      { key: "title", label: "Document Request Title" },
+      // { key: "title", label: "Document Request Title" },
       { key: "name", label: "Client Name" },
       { key: "documentRequest", label: "Document Request" },
-      { key: "taskDeadline", label: "Task Deadline" },
-      { key: "statusUpdate", label: "Status Update" },
+      { key: "process", label: "Task Process" },
+      { key: "processStatus", label: "Status Update" },
       { key: "lastActivity", label: "Log Activity" },
       { key: "actions", label: "Action" },
     ],
@@ -228,6 +228,79 @@ export const getStatusButton = (status) => {
           Average
         </button>
       );
+    case "Not started":
+      return (
+        <button
+          type="button"
+          className="bg-[#cfd1d0] text-[#696e6a] px-8 py-1.5 rounded-full cursor-pointer"
+        >
+          {status}
+        </button>
+      );
+
+    case "Under Review":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          {status}
+        </button>
+      );
+    case "In Progress":
+      return (
+        <button
+          type="button"
+          className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          {status}
+        </button>
+      );
+    case "Finalizing":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          {status}
+        </button>
+      );
+    case "Completed":
+      return (
+        <button
+          type="button"
+          className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          {status}
+        </button>
+      );
+    case "complete":
+      return (
+        <button
+          type="button"
+          className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          {status}
+        </button>
+      );
+    case "pending":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          {status}
+        </button>
+      );
+    case "Pending":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          {status}
+        </button>
+      );
     default:
       return (
         <button
@@ -256,6 +329,8 @@ export const renderCellContent = (item, columnKey, onAction, mode, index) => {
         : "N/A";
     case "status":
       return getStatusButton(item[columnKey]);
+    case "processStatus":
+      return getStatusButton(item[columnKey]);
 
     case "performanceStatus":
       return getStatusButton(item[columnKey]);
@@ -278,7 +353,15 @@ export const renderCellContent = (item, columnKey, onAction, mode, index) => {
       return item[columnKey] ? formatDate(item[columnKey]) : "N/A";
     case "active":
       return getStatusButton(item[columnKey]);
+    case "process":
+      return addPostfix(item[columnKey]);
     default:
       return item[columnKey] || "N/A";
   }
+};
+
+// post fos as "%"
+
+export const addPostfix = (value) => {
+  return value + "%";
 };

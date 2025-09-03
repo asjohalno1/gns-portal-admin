@@ -88,11 +88,11 @@ const PerformanceMetrics = () => {
       <div className="flex gap-6 w-full mb-6">
         {/* Total Task */}
         <div className="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-gray-200 px-6 py-4 flex-1">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">Total Task</p>
+          <div className="flex items-center gap-2">
             <h2 className="text-2xl font-bold text-gray-900">
               {stats.totalTasks}
             </h2>
+            <p className="text-gray-500 text-sm font-medium">Total Tasks</p>
           </div>
           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
             <svg
@@ -110,23 +110,39 @@ const PerformanceMetrics = () => {
             </svg>
           </div>
         </div>
-        {/* Avg Turnaround */}
+
+        {/* Pending Tasks */}
         <div className="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-gray-200 px-6 py-4 flex-1">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">Pending Tasks</p>
+          <div className="flex items-center gap-2">
             <h2 className="text-2xl font-bold text-gray-900">
               {stats.totalTasks - stats.totalCompleted}
             </h2>
+            <p className="text-gray-500 text-sm font-medium">Pending Tasks</p>
+          </div>
+          <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+            <svg
+              className="w-6 h-6 text-yellow-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
           </div>
         </div>
 
         {/* Completed Tasks */}
         <div className="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-gray-200 px-6 py-4 flex-1">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">Completed Tasks</p>
+          <div className="flex items-center gap-2">
             <h2 className="text-2xl font-bold text-gray-900">
               {stats.totalCompleted}
             </h2>
+            <p className="text-gray-500 text-sm font-medium">Completed Tasks</p>
           </div>
           <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
             <svg

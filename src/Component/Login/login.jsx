@@ -5,35 +5,33 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { userLogin } from "../../api/auth.jsx";
 import { useAuth } from "../../Context/AuthContext.jsx";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // <-- new
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-
   const handleLogin = async () => {
-
     setErrorMsg("");
 
     try {
       let loginInfo = {
         email: email,
-        password: password
-      }
-      const loginRes = await userLogin(loginInfo)
+        password: password,
+      };
+      const loginRes = await userLogin(loginInfo);
       if (loginRes) {
-        console.log("Login,,,", loginRes);
         login(loginRes?.data?.token);
         navigate("/admin");
       } else {
         console.log("Please Try Again");
-
-      } 
+      }
     } catch (err) {
+      // toast.error("Login failed !" + err.response?.data?.message || "");
       setErrorMsg(err.response?.data?.message || "Login failed");
     }
   };
@@ -44,7 +42,9 @@ const Login = () => {
         <div className="w-full md:w-[50%] p-5 lg:p-10 flex flex-col justify-center">
           <img className="mx-auto" src={Logo} alt="Login logo" />
           <div className="mt-4">
-            <label className="block text-[#484848] font-medium text-[14px] mb-[8px]">Email*</label>
+            <label className="block text-[#484848] font-medium text-[14px] mb-[8px]">
+              Email*
+            </label>
             <input
               type="email"
               placeholder="Enter Email"
@@ -55,7 +55,9 @@ const Login = () => {
             />
           </div>
           <div className="mt-4">
-            <label className="block text-[#484848] font-medium text-[14px] mb-[8px]">Password*</label>
+            <label className="block text-[#484848] font-medium text-[14px] mb-[8px]">
+              Password*
+            </label>
             <input
               type="password"
               placeholder="Enter Password"
@@ -80,9 +82,7 @@ const Login = () => {
             Remember Password
           </label>
 
-          {errorMsg && (
-            <p className="text-red-500 text-sm mt-2">{errorMsg}</p>
-          )}
+          {errorMsg && <p className="text-red-500 text-sm mt-2">{errorMsg}</p>}
 
           <button
             type="button"
@@ -92,9 +92,9 @@ const Login = () => {
             Login
           </button>
 
-          <div className="or-blk mt-4 text-[16px] text-body text-center">or</div>
+          {/* <div className="or-blk mt-4 text-[16px] text-body text-center">or</div> */}
 
-          <div className="mt-4 md:mt-8 text-center">
+          {/* <div className="mt-4 md:mt-8 text-center">
             <button
               type="button"
               // onClick={googleLogin}
@@ -135,11 +135,15 @@ const Login = () => {
               </svg>
               Sign in with Google
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div className="w-full md:w-[50%] bg-[#E9F3FF] p-5 lg:p-10 rounded-tl-[30px] md:rounded-tl-[0] rounded-tr-[30px] md:rounded-tr-[30px] md:rounded-br-[30px] flex items-center justify-center">
-          <img className="w-full" src={LoginBoy} alt="Secure login illustration" />
+          <img
+            className="w-full"
+            src={LoginBoy}
+            alt="Secure login illustration"
+          />
         </div>
       </div>
     </div>

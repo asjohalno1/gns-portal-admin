@@ -10,11 +10,16 @@ import {
   SendReminderIcon,
 } from "../../Icons/SvgIcons";
 
-const SideBarTab = () => {
+const SideBarTab = ({ isOpen }) => {
   const { logout } = useAuth();
   return (
     <>
-      <div className="main-sidebar w-[256px] top-0 h-full fixed z-30 ">
+      <div
+        className={`main-sidebar w-[256px] top-0 h-full fixed z-30 transition-all duration-300 ease-in-out ${
+          isOpen ? "left-0" : "-left-64"
+        }`}
+      >
+        {" "}
         <div className=" w-full  left-0 bg-[#F6F6F6] transition-all  duration-300 ease-in-out  h-full ">
           <nav className="flex flex-col h-full pt-3  p-3">
             <div className="logo mb-9">
@@ -181,10 +186,11 @@ const SideBarTab = () => {
                 <span className="ml-4">Settings</span>
               </Link>
               <Link
-                to="/setting"
+                to="/"
+                onClick={logout}
                 className="flex items-center hover:bg-[#2E7ED41A] hover:text-[#2E7ED4] rounded-[50px] mb-[10px] px-4 py-3 font-medium text-[#5B5B5B] text-sm   transition-colors"
               >
-                <button onClick={logout} className="flex items-center">
+                <button className="flex items-center">
                   <svg
                     width="16"
                     height="16"

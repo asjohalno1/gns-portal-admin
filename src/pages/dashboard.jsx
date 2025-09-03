@@ -295,33 +295,39 @@ const Dashboard = () => {
           </h4>
 
           <div className="divide-y divide-gray-100 h-[250px] overflow-y-scroll">
-            {dashboardData.recentActivity.map((activity, index) => (
-              <div
-                key={index}
-                className="px-4 py-1 mb-2 hover:bg-gray-50 transition-colors border-b-[1px] border-customGray duration-200 cursor-pointer group"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="text-[16px] font-medium text-body transition-colors duration-200">
-                          {activity.title}
-                        </h3>
-                        <p className="text-[14px] font-regular text-body mt-1">
-                          {activity.message}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end ml-4">
-                        <span className="text-[14px] font-regular text-body mb-2">
-                          {/* You might want to add a timestamp if available */}
-                          Recently
-                        </span>
+            {dashboardData?.recentActivity &&
+            dashboardData.recentActivity.length > 0 ? (
+              dashboardData.recentActivity.map((activity, index) => (
+                <div
+                  key={index}
+                  className="px-4 py-1 mb-2 hover:bg-gray-50 transition-colors border-b-[1px] border-customGray duration-200 cursor-pointer group"
+                >
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-[16px] font-medium text-body transition-colors duration-200">
+                            {activity.title || "Untitled"}
+                          </h3>
+                          <p className="text-[14px] font-regular text-body mt-1">
+                            {activity.message || "No details available"}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end ml-4">
+                          <span className="text-[14px] font-regular text-body mb-2">
+                            Recently
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                No recent activity available !
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -330,46 +336,55 @@ const Dashboard = () => {
           <h4 className="text-body font-semibold text-lg mb-5">
             Urgent Task and Deadlines
           </h4>
-          <ul className="overflow-y-auto h-[225px]">
-            {["overdue", "today", "tomorrow"].map((category) => {
-              const tasks = dashboardData.urgentTasks[category] || [];
-              const labelColor = {
-                overdue: "#F94853",
-                today: "#F94853",
-                tomorrow: "#FDA830",
-              }[category];
+          {["overdue", "today", "tomorrow"].some(
+            (category) =>
+              (dashboardData?.urgentTasks?.[category] || []).length > 0
+          ) ? (
+            <ul className="overflow-y-auto h-[225px]">
+              {["overdue", "today", "tomorrow"].map((category) => {
+                const tasks = dashboardData?.urgentTasks?.[category] || [];
+                const labelColor = {
+                  overdue: "#F94853",
+                  today: "#F94853",
+                  tomorrow: "#FDA830",
+                }[category];
 
-              const bgColor = {
-                overdue: "#F3E4E4",
-                today: "#F3E4E4",
-                tomorrow: "#F3EDE4",
-              }[category];
+                const bgColor = {
+                  overdue: "#F3E4E4",
+                  today: "#F3E4E4",
+                  tomorrow: "#F3EDE4",
+                }[category];
 
-              return tasks.map((task, idx) => (
-                <li
-                  key={`${category}-${idx}`}
-                  className={`rounded-[10px] border-l-4 p-2.5 mb-2.5`}
-                  style={{
-                    borderLeftColor: labelColor,
-                    backgroundColor: bgColor,
-                  }}
-                >
-                  <h4
-                    className="font-medium text-base mb-1"
-                    style={{ color: labelColor }}
+                return tasks.map((task, idx) => (
+                  <li
+                    key={`${category}-${idx}`}
+                    className="rounded-[10px] border-l-4 p-2.5 mb-2.5"
+                    style={{
+                      borderLeftColor: labelColor,
+                      backgroundColor: bgColor,
+                    }}
                   >
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                    {category === "overdue" && task.daysOverdue && (
-                      <span> ({task.daysOverdue} days)</span>
-                    )}
-                  </h4>
-                  <p className="text-body font-normal text-sm">
-                    {task.category}
-                  </p>
-                </li>
-              ));
-            })}
-          </ul>
+                    <h4
+                      className="font-medium text-base mb-1"
+                      style={{ color: labelColor }}
+                    >
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                      {category === "overdue" && task.daysOverdue && (
+                        <span> ({task.daysOverdue} days)</span>
+                      )}
+                    </h4>
+                    <p className="text-body font-normal text-sm">
+                      {task.category || "No category"}
+                    </p>
+                  </li>
+                ));
+              })}
+            </ul>
+          ) : (
+            <div className="h-[225px] flex items-center justify-center text-gray-400 text-sm">
+              No urgent tasks available!
+            </div>
+          )}
         </div>
       </div>
       <h4 className="font-semibold text-lg text-body mb-2.5 mt-16">

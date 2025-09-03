@@ -84,7 +84,6 @@ const AdminSettings = () => {
       setClientsListing(response.data);
     } catch (error) {
       console.error("Error fetching profile:", error);
-      toast.error("Failed to fetch profile details");
     } finally {
       setLoading((prev) => ({ ...prev, profile: false }));
     }

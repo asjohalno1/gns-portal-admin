@@ -20,8 +20,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    console.log("hekko");
-    
     localStorage.removeItem("authToken");
     setAuthToken(null);
   };

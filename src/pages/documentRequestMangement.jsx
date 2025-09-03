@@ -70,10 +70,13 @@ const DocReqManagement = () => {
   const [query, setQuery] = useState({
     search: "",
     page: 1,
+    status: "all",
     limit: 10,
     total: 0,
     totalPages: 0,
   });
+
+  console.log("query", query);
 
   useEffect(() => {
     if (activeTab === "tab1") {
@@ -102,7 +105,7 @@ const DocReqManagement = () => {
     if (activeTab === "tab3") {
       fetchAllDocuments(query);
     }
-  }, [query.page, query.limit]);
+  }, [query.page, query.limit, query.status]);
 
   const fetchDocumentListing = async (queryParams = query) => {
     try {
@@ -532,7 +535,7 @@ const DocReqManagement = () => {
     setQuery((prev) => ({ ...prev, limit: newLimit, page: 1 }));
   };
   const handleClear = () => {
-    setQuery((prev) => ({ ...prev, search: "", page: 1, limit: 10 }));
+    setQuery((prev) => ({ ...prev, status: "all", page: 1, limit: 10 }));
   };
 
   const handleAction = (action, data) => {
@@ -611,67 +614,67 @@ const DocReqManagement = () => {
         {activeTab === "tab1" && (
           <div className="">
             <div className="mt-7 grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center">
-                <div className="flex justify-between items-center w-full">
-                  <div className="">
-                    <span className="text-body font-medium text-[14px]">
-                      Total Requests
-                    </span>
-                    <h4 className="text-body font-semibold text-[28px]">
-                      {headerSummery?.totalReq}
-                    </h4>
-                  </div>
-                  <div className="bg-bgPurple flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                    <DocumentIcon />
-                  </div>
+              {/* Total Requests */}
+              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-body font-semibold text-[28px] leading-none">
+                    {headerSummery?.totalReq}
+                  </h4>
+                  <span className="text-body font-medium text-[14px]">
+                    Total Requests
+                  </span>
+                </div>
+                <div className="bg-bgPurple flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                  <DocumentIcon />
                 </div>
               </div>
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center">
-                <div className="flex justify-between items-center w-full">
-                  <div className="">
-                    <span className="text-body font-medium text-[14px]">
-                      Completed Today
-                    </span>
-                    <h4 className="text-body font-semibold text-[28px]">
-                      {headerSummery?.totalComplete}
-                    </h4>
-                  </div>
-                  <div className="bg-bgGreen flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                    <CompleteCheckIcon />
-                  </div>
+
+              {/* Completed Today */}
+              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-body font-semibold text-[28px] leading-none">
+                    {headerSummery?.totalComplete}
+                  </h4>
+                  <span className="text-body font-medium text-[14px]">
+                    Completed Today
+                  </span>
+                </div>
+                <div className="bg-bgGreen flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                  <CompleteCheckIcon />
                 </div>
               </div>
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center">
-                <div className="flex justify-between items-center w-full">
-                  <div className="">
-                    <span className="text-body font-medium text-[14px]">
-                      Pending Requests
-                    </span>
-                    <h4 className="text-body font-semibold text-[28px]">
-                      {headerSummery?.totalPending}
-                    </h4>
-                  </div>
-                  <div className="bg-bgOrange flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                    <PendingIcon />
-                  </div>
+
+              {/* Pending Requests */}
+              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-body font-semibold text-[28px] leading-none">
+                    {headerSummery?.totalPending}
+                  </h4>
+                  <span className="text-body font-medium text-[14px]">
+                    Pending Requests
+                  </span>
+                </div>
+                <div className="bg-bgOrange flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                  <PendingIcon />
                 </div>
               </div>
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center">
-                <div className="flex justify-between items-center w-full">
-                  <div className="">
-                    <span className="text-body font-medium text-[14px]">
-                      Overdue
-                    </span>
-                    <h4 className="text-body font-semibold text-[28px]">
-                      {headerSummery?.overdue}
-                    </h4>
-                  </div>
-                  <div className="bg-bgRed flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                    <OverdueIcon />
-                  </div>
+
+              {/* Overdue */}
+              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-body font-semibold text-[28px] leading-none">
+                    {headerSummery?.overdue}
+                  </h4>
+                  <span className="text-body font-medium text-[14px]">
+                    Overdue
+                  </span>
+                </div>
+                <div className="bg-bgRed flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                  <OverdueIcon />
                 </div>
               </div>
             </div>
+
             <div className="flex items-center justify-between mb-2.5">
               <h4 className="color-black text-lg font-semibold">
                 Document Requests
@@ -705,15 +708,23 @@ const DocReqManagement = () => {
                 <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
                   <div className="relative">
                     <select
-                      name="cars"
-                      id="cars"
+                      value={query.status || "all"}
+                      onChange={(e) =>
+                        setQuery((prev) => ({
+                          ...prev,
+                          status: e.target.value,
+                          page: 1,
+                        }))
+                      }
                       className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
                     >
-                      <option value="volvo">Newest First</option>
-                      <option value="saab">Saab</option>
-                      <option value="opel">Opel</option>
-                      <option value="audi">Audi</option>
+                      <option value="all">All</option>
+                      <option value="pending">Pending</option>
+                      <option value="completed">Complete</option>
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
                     </select>
+
                     <svg
                       className="absolute right-[14px] top-[14px]"
                       width="12"
@@ -1549,15 +1560,23 @@ const DocReqManagement = () => {
                 <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
                   <div className="relative">
                     <select
-                      name="cars"
-                      id="cars"
+                      name="status"
+                      id="status"
+                      value={query.status || "all"}
+                      onChange={(e) =>
+                        setQuery((prev) => ({
+                          ...prev,
+                          status: e.target.value,
+                          page: 1,
+                        }))
+                      }
                       className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
                     >
-                      <option value="volvo">Newest First</option>
-                      <option value="saab">Saab</option>
-                      <option value="opel">Opel</option>
-                      <option value="audi">Audi</option>
+                      <option value="all">All</option>
+                      <option value="sent">Sent</option>
+                      <option value="Used">Used</option>
                     </select>
+
                     <svg
                       className="absolute right-[14px] top-[14px]"
                       width="12"

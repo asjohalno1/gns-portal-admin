@@ -31,18 +31,30 @@ const Table = ({
           </tr>
         </thead>
         <tbody>
-          {(data || []).map((item, index) => (
-            <tr key={index} className="bg-white border-b border-[#eaeaea]">
-              {currentConfig.columns.map((column) => (
-                <td
-                  key={`${index}-${column.key}`}
-                  className="px-6 py-4 text-base font-normal color-black"
-                >
-                  {renderCellContent(item, column.key, onAction, mode, index)}
-                </td>
-              ))}
+          {(data || []).length > 0 ? (
+            (data || []).map((item, index) => (
+              <tr key={index} className="bg-white border-b border-[#eaeaea]">
+                {currentConfig.columns.map((column) => (
+                  <td
+                    key={`${index}-${column.key}`}
+                    className="px-6 py-4 text-base font-normal color-black"
+                  >
+                    {renderCellContent(item, column.key, onAction, mode, index)}
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan={currentConfig.columns.length}
+                className="px-6 py-10 text-center text-gray-400 text-base italic"
+              >
+                No data available !
+              </td>
             </tr>
-          ))}
+          )}
+
           <tr>
             <td
               className="px-6 py-4 text-base font-normal color-black"

@@ -44,7 +44,7 @@ export const Header = ({ toggleButton }) => {
       </div>
       <ul className="flex items-center">
         <li className="relative">
-          <svg
+          {/* <svg
             width="17"
             height="16"
             viewBox="0 0 17 16"
@@ -56,7 +56,7 @@ export const Header = ({ toggleButton }) => {
               fill="#98999B"
             />
           </svg>
-          <span className="bg-red-600 h-1.5 w-1.5 rounded-full absolute right-0 top-0"></span>
+          <span className="bg-red-600 h-1.5 w-1.5 rounded-full absolute right-0 top-0"></span> */}
         </li>
         <li className="ml-6">
           <img
