@@ -237,15 +237,7 @@ export const getStatusButton = (status) => {
           {status}
         </button>
       );
-    case "Pendingg":
-      return (
-        <button
-          type="button"
-          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
-        >
-          {status}
-        </button>
-      );
+
     case "Under Review":
       return (
         <button
@@ -278,6 +270,33 @@ export const getStatusButton = (status) => {
         <button
           type="button"
           className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          {status}
+        </button>
+      );
+    case "complete":
+      return (
+        <button
+          type="button"
+          className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          {status}
+        </button>
+      );
+    case "pending":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          {status}
+        </button>
+      );
+    case "Pending":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
         >
           {status}
         </button>

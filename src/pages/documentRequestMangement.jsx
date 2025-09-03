@@ -614,67 +614,67 @@ const DocReqManagement = () => {
         {activeTab === "tab1" && (
           <div className="">
             <div className="mt-7 grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center">
-                <div className="flex justify-between items-center w-full">
-                  <div className="">
-                    <span className="text-body font-medium text-[14px]">
-                      Total Requests
-                    </span>
-                    <h4 className="text-body font-semibold text-[28px]">
-                      {headerSummery?.totalReq}
-                    </h4>
-                  </div>
-                  <div className="bg-bgPurple flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                    <DocumentIcon />
-                  </div>
+              {/* Total Requests */}
+              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-body font-semibold text-[28px] leading-none">
+                    {headerSummery?.totalReq}
+                  </h4>
+                  <span className="text-body font-medium text-[14px]">
+                    Total Requests
+                  </span>
+                </div>
+                <div className="bg-bgPurple flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                  <DocumentIcon />
                 </div>
               </div>
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center">
-                <div className="flex justify-between items-center w-full">
-                  <div className="">
-                    <span className="text-body font-medium text-[14px]">
-                      Completed Today
-                    </span>
-                    <h4 className="text-body font-semibold text-[28px]">
-                      {headerSummery?.totalComplete}
-                    </h4>
-                  </div>
-                  <div className="bg-bgGreen flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                    <CompleteCheckIcon />
-                  </div>
+
+              {/* Completed Today */}
+              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-body font-semibold text-[28px] leading-none">
+                    {headerSummery?.totalComplete}
+                  </h4>
+                  <span className="text-body font-medium text-[14px]">
+                    Completed Today
+                  </span>
+                </div>
+                <div className="bg-bgGreen flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                  <CompleteCheckIcon />
                 </div>
               </div>
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center">
-                <div className="flex justify-between items-center w-full">
-                  <div className="">
-                    <span className="text-body font-medium text-[14px]">
-                      Pending Requests
-                    </span>
-                    <h4 className="text-body font-semibold text-[28px]">
-                      {headerSummery?.totalPending}
-                    </h4>
-                  </div>
-                  <div className="bg-bgOrange flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                    <PendingIcon />
-                  </div>
+
+              {/* Pending Requests */}
+              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-body font-semibold text-[28px] leading-none">
+                    {headerSummery?.totalPending}
+                  </h4>
+                  <span className="text-body font-medium text-[14px]">
+                    Pending Requests
+                  </span>
+                </div>
+                <div className="bg-bgOrange flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                  <PendingIcon />
                 </div>
               </div>
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center">
-                <div className="flex justify-between items-center w-full">
-                  <div className="">
-                    <span className="text-body font-medium text-[14px]">
-                      Overdue
-                    </span>
-                    <h4 className="text-body font-semibold text-[28px]">
-                      {headerSummery?.overdue}
-                    </h4>
-                  </div>
-                  <div className="bg-bgRed flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                    <OverdueIcon />
-                  </div>
+
+              {/* Overdue */}
+              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-body font-semibold text-[28px] leading-none">
+                    {headerSummery?.overdue}
+                  </h4>
+                  <span className="text-body font-medium text-[14px]">
+                    Overdue
+                  </span>
+                </div>
+                <div className="bg-bgRed flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                  <OverdueIcon />
                 </div>
               </div>
             </div>
+
             <div className="flex items-center justify-between mb-2.5">
               <h4 className="color-black text-lg font-semibold">
                 Document Requests

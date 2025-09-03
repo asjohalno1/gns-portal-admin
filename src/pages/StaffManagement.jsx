@@ -89,22 +89,19 @@ const StaffManagement = () => {
     return () => clearTimeout(timer);
   }, [searchQuery, statusFilter]);
 
-  const StatCard = ({ title, value, icon, bgColor, textColor }) => (
+  const StatCard = ({ title, value, icon, bgColor }) => (
     <div className="border border-gray-200 p-5 rounded-[20px] flex justify-between items-center bg-white">
-      <div className="flex justify-between items-center w-full">
-        <div>
-          <span className="text-gray-600 font-medium text-[14px] block mb-1">
-            {title}
-          </span>
-          <h4 className="text-gray-800 font-bold text-[32px] leading-none">
-            {value}
-          </h4>
-        </div>
-        <div
-          className={`${bgColor} flex justify-center items-center w-[50px] h-[50px] rounded-[12px]`}
-        >
-          {icon}
-        </div>
+      <div className="flex items-center gap-2">
+        <h4 className="text-gray-800 font-bold text-[28px] leading-none">
+          {value}
+        </h4>
+        <span className="text-gray-600 font-normal text-[18px]">{title}</span>
+      </div>
+
+      <div
+        className={`${bgColor} flex justify-center items-center w-[50px] h-[50px] rounded-[12px]`}
+      >
+        {icon}
       </div>
     </div>
   );
