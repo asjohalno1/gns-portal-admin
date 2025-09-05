@@ -41,7 +41,7 @@ const AdminSettings = () => {
   const fileInputRef = useRef(null);
   const [clientsListing, setClientsListing] = useState([]);
   const [folderTreeData, setFolderTreeData] = useState(null);
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState("/default-profile.png");
   const [openFolders, setOpenFolders] = useState({});
   const [mappingLoading, setMappingLoading] = useState(false);
   const fetchProfileDetails = useCallback(async () => {
@@ -118,7 +118,6 @@ const AdminSettings = () => {
     try {
       setLoading((prev) => ({ ...prev, image: true }));
       const imageUrl = URL.createObjectURL(file);
-      console.log("Image URL:", imageUrl);
       setImage(imageUrl);
       const formData = new FormData();
       formData.append("profile", file);

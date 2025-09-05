@@ -91,8 +91,8 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#0000005D] bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full relative max-w-[562px]">
+    <div className="fixed inset-0 bg-[#0000005D]  bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6  rounded-lg w-full relative max-w-[562px] max-h-[550px] overflow-y-auto  scrollbar-none">
         <div className="w-full max-w-[562px] bg-white rounded-[10px] mx-auto">
           <div className="flex justify-between items-center mb-[30px]">
             <h2 className="text-[#484848] font-medium text-[16px] leading-[100%] tracking-[0]">
