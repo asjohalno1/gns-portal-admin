@@ -9,6 +9,7 @@ import {
 } from "../../../api/staffManagement.api";
 import { getAllStaff } from "../../../api/dashboard.api";
 import MapClientModal from "../ActionsModals/MapClientModal";
+import Loader from "../../Loader/Loader";
 
 const AssignToClients = () => {
   const [unassignedClients, setUnassignedClients] = useState({
@@ -213,17 +214,21 @@ const AssignToClients = () => {
           <option value="0">Inactive</option>
         </select>
       </div>
-      <Table
-        data={unassignedClients.data}
-        pagination={unassignedClients.pagination}
-        onPageChange={handlePageChange}
-        onLimitChange={handleLimitChange}
-        mode="unassignedClients"
-        onNextPage={handleNextPage}
-        onPrevPage={handlePrevPage}
-        onAction={handleActionClick}
-        loading={loading}
-      />
+      {loading ? (
+        <Loader />
+      ) : (
+        <Table
+          data={unassignedClients.data}
+          pagination={unassignedClients.pagination}
+          onPageChange={handlePageChange}
+          onLimitChange={handleLimitChange}
+          mode="unassignedClients"
+          onNextPage={handleNextPage}
+          onPrevPage={handlePrevPage}
+          onAction={handleActionClick}
+          loading={loading}
+        />
+      )}
       <AssignClientModal
         isOpen={viewAssignToClientModal}
         onClose={() => {

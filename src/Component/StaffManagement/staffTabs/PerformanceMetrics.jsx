@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Table from "../../Table/table";
 import { toast } from "react-toastify";
 import { getStaffPerformanceMetricsApi } from "../../../api/staffManagement.api";
+import Loader from "../../Loader/Loader";
 
 const PerformanceMetrics = () => {
   const [performanceData, setPerformanceData] = useState([]);
@@ -183,16 +184,20 @@ const PerformanceMetrics = () => {
         </select>
       </div>
 
-      <Table
-        data={performanceData}
-        mode="performanceStats"
-        pagination={pagination}
-        onPageChange={handlePageChange}
-        onLimitChange={handleLimitChange}
-        onNextPage={handleNextPage}
-        onPrevPage={handlePrevPage}
-        loading={loading}
-      />
+      {loading ? (
+        <Loader />
+      ) : (
+        <Table
+          data={performanceData}
+          mode="performanceStats"
+          pagination={pagination}
+          onPageChange={handlePageChange}
+          onLimitChange={handleLimitChange}
+          onNextPage={handleNextPage}
+          onPrevPage={handlePrevPage}
+          loading={loading}
+        />
+      )}
     </>
   );
 };
