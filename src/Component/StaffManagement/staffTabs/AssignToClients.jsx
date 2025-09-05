@@ -175,8 +175,12 @@ const AssignToClients = () => {
     }
   };
 
-  const handleMapingClient = async (clientId) => {
+  const handleMapingClient = async (clientId, email) => {
     try {
+      if (!email.toLowerCase().endsWith("@gmail.com")) {
+        toast.error("Only Gmail addresses are allowed!");
+        return;
+      }
       let res = await mapClientApi(clientId);
       if (res.success) {
         toast.success("Client mapped successfully");
@@ -209,7 +213,6 @@ const AssignToClients = () => {
           <option value="0">Inactive</option>
         </select>
       </div>
-
       <Table
         data={unassignedClients.data}
         pagination={unassignedClients.pagination}
@@ -221,7 +224,6 @@ const AssignToClients = () => {
         onAction={handleActionClick}
         loading={loading}
       />
-
       <AssignClientModal
         isOpen={viewAssignToClientModal}
         onClose={() => {
@@ -232,7 +234,6 @@ const AssignToClients = () => {
         clientData={selectedClient}
         onAssign={handleAssignToClient}
       />
-
       <MapClientModal
         isOpen={isMapClientModalOpen}
         onClose={() => setIsMapClientModalOpen(false)}

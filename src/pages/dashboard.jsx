@@ -300,21 +300,28 @@ const Dashboard = () => {
               dashboardData.recentActivity.map((activity, index) => (
                 <div
                   key={index}
-                  className="px-4 py-1 mb-2 hover:bg-gray-50 transition-colors border-b-[1px] border-customGray duration-200 cursor-pointer group"
+                  className="px-4 py-3 mb-1 hover:bg-gray-50 hover:shadow-sm transition-all duration-200 cursor-pointer group rounded-lg"
                 >
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-start space-x-3">
+                    {/* Icon */}
+                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full">
+                      📄
+                    </div>
+
+                    {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="text-[16px] font-medium text-body transition-colors duration-200">
+                          <h3 className="text-[15px] font-semibold text-gray-900">
                             {activity.title || "Untitled"}
                           </h3>
-                          <p className="text-[14px] font-regular text-body mt-1">
+                          <p className="text-[13px] text-gray-500 mt-1">
                             {activity.message || "No details available"}
                           </p>
                         </div>
-                        <div className="flex flex-col items-end ml-4">
-                          <span className="text-[14px] font-regular text-body mb-2">
+                        {/* Timestamp (placeholder for now) */}
+                        <div className="ml-4 text-right">
+                          <span className="text-[12px] text-gray-400">
                             Recently
                           </span>
                         </div>
@@ -340,7 +347,7 @@ const Dashboard = () => {
             (category) =>
               (dashboardData?.urgentTasks?.[category] || []).length > 0
           ) ? (
-            <ul className="overflow-y-auto h-[225px]">
+            <ul className="overflow-y-auto h-[225px] pr-2">
               {["overdue", "today", "tomorrow"].map((category) => {
                 const tasks = dashboardData?.urgentTasks?.[category] || [];
                 const labelColor = {
@@ -350,34 +357,71 @@ const Dashboard = () => {
                 }[category];
 
                 const bgColor = {
-                  overdue: "#F3E4E4",
-                  today: "#F3E4E4",
-                  tomorrow: "#F3EDE4",
+                  overdue: "#FDEAEA",
+                  today: "#FDEAEA",
+                  tomorrow: "#FFF4E0",
                 }[category];
 
-                return tasks.map((task, idx) => (
-                  <li
-                    key={`${category}-${idx}`}
-                    className="rounded-[10px] border-l-4 p-2.5 mb-2.5"
-                    style={{
-                      borderLeftColor: labelColor,
-                      backgroundColor: bgColor,
-                    }}
-                  >
-                    <h4
-                      className="font-medium text-base mb-1"
-                      style={{ color: labelColor }}
+                return tasks.map((task, idx) => {
+                  const formattedDate = new Date(
+                    task.dueDate
+                  ).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  });
+
+                  return (
+                    <li
+                      key={`${category}-${idx}`}
+                      className="rounded-[10px] border-l-4 p-3 mb-3 shadow-sm"
+                      style={{
+                        borderLeftColor: labelColor,
+                        backgroundColor: bgColor,
+                      }}
                     >
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
-                      {category === "overdue" && task.daysOverdue && (
-                        <span> ({task.daysOverdue} days)</span>
-                      )}
-                    </h4>
-                    <p className="text-body font-normal text-sm">
-                      {task.category || "No category"}
-                    </p>
-                  </li>
-                ));
+                      <div className="flex justify-between items-center gap-2">
+                        <h4 className="font-semibold text-base text-gray-900 flex-1 min-w-0 truncate">
+                          Request for:{" "}
+                          <span className="text-indigo-600 font-bold truncate">
+                            {task?.subCategory}
+                          </span>
+                          <span className="text-sm text-gray-500 truncate">
+                            {" "}
+                            ({task.category})
+                          </span>
+                        </h4>
+
+                        {category === "overdue" && task.daysOverdue && (
+                          <span className="flex-shrink-0 text-xs bg-red-50 text-red-600 px-3 py-1 rounded-full font-medium shadow-sm">
+                            {task.daysOverdue}d overdue
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-sm text-gray-900 mt-1">
+                        <span className="font-medium">Request to:</span>{" "}
+                        {task.clientName}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Deadline: {formattedDate}
+                      </p>
+
+                      {/* Upload status */}
+                      <p className="text-xs mt-2">
+                        {task.isUploaded ? (
+                          <span className="bg-green-100 text-green-700 outline outline-green-500 px-4 py-1 rounded-full">
+                            Uploaded
+                          </span>
+                        ) : (
+                          <span className="bg-yellow-100 text-yellow-700 outline outline-yellow-500 px-4 py-1 rounded-full">
+                            Pending Upload
+                          </span>
+                        )}
+                      </p>
+                    </li>
+                  );
+                });
               })}
             </ul>
           ) : (

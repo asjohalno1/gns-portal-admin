@@ -8,7 +8,7 @@ const MapClientModal = ({ isOpen, onClose, clientData, onMap }) => {
   const handleMapClick = async () => {
     try {
       setLoading(true);
-      await onMap(clientData._id);
+      await onMap(clientData._id, clientData?.email);
       onClose();
     } catch (err) {
       console.error("Error mapping client:", err);

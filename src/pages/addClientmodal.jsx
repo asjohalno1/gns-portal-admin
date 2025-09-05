@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { addClient, getAllStaff } from "../api/dashboard.api";
+import { toast } from "react-toastify";
 
 const AddClientmodal = ({ isOpen, onClose, title, children }) => {
   const [formData, setFormData] = useState({
@@ -61,8 +62,13 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
         notes: "",
         sendInvitation: false,
       });
-
-      onClose();
+      if (response.success) {
+        setError(null);
+        toast.success("Client added successfully!");
+      }
+      setTimeout(() => {
+        onClose();
+      }, 1000);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add client");
       console.error("Error adding client:", err);
