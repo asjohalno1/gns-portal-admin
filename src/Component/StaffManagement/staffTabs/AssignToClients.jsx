@@ -9,6 +9,7 @@ import {
 } from "../../../api/staffManagement.api";
 import { getAllStaff } from "../../../api/dashboard.api";
 import MapClientModal from "../ActionsModals/MapClientModal";
+import Loader from "../../Loader/Loader";
 
 const AssignToClients = () => {
   const [unassignedClients, setUnassignedClients] = useState({
@@ -175,8 +176,12 @@ const AssignToClients = () => {
     }
   };
 
-  const handleMapingClient = async (clientId) => {
+  const handleMapingClient = async (clientId, email) => {
     try {
+      // if (!email.toLowerCase().endsWith("@gmail.com")) {
+      //   toast.error("Only Gmail addresses are allowed!");
+      //   return;
+      // }
       let res = await mapClientApi(clientId);
       if (res.success) {
         toast.success("Client mapped successfully");
@@ -209,19 +214,21 @@ const AssignToClients = () => {
           <option value="0">Inactive</option>
         </select>
       </div>
-
-      <Table
-        data={unassignedClients.data}
-        pagination={unassignedClients.pagination}
-        onPageChange={handlePageChange}
-        onLimitChange={handleLimitChange}
-        mode="unassignedClients"
-        onNextPage={handleNextPage}
-        onPrevPage={handlePrevPage}
-        onAction={handleActionClick}
-        loading={loading}
-      />
-
+      {loading ? (
+        <Loader />
+      ) : (
+        <Table
+          data={unassignedClients.data}
+          pagination={unassignedClients.pagination}
+          onPageChange={handlePageChange}
+          onLimitChange={handleLimitChange}
+          mode="unassignedClients"
+          onNextPage={handleNextPage}
+          onPrevPage={handlePrevPage}
+          onAction={handleActionClick}
+          loading={loading}
+        />
+      )}
       <AssignClientModal
         isOpen={viewAssignToClientModal}
         onClose={() => {
@@ -232,7 +239,6 @@ const AssignToClients = () => {
         clientData={selectedClient}
         onAssign={handleAssignToClient}
       />
-
       <MapClientModal
         isOpen={isMapClientModalOpen}
         onClose={() => setIsMapClientModalOpen(false)}

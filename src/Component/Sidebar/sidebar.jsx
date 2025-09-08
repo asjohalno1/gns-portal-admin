@@ -20,7 +20,7 @@ const SideBarTab = ({ isOpen }) => {
         }`}
       >
         {" "}
-        <div className=" w-full  left-0 bg-[#F6F6F6] transition-all  duration-300 ease-in-out  h-full ">
+        <div className=" w-full  left-0 bg-[#F6F6F6] transition-all  duration-300 ease-in-out  h-full  max-h-screen overflow-y-auto scrollbar-none ">
           <nav className="flex flex-col h-full pt-3  p-3">
             <div className="logo mb-9">
               <img src={Logo} alt="logoimg" class="w-39 h-auto mx-auto" />

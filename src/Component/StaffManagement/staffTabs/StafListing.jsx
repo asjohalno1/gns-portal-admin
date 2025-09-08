@@ -9,6 +9,7 @@ import ViewStaff from "../ActionsModals/ViewStaff";
 import DeleteConfirmationModal from "../../DeleteComfermationModal/DeleteConfirmationModal";
 import { toast } from "react-toastify";
 import EditStaffModal from "../ActionsModals/EditStaffModal";
+import Loader from "../../Loader/Loader";
 
 const StafListing = () => {
   const [staffData, setStaffData] = useState({
@@ -25,19 +26,25 @@ const StafListing = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [listLoading, setListLoading] = useState(false);
 
   const fetchAllStaffList = async (page = 1, limit = 10) => {
     try {
+      setListLoading(true);
       let res = await getAllStaffListingApi(page, limit);
       if (res.success) {
         setStaffData({
           data: res.data,
           pagination: res.pagination,
         });
+        setListLoading(false);
       }
     } catch (error) {
+      setListLoading(false);
       console.error("Error fetching all staff list:", error);
       toast.error("Failed to fetch staff list");
+    } finally {
+      setListLoading(false);
     }
   };
 
@@ -136,16 +143,20 @@ const StafListing = () => {
   return (
     <>
       <div className="">
-        <Table
-          data={staffData.data}
-          pagination={staffData.pagination}
-          onPageChange={handlePageChange}
-          onLimitChange={handleLimitChange}
-          mode="staffListing"
-          onNextPage={handleNextPage}
-          onPrevPage={handlePrevPage}
-          onAction={handleActionClick}
-        />
+        {listLoading ? (
+          <Loader />
+        ) : (
+          <Table
+            data={staffData.data}
+            pagination={staffData.pagination}
+            onPageChange={handlePageChange}
+            onLimitChange={handleLimitChange}
+            mode="staffListing"
+            onNextPage={handleNextPage}
+            onPrevPage={handlePrevPage}
+            onAction={handleActionClick}
+          />
+        )}
       </div>
 
       <ViewStaff
