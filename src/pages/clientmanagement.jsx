@@ -367,10 +367,10 @@ const ClientManagement = () => {
 
   const handleMapingClient = async (clientId, email) => {
     try {
-      if (!email.toLowerCase().endsWith("@gmail.com")) {
-        toast.error("Only Gmail addresses are allowed!");
-        return;
-      }
+      // if (!email.toLowerCase().endsWith("@gmail.com")) {
+      //   toast.error("Only Gmail addresses are allowed!");
+      //   return;
+      // }
       let res = await mapClientApi(clientId);
       if (res.success) {
         toast.success("Client mapped successfully");

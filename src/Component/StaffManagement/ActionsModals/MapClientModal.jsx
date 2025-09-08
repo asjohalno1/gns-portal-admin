@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 const MapClientModal = ({ isOpen, onClose, clientData, onMap }) => {
   const [loading, setLoading] = useState(false);
-
+  console.log(clientData);
   if (!isOpen) return null;
 
   const handleMapClick = async () => {
@@ -32,7 +32,7 @@ const MapClientModal = ({ isOpen, onClose, clientData, onMap }) => {
         <h2 className="text-lg font-semibold mb-4">Client Details</h2>
 
         {/* Client Info */}
-        <div className="mb-6 space-y-2">
+        <div className="mb-6 space-y-2 text-gray-800">
           <p>
             <strong>Full Name:</strong> {clientData?.fullName}
           </p>
@@ -41,6 +41,16 @@ const MapClientModal = ({ isOpen, onClose, clientData, onMap }) => {
           </p>
           <p>
             <strong>Phone:</strong> {clientData?.phoneNumber}
+          </p>
+        </div>
+
+        {/* Client Address */}
+        <div className="mb-6 text-gray-800">
+          <p>
+            <strong>Mapping Path:</strong> /Client_Portal_Testing_SD/Clients/
+            <span className="text-blue-600 font-medium">
+              {clientData?.name}
+            </span>
           </p>
         </div>
 
