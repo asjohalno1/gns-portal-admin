@@ -102,6 +102,7 @@ const Dashboard = () => {
 
   const handleClearSearch = () => {
     setSearchQuery("");
+    setStatusFilter("all");
     setDashboardData((prev) => ({
       ...prev,
       pagination: { ...prev.pagination, page: 1, limit: 10 },
@@ -457,7 +458,7 @@ const Dashboard = () => {
           <div className="relative w-full md:w-[60%]">
             <input
               type="text"
-              placeholder="Search by name, email or status"
+              placeholder="Search by name or email"
               className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
               value={searchQuery}
               onChange={handleSearch}

@@ -22,8 +22,10 @@ import getPlainText from "../adminutils/commonutils";
 import { useNavigate } from "react-router-dom";
 import AddCustomSubcat from "../Component/settings/AddCustomSubcat";
 import SuccessrequestModal from "../CommonPages/SuccessModal/SuccessrequestModal";
+import { useToast } from "../CommonPages/customtoast/CustomToaster";
 
 const DocReqManagement = () => {
+  const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState("tab1");
   const [documentList, setDocumentList] = useState([]);
   const [headerSummery, setHeaderSummery] = useState({});
@@ -263,8 +265,7 @@ const DocReqManagement = () => {
       const res = await createDocumentRequest(requestData);
 
       if (res.success) {
-        toast.success(res?.message || "Document request created successfully");
-
+        addToast("Document request created successfully", "success");
         // Reset form
         setFormData({
           title: "",
@@ -346,7 +347,7 @@ const DocReqManagement = () => {
       const res = await addTemplate(templateData);
 
       if (res.success) {
-        toast.success(res?.message || "Template saved successfully");
+        addToast("Template saved successfully", "success");
         setSaveLoading(false);
         setActiveTab("tab4"); // Navigate to templates tab
       } else {
@@ -558,7 +559,7 @@ const DocReqManagement = () => {
         categoryId: currentCategory._id,
       });
       if (res.success) {
-        toast.success(res.message);
+        addToast(res.message, "success");
         // await handleCategoryChange(currentCategoryForSubcategory);
       }
     } catch (error) {

@@ -10,9 +10,11 @@ import {
 import axiosInstance from "../api/axiosInstance";
 import { FileIcon } from "lucide-react";
 import { getAllClientsAdmin } from "../api/documentManagemnet.api";
+import { useToast } from "../CommonPages/customtoast/CustomToaster";
 
 const AdminSettings = () => {
   const [activeTab, setActiveTab] = useState("general");
+  const { addToast } = useToast();
   const [userDetail, setUserDetail] = useState(null);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -134,7 +136,7 @@ const AdminSettings = () => {
       );
 
       if (response.data.success) {
-        toast.success("Profile updated successfully!");
+        addToast("Profile updated successfully!", "success");
         setUserDetail((prev) => ({
           ...prev,
           profile: response.data.data.profile,
@@ -168,8 +170,7 @@ const AdminSettings = () => {
         ...prev,
         profile: "",
       }));
-
-      toast.success("Profile image removed successfully");
+      addToast("Profile image removed successfully", "success");
       fetchProfileDetails();
     } catch (error) {
       console.error("Error removing profile image:", error);
@@ -206,10 +207,9 @@ const AdminSettings = () => {
       };
 
       await updateProfileApi(payload);
-      toast.success("Profile updated successfully");
+      addToast("Profile updated successfully!", "success");
       fetchProfileDetails();
     } catch (error) {
-      console.error("Error updating profile:", error);
       toast.error("Failed to update profile");
     } finally {
       setLoading((prev) => ({ ...prev, update: false }));
@@ -268,7 +268,7 @@ const AdminSettings = () => {
       const response = await createDriveMappingApi(mappingData);
 
       if (response.success) {
-        toast.success("Drive mapping created successfully");
+        addToast("Drive mapping created successfully", "success");
         fetchDriveMapping();
         setDriveSettings((prev) => ({
           ...prev,

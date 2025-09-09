@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 const MapClientModal = ({ isOpen, onClose, clientData, onMap }) => {
   const [loading, setLoading] = useState(false);
-  console.log(clientData);
   if (!isOpen) return null;
 
   const handleMapClick = async () => {

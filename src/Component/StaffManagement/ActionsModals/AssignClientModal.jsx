@@ -13,6 +13,7 @@ const AssignClientModal = ({
 
   const handleAssignClick = () => {
     onAssign(clientData._id, selectedStaff);
+    setSelectedStaff("");
     onClose();
   };
 

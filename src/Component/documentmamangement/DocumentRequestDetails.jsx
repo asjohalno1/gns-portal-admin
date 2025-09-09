@@ -6,7 +6,7 @@ import {
   getDocByReqId,
   approvedRequestDocument,
 } from "../../api/documentmanagement.api";
-import { on } from "process";
+import { useToast } from "../../CommonPages/customtoast/CustomToaster";
 
 const DocumentDeatailsModal = ({
   isOpen,
@@ -22,6 +22,7 @@ const DocumentDeatailsModal = ({
   const [requiredDocuments, setRequiredDocuments] = useState([]);
   const [process, setProcess] = useState();
   const nevigate = useNavigate();
+  const { addToast } = useToast();
   const getStatusStyle = (status) => {
     switch (status?.toLowerCase()) {
       case "submitted":
@@ -98,7 +99,7 @@ const DocumentDeatailsModal = ({
       const response = await approvedRequestDocument(id);
       if (response?.success) {
         fetchAllSubDocuments();
-        toast.success("Request Approved Successfully");
+        addToast("Request Approved Successfully", "success");
         onClose();
       }
     } catch (error) {
@@ -125,7 +126,9 @@ const DocumentDeatailsModal = ({
         {/* Content area */}
         <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#484848] align-middle mb-[15px]">
           Document Req Title:{" "}
-          <span className="font-semibold">{data?.title || "N/A"}</span>
+          <span className="font-semibold overflow-hidden">
+            {data?.title || "N/A"}
+          </span>
         </p>
 
         <div className="bg-[#2E7ED40D] rounded-[6px] px-[20px] py-[10px] mb-[15px] flex flex-col items-center justify-center text-center w-[100%] ">
@@ -188,7 +191,7 @@ const DocumentDeatailsModal = ({
         <p className="font-medium text-[14px] leading-[100%] tracking-normal capitalize text-[#484848] mb-[10px]">
           Required Documents
         </p>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4 ">
           {requiredDocuments
             .filter(
               (doc) =>
@@ -210,7 +213,7 @@ const DocumentDeatailsModal = ({
                   }`}
                   disabled={!isClickable}
                 >
-                  <p className="font-normal not-italic text-[14px] leading-[100%] tracking-[0px] text-[#2C3E50] mb-[6px]">
+                  <p className="font-normal not-italic text-[14px] leading-[100%] tracking-[0px] text-[#2C3E50] mb-[6px]  overflow-hidden">
                     {doc.subCategory.name}
                   </p>
                   <p

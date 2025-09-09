@@ -44,7 +44,6 @@ const PerformanceMetrics = () => {
         toast.error(response.message || "Failed to fetch performance data");
       }
     } catch (error) {
-      console.error("Error fetching performance data:", error);
       toast.error(error.message || "An error occurred");
     } finally {
       setLoading(false);
@@ -167,14 +166,14 @@ const PerformanceMetrics = () => {
         <input
           type="text"
           placeholder="Search staff..."
-          className="px-4 py-2 border rounded-md w-64"
+          className="px-2 py-1 border border-gray-300 rounded-md "
           value={search}
           onChange={handleSearchChange}
         />
         <select
           value={status}
           onChange={handleStatusChange}
-          className="px-4 py-2 border rounded-md"
+          className="px-2 py-1 border border-gray-300  rounded-md"
         >
           <option value="all">All Status</option>
           <option value="bad">Bad</option>

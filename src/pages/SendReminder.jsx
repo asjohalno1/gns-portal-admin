@@ -20,8 +20,10 @@ import QuillEditor from "../CommonPages/QuerillEditor/QuillEditor";
 import getPlainText from "../adminutils/commonutils";
 import SuccessrequestModal from "../CommonPages/SuccessModal/SuccessrequestModal";
 import Loader from "../Component/Loader/Loader";
+import { useToast } from "../CommonPages/customtoast/CustomToaster";
 
 const SendReminder = () => {
+  const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState("reminder");
   const [selectedDoc, setSelectedDoc] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -212,7 +214,7 @@ const SendReminder = () => {
 
       const res = await addReminderDefault(payloadDefault);
       if (res?.success === true) {
-        toast.success("Default Reminder Settings Updated Successfully!");
+        addToast("Default Reminder Settings Updated Successfully!");
         setDocumentRemainderCount(res?.data);
         setDefaultSettings(res.data);
       } else {
@@ -226,13 +228,13 @@ const SendReminder = () => {
 
   const SendReminder = async () => {
     if (!selectedDoc) {
-      toast.error("Please select a Document Title.");
+      addToast("Please select a Document Title.", "warn");
       return;
     }
     const validClientIds = selectedClientIds.filter((id) => id);
 
     if (validClientIds.length === 0) {
-      toast.error("Please select at least one valid Client.");
+      addToast("Please select at least one valid Client.", "warn");
       return;
     }
 
@@ -262,7 +264,7 @@ const SendReminder = () => {
 
       const res = await sendClientReminder(payload);
       if (res?.success === true) {
-        toast.success("Reminder Scheduled Successfully!");
+        addToast("Reminder Scheduled Successfully!");
         getAllRemainder();
         setActiveTab("history");
         setSelectedClientIds([]);
@@ -272,8 +274,7 @@ const SendReminder = () => {
         toast.error(res?.message || "Failed to create reminder.");
       }
     } catch (error) {
-      console.error("Reminder error:", error);
-      toast.error("Something went wrong. Please try again.");
+      addToast(error?.message || "Failed to create reminder.", "error");
     }
   };
   const handleClientSelect = (id) => {
@@ -342,12 +343,11 @@ const SendReminder = () => {
         setLoading(false);
         setShowSuccessRemainderModal(true);
       } else {
-        toast.error(res?.message || "Failed to send reminder.");
+        addToast(res?.message || "Failed to create reminder.", "error");
         setLoading(false);
       }
     } catch (error) {
-      console.error("Instant reminder error:", error);
-      toast.error("Something went wrong. Please try again.");
+      addToast(res?.message || "Failed to create reminder.", "error");
       setLoading(false);
     } finally {
       setLoading(false);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { addClient, getAllStaff } from "../api/dashboard.api";
 import { toast } from "react-toastify";
+import { useToast } from "../CommonPages/customtoast/CustomToaster";
 
 const AddClientmodal = ({ isOpen, onClose, title, children }) => {
   const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
   const [staffMembers, setStaffMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { addToast } = useToast();
 
   // Fetch staff members when modal opens
   useEffect(() => {
@@ -64,7 +66,19 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
       });
       if (response.success) {
         setError(null);
-        toast.success("Client added successfully!");
+        addToast("Client added successfully!", "success");
+        setFormData({
+          name: "",
+          lastName: "",
+          email: "",
+          phoneNumber: "",
+          company: "",
+          status: "",
+          staffId: "",
+          address: "",
+          notes: "",
+          sendInvitation: false,
+        });
       }
       setTimeout(() => {
         onClose();
@@ -136,7 +150,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
               </div>
               <div>
                 <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
-                  Last Name
+                  Last Name*
                 </label>
                 <input
                   type="text"
@@ -191,7 +205,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
               </div>
               <div>
                 <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
-                  Status
+                  Status*
                 </label>
                 <select
                   name="status"
@@ -206,7 +220,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
               </div>
               <div>
                 <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
-                  Assign to Staff
+                  Assign to Staff*
                 </label>
                 <select
                   name="staffId"
@@ -233,7 +247,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
 
             <div>
               <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
-                Address
+                Address*
               </label>
               <textarea
                 rows="3"

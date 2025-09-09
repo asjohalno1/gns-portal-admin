@@ -5,7 +5,7 @@ export const headerConfigs = {
   dashboardListing: {
     columns: [
       // { key: "title", label: "Document Request Title" },
-      { key: "name", label: "Client Name" },
+      { key: "clientFullName", label: "Client Name" },
       { key: "documentRequest", label: "Document Request" },
       { key: "process", label: "Task Process" },
       { key: "processStatus", label: "Status Update" },

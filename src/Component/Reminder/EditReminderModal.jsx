@@ -3,11 +3,13 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import QuillEditor from "../../CommonPages/QuerillEditor/QuillEditor";
 import { updateReminderTemplate } from "../../api/reminder.api";
+import { useToast } from "../../CommonPages/customtoast/CustomToaster";
 
 const EditReminderModal = ({ onClose, template }) => {
   const [templateName, setTemplateName] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const { addToast } = useToast();
   useEffect(() => {
     if (template && template._id) {
       setTemplateName(template.name || "");
@@ -31,7 +33,7 @@ const EditReminderModal = ({ onClose, template }) => {
 
       const res = await updateReminderTemplate(payload);
       if (res.success === true) {
-        toast.success("Reminder template updated successfully!");
+        addToast("Reminder template updated successfully!", "success");
         setTimeout(() => {
           onClose();
         }, 1000);

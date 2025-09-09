@@ -4,11 +4,13 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import QuillEditor from "../../CommonPages/QuerillEditor/QuillEditor";
 import { addRemainderTemplates } from "../../api/reminder.api";
+import { useToast } from "../../CommonPages/customtoast/CustomToaster";
 
 const RemainderModal = ({ onClose }) => {
   const [templateName, setTemplateName] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const { addToast } = useToast();
 
   const handleSave = async () => {
     if (!templateName || !message) {
@@ -24,7 +26,7 @@ const RemainderModal = ({ onClose }) => {
       };
       const res = await addRemainderTemplates(payload);
       if (res.success === true) {
-        toast.success("Reminder template added successfully!");
+        addToast("Reminder template added successfully!", "success");
         setTimeout(() => {
           onClose();
         }, 1000);

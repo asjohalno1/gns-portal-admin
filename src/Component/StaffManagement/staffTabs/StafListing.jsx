@@ -10,6 +10,7 @@ import DeleteConfirmationModal from "../../DeleteComfermationModal/DeleteConfirm
 import { toast } from "react-toastify";
 import EditStaffModal from "../ActionsModals/EditStaffModal";
 import Loader from "../../Loader/Loader";
+import { useToast } from "../../../CommonPages/customtoast/CustomToaster";
 
 const StafListing = () => {
   const [staffData, setStaffData] = useState({
@@ -22,6 +23,7 @@ const StafListing = () => {
     },
   });
   const [viewStaffModal, setViewStaffModal] = useState(false);
+  const { addToast } = useToast();
   const [selectedStaff, setSelectedStaff] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -80,7 +82,7 @@ const StafListing = () => {
       const res = await deleteStaffApi(selectedStaff._id);
 
       if (res.success) {
-        toast.success(res.message || "Staff deleted successfully");
+        addToast("Staff deleted successfully", "success");
         // Refresh the current page after deletion
         fetchAllStaffList(
           staffData.pagination.page,
@@ -106,7 +108,7 @@ const StafListing = () => {
       const response = await updateStaffApi(id, formData);
 
       if (response.data.success) {
-        toast.success(response.message || "Staff updated successfully");
+        addToast("Staff updated successfully", "success");
         fetchAllStaffList(
           staffData.pagination.page,
           staffData.pagination.limit
