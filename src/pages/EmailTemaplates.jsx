@@ -3,8 +3,10 @@ import { toast } from "react-toastify";
 import { addEmailTemplateApi, getAllEmailApi } from "../api/emailtemplate.api";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { useToast } from "../CommonPages/customtoast/CustomToaster";
 
 const EmailTemplates = () => {
+  const { addToast } = useToast();
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -95,7 +97,7 @@ const EmailTemplates = () => {
               : t
           )
         );
-        toast.success("Template updated successfully!");
+        addToast("Template updated successfully!", "success");
       } else {
         const newTemplate = {
           _id: Date.now().toString(),
@@ -105,7 +107,7 @@ const EmailTemplates = () => {
           updatedAt: new Date().toISOString(),
         };
         setTemplates((prev) => [newTemplate, ...prev]);
-        toast.success("Template created successfully!");
+        addToast("Template created successfully!", "success");
       }
 
       setShowModal(false);

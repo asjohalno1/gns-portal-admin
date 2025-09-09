@@ -19,6 +19,7 @@ import {
 import AssignClientModal from "../Component/StaffManagement/ActionsModals/AssignClientModal";
 import { toast } from "react-toastify";
 import MapClientModal from "../Component/StaffManagement/ActionsModals/MapClientModal";
+import { useToast } from "../CommonPages/customtoast/CustomToaster";
 
 const ClientManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -30,7 +31,7 @@ const ClientManagement = () => {
   const [staffMembers, setStaffMembers] = useState([]);
   const [tab1LimitDebounce, setTab1LimitDebounce] = useState(null);
   const [tab2LimitDebounce, setTab2LimitDebounce] = useState(null);
-
+  const { addToast } = useToast();
   // Separate filters and pagination for each tab
   const [tab1Filters, setTab1Filters] = useState({
     search: "",
@@ -45,7 +46,7 @@ const ClientManagement = () => {
 
   const [tab2Filters, setTab2Filters] = useState({
     search: "",
-    status: "all",
+    // status: "all",
   });
   const [tab2Pagination, setTab2Pagination] = useState({
     currentPage: 1,
@@ -182,7 +183,7 @@ const ClientManagement = () => {
       search: "",
       status: "all",
     });
-    setTab1Pagination((prev) => ({ ...prev, currentPage: 1 }));
+    setTab1Pagination((prev) => ({ ...prev, currentPage: 1, limit: 10 }));
   };
 
   const handleTab1NextPage = () => {
@@ -251,7 +252,7 @@ const ClientManagement = () => {
       search: "",
       status: "all",
     });
-    setTab2Pagination((prev) => ({ ...prev, currentPage: 1 }));
+    setTab2Pagination((prev) => ({ ...prev, currentPage: 1, limit: 10 }));
   };
 
   const handleTab2NextPage = () => {
@@ -324,7 +325,7 @@ const ClientManagement = () => {
     try {
       let res = deleteClient(selectedClient._id);
       if (res) {
-        toast.success("Client deleted successfully");
+        addToast("Client deleted successfully!", "success");
         setShowDeleteModal(false);
         setSelectedClient(null);
         fetchClients();
@@ -355,17 +356,18 @@ const ClientManagement = () => {
       let response = await assignStaffToClientApi(payload);
 
       if (response.success) {
-        toast.success("Staff assigned successfully");
+        addToast("Client assigned successfully", "success");
         fetchUnassignedClients();
       } else {
-        toast.error(response.message || "Failed to assign client");
+        addToast(response.message || "Failed to assign client", "error");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to assign client");
+      addToast(error.response?.data?.message || "Failed to assign client");
     }
   };
 
   const handleMapingClient = async (clientId, email) => {
+    console.log("clicked2");
     try {
       // if (!email.toLowerCase().endsWith("@gmail.com")) {
       //   toast.error("Only Gmail addresses are allowed!");
@@ -373,11 +375,11 @@ const ClientManagement = () => {
       // }
       let res = await mapClientApi(clientId);
       if (res.success) {
-        toast.success("Client mapped successfully");
+        addToast("Client mapped successfully !", "success");
         fetchUnassignedClients();
         fetchClients();
       } else {
-        toast.error(res.message || "Failed to map client");
+        addToast(res.message || "Failed to map client", "error");
       }
     } catch (error) {
       console.error("Error fetching staff members:", error);
@@ -454,7 +456,7 @@ const ClientManagement = () => {
                     name="search"
                     value={tab1Filters.search}
                     onChange={handleTab1Search}
-                    placeholder="Search by name, email or status"
+                    placeholder="Search by name or email"
                     className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
                   />
                   <svg
@@ -589,17 +591,17 @@ const ClientManagement = () => {
                 </div>
                 <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
                   <div className="relative">
-                    <select
+                    {/* <select
                       name="status"
                       value={tab2Filters.status}
                       onChange={handleTab2StatusChange}
                       className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
                     >
-                      <option value="all">All</option>
+                      <option value="true">All</option>
                       <option value="true">Active</option>
                       <option value="false">Inactive</option>
-                    </select>
-                    <svg
+                    </select> */}
+                    {/* <svg
                       className="absolute right-[14px] top-[14px]"
                       width="12"
                       height="11"
@@ -612,13 +614,13 @@ const ClientManagement = () => {
                         d="M7.64399 9.62711C6.84862 10.7751 5.15138 10.7751 4.35601 9.62711L0.380525 3.88899C-0.538433 2.56259 0.410876 0.750001 2.02452 0.750001L9.97548 0.750001C11.5891 0.750002 12.5384 2.56259 11.6195 3.88899L7.64399 9.62711Z"
                         fill="#2C3E50"
                       />
-                    </svg>
+                    </svg> */}
                   </div>
                   <button
                     onClick={handleTab2ClearFilters}
                     className="ml-5 color-black font-medium text-sm underline"
                   >
-                    Clear
+                    Clear Search
                   </button>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { AddStaff } from "../../api/staffManagement.api";
 import { toast } from "react-toastify";
 import { PERMISSIONS } from "../../adminutils/commonutils";
+import { useToast } from "../../CommonPages/customtoast/CustomToaster";
 
 const AddStaffModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const AddStaffModal = ({ isOpen, onClose }) => {
     dob: "",
     rolePermissions: [],
   });
+  const { addToast } = useToast();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -30,10 +32,22 @@ const AddStaffModal = ({ isOpen, onClose }) => {
     try {
       const response = await AddStaff(formData);
       if (response.success === true) {
-        toast.success("Staff member added successfully!");
+        addToast("Staff member added successfully!", "success");
+        setFormData({
+          first_name: "",
+          last_name: "",
+          email: "",
+          password: "",
+          role_id: "2",
+          active: true,
+          phoneNumber: "",
+          address: "",
+          dob: "",
+          rolePermissions: [],
+        });
         onClose();
       } else {
-        toast.error("Failed to add staff member. Please try again.");
+        addToast("Failed to add staff member. Please try again.", "error");
       }
     } catch (error) {
       console.error("Error adding staff:", error);
@@ -73,7 +87,7 @@ const AddStaffModal = ({ isOpen, onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <label className="block text-gray-900 font-medium mb-2">
-                First Name
+                First Name *
               </label>
               <input
                 type="text"
@@ -87,7 +101,7 @@ const AddStaffModal = ({ isOpen, onClose }) => {
             </div>
             <div>
               <label className="block text-gray-900 font-medium mb-2">
-                Last Name
+                Last Name *
               </label>
               <input
                 type="text"
@@ -101,10 +115,10 @@ const AddStaffModal = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 gap-6 mb-6">
             <div>
               <label className="block text-gray-900 font-medium mb-2">
-                Email
+                Email *
               </label>
               <input
                 type="email"

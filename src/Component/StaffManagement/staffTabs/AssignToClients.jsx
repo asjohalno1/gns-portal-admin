@@ -10,6 +10,8 @@ import {
 import { getAllStaff } from "../../../api/dashboard.api";
 import MapClientModal from "../ActionsModals/MapClientModal";
 import Loader from "../../Loader/Loader";
+import { useToast } from "../../../CommonPages/customtoast/CustomToaster";
+import { SearchIcon } from "lucide-react";
 
 const AssignToClients = () => {
   const [unassignedClients, setUnassignedClients] = useState({
@@ -21,6 +23,7 @@ const AssignToClients = () => {
       totalPages: 1,
     },
   });
+  const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
@@ -96,7 +99,7 @@ const AssignToClients = () => {
       let response = await assignStaffToClientApi(payload);
 
       if (response.success) {
-        toast.success("Client assigned successfully");
+        addToast("Client assigned successfully", "success");
         fetchAllClients(
           unassignedClients.pagination.page,
           unassignedClients.pagination.limit,
@@ -104,10 +107,13 @@ const AssignToClients = () => {
           status
         );
       } else {
-        toast.error(response.message || "Failed to assign client");
+        addToast(response.message || "Failed to assign client", "error");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to assign client");
+      addToast(
+        error.response?.data?.message || "Failed to assign client",
+        "error"
+      );
     }
   };
 
@@ -177,6 +183,7 @@ const AssignToClients = () => {
   };
 
   const handleMapingClient = async (clientId, email) => {
+    console.log("clicked");
     try {
       // if (!email.toLowerCase().endsWith("@gmail.com")) {
       //   toast.error("Only Gmail addresses are allowed!");
@@ -184,12 +191,16 @@ const AssignToClients = () => {
       // }
       let res = await mapClientApi(clientId);
       if (res.success) {
-        toast.success("Client mapped successfully");
+        addToast("Client mapped successfully", "success");
         fetchAllClients();
       } else {
-        toast.error(res.message || "Failed to map client");
+        addToast(res.message || "Failed to map client", "error");
       }
     } catch (error) {
+      addToast(
+        error.response?.data?.message || "Failed to map client",
+        "error"
+      );
       console.error("Error fetching staff members:", error);
     }
   };
@@ -200,14 +211,14 @@ const AssignToClients = () => {
         <input
           type="text"
           placeholder="Search clients..."
-          className="px-4 py-2 border rounded-md"
+          className="px-3 py-1 border border-gray-300 rounded-md"
           value={search}
           onChange={handleSearchChange}
         />
         <select
           value={status}
           onChange={handleStatusChange}
-          className="px-4 py-2 border rounded-md"
+          className="px-3 py-1 border border-gray-300 rounded-md"
         >
           <option value="all">All Status</option>
           <option value="1">Active</option>

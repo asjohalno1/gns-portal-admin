@@ -6,6 +6,7 @@ import {
 } from "../../api/dashboard.api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useToast } from "../../CommonPages/customtoast/CustomToaster";
 
 const EditClientmodal = ({ isOpen, onClose, clientData }) => {
   const [formData, setFormData] = useState({
@@ -23,6 +24,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
   const [staffMembers, setStaffMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (clientData) {
@@ -74,15 +76,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
         clientData?.client?._id
       );
       if (response.success === true) {
-        toast.success("Client Updated successfully!", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
+        addToast("Client Updated successfully! !", "success");
       } else {
         toast.error("Error While Client Updating", {
           position: "top-right",
@@ -127,8 +121,8 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
   return (
     <>
       <ToastContainer />
-      <div className="fixed inset-0 bg-[#0000005D] bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-lg w-full relative max-w-[562px]">
+      <div className="fixed inset-0 bg-[#0000005D]  bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-lg w-full max-h-[90vh] relative max-w-[562px] overflow-y-auto">
           <div className="w-full max-w-[562px] bg-white rounded-[10px] mx-auto">
             <div className="flex justify-between items-center mb-[30px]">
               <h2 className="text-[#484848] font-medium text-[16px] leading-[100%] tracking-[0]">
@@ -167,7 +161,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
 
                 <div>
                   <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
-                    Last Name
+                    Last Name *
                   </label>
                   <input
                     type="text"
@@ -224,7 +218,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                 </div>
                 <div>
                   <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
-                    Status
+                    Status *
                   </label>
                   <select
                     name="status"
@@ -239,7 +233,7 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                 </div>
                 <div>
                   <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
-                    Assign to Staff
+                    Assign to Staff *
                   </label>
                   <select
                     name="staffId"

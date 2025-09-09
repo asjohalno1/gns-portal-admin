@@ -5,6 +5,7 @@ import DocumentRequestDetails from "./SubDocumentDetailsModal/SubDocumentDetails
 import { formatDate } from "../../adminutils/commonutils";
 import { approvedRequestDocument } from "../../api/documentmanagement.api";
 import { toast } from "react-toastify";
+import { useToast } from "../../CommonPages/customtoast/CustomToaster";
 
 const DocumentDeatailsModal = ({
   isOpen,
@@ -20,6 +21,7 @@ const DocumentDeatailsModal = ({
   const [requiredDocuments, setRequiredDocuments] = useState([]);
   const [process, setProcess] = useState();
   const nevigate = useNavigate();
+  const { addToast } = useToast();
 
   const getStatusStyle = (status) => {
     switch (status?.toLowerCase()) {
@@ -98,7 +100,7 @@ const DocumentDeatailsModal = ({
     try {
       const response = await approvedRequestDocument(id);
       if (response?.success) {
-        toast.success("Request Approved Successfully");
+        addToast("Request Approved Successfully", "success");
         onClose();
       }
     } catch (error) {
