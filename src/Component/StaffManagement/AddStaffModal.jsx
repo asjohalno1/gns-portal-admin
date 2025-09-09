@@ -51,6 +51,11 @@ const AddStaffModal = ({ isOpen, onClose }) => {
       }
     } catch (error) {
       console.error("Error adding staff:", error);
+      addToast(
+        error?.response?.data?.message ||
+          "An error occurred. Please try again.",
+        "error"
+      );
     }
   };
 

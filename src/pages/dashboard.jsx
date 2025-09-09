@@ -9,7 +9,7 @@ const Dashboard = () => {
   const [open, isOpen] = useState(false);
   const [dashboardData, setDashboardData] = useState({
     recentActivity: [],
-    teamWork: [],
+
     summary: {},
     urgentTasks: { overdue: [], today: [], tomorrow: [] },
     clients: [],
@@ -41,7 +41,6 @@ const Dashboard = () => {
         });
         setDashboardData({
           recentActivity: response.data.recentActivity || [],
-          teamWork: response.data.teamWork || [],
           summary: response.data.summary || {},
           urgentTasks: response.data.urgentTasks || {
             overdue: [],

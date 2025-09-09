@@ -31,6 +31,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
           setStaffMembers(response.data || []);
         } catch (err) {
           setError("Failed to fetch staff members");
+
           console.error("Error fetching staff members:", err);
         } finally {
           setLoading(false);
@@ -85,7 +86,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
       }, 1000);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add client");
-      console.error("Error adding client:", err);
+      addToast(err.response?.data?.message || "Failed to add client", "error");
     } finally {
       setLoading(false);
     }
