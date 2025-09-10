@@ -39,6 +39,19 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
       };
 
       fetchStaffMembers();
+    } else if (!isOpen) {
+      setFormData({
+        name: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        company: "",
+        status: "",
+        staffId: "",
+        address: "",
+        notes: "",
+      });
+      setError(null);
     }
   }, [isOpen]);
 
@@ -255,6 +268,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
+                required
                 placeholder="Enter Complete Address"
                 className="w-full rounded-[6px] px-3 py-2 text-sm resize-none bg-[#F8F8F8] text-[12px]"
               ></textarea>

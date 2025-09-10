@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AddStaff } from "../../api/staffManagement.api";
 import { toast } from "react-toastify";
 import { PERMISSIONS } from "../../adminutils/commonutils";
@@ -71,8 +71,24 @@ const AddStaffModal = ({ isOpen, onClose }) => {
     });
   };
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (!isOpen) {
+      setFormData({
+        first_name: "",
+        last_name: "",
+        email: "",
+        password: "",
+        role_id: "2",
+        active: true,
+        phoneNumber: "",
+        address: "",
+        dob: "",
+        rolePermissions: [],
+      });
+    }
+  }, [isOpen]);
 
+  if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)] bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">

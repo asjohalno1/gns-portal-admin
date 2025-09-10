@@ -144,7 +144,7 @@ const StafListing = () => {
 
   return (
     <>
-      <div className="">
+      <div className="w-full">
         {listLoading ? (
           <Loader />
         ) : (

@@ -449,7 +449,7 @@ const ClientManagement = () => {
               </div>
             </div>
 
-            <div className="border border-customGray rounded-[20px] p-5">
+            <div className=" rounded-[20px] p-1">
               <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
                 <div className="relative w-full md:w-[60%]">
                   <input
@@ -560,7 +560,7 @@ const ClientManagement = () => {
                 Manage Client Mapping
               </h4>
             </div>
-            <div className="border border-customGray rounded-[20px] p-5">
+            <div className="  rounded-[20px] p-2">
               <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
                 <div className="relative w-full md:w-[60%]">
                   <input

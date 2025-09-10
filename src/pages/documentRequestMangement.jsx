@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Table from "../Component/Table/table";
+import Loader from "../Component/Loader/Loader";
 import {
   addSubCategoryApi,
   addTemplate,
@@ -24,6 +25,66 @@ import AddCustomSubcat from "../Component/settings/AddCustomSubcat";
 import SuccessrequestModal from "../CommonPages/SuccessModal/SuccessrequestModal";
 import { useToast } from "../CommonPages/customtoast/CustomToaster";
 
+// Reusable SearchFilter component
+const SearchFilter = React.memo(({ query, setQuery, handleClear, statusOptions }) => (
+  <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
+    <div className="relative w-full md:w-[60%]">
+      <input
+        type="text"
+        placeholder="Search..."
+        value={query.search}
+        onChange={(e) =>
+          setQuery((prev) => ({
+            ...prev,
+            search: e.target.value,
+            page: 1,
+          }))
+        }
+        className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
+      />
+    </div>
+    <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
+      <div className="relative">
+        <select
+          value={query.status || "all"}
+          onChange={(e) =>
+            setQuery((prev) => ({
+              ...prev,
+              status: e.target.value,
+              page: 1,
+            }))
+          }
+          className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
+        >
+          {statusOptions.map(option => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+        <svg
+          className="absolute right-[14px] top-[14px]"
+          width="12"
+          height="11"
+          viewBox="0 0 12 11"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            opacity="0.2"
+            d="M7.64399 9.62711C6.84862 10.7751 5.15138 10.7751 4.35601 9.62711L0.380525 3.88899C-0.538433 2.56259 0.410876 0.750001 2.02452 0.750001L9.97548 0.750001C11.5891 0.750002 12.5384 2.56259 11.6195 3.88899L7.64399 9.62711Z"
+            fill="#2C3E50"
+          />
+        </svg>
+      </div>
+      <a
+        onClick={handleClear}
+        className="ml-5 color-black font-medium text-sm underline cursor-pointer"
+      >
+        Clear
+      </a>
+    </div>
+  </div>
+));
+
 const DocReqManagement = () => {
   const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState("tab1");
@@ -35,6 +96,12 @@ const DocReqManagement = () => {
 
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
+  
+  // Tab-specific loading states
+  const [tab1Loading, setTab1Loading] = useState(false);
+  const [tab2Loading, setTab2Loading] = useState(false);
+  const [tab3Loading, setTab3Loading] = useState(false);
+  const [tab4Loading, setTab4Loading] = useState(false);
 
   const [clientListing, setClientListing] = useState([]);
   const [catogaryListing, setCategoryListing] = useState([]);
@@ -68,7 +135,22 @@ const DocReqManagement = () => {
     // subcategoryPriorities: [],
   });
   const [templateList, setTemplateList] = useState([]);
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const days = useMemo(() => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], []);
+  
+  // Memoized status options for different tabs
+  const tab1StatusOptions = useMemo(() => [
+    { value: "all", label: "All" },
+    { value: "pending", label: "Pending" },
+    { value: "completed", label: "Complete" },
+    { value: "approved", label: "Approved" },
+    { value: "rejected", label: "Rejected" }
+  ], []);
+  
+  const tab3StatusOptions = useMemo(() => [
+    { value: "all", label: "All" },
+    { value: "sent", label: "Sent" },
+    { value: "Used", label: "Used" }
+  ], []);
   const [query, setQuery] = useState({
     search: "",
     page: 1,
@@ -109,8 +191,9 @@ const DocReqManagement = () => {
     }
   }, [query.page, query.limit, query.status]);
 
-  const fetchDocumentListing = async (queryParams = query) => {
+  const fetchDocumentListing = useCallback(async (queryParams = query) => {
     try {
+      setTab1Loading(true);
       const res = await getAllDocumentsListing(queryParams);
       if (res.success) {
         const {
@@ -122,7 +205,6 @@ const DocReqManagement = () => {
         } = res.data;
 
         setDocumentList(documents);
-
         setHeaderSummery(headerTotal);
 
         setQuery((prev) => ({
@@ -137,16 +219,19 @@ const DocReqManagement = () => {
       toast.error(
         error.response?.data?.message || "Failed to fetch document list."
       );
+    } finally {
+      setTab1Loading(false);
     }
-  };
+  }, [query]);
 
   // tab 2 logic  and  fuctionality  !
-  const fetchAllClient = async (
+  const fetchAllClient = useCallback(async (
     queryParams = {
       status: "all",
     }
   ) => {
     try {
+      setTab2Loading(true);
       const res = await getAllClientsAdmin();
       if (res.success) {
         setClientListing(res.data);
@@ -156,10 +241,12 @@ const DocReqManagement = () => {
       toast.error(
         error.response?.data?.message || "Failed to fetch client list."
       );
+    } finally {
+      setTab2Loading(false);
     }
-  };
+  }, []);
 
-  const fetchAllDocumentListing = async () => {
+  const fetchAllDocumentListing = useCallback(async () => {
     try {
       const res = await getAllCategories();
       if (res.success) {
@@ -171,7 +258,7 @@ const DocReqManagement = () => {
         error.response?.data?.message || "Failed to fetch document list."
       );
     }
-  };
+  }, []);
 
   const handleCategoryChange = async (categoryId) => {
     try {
@@ -200,10 +287,11 @@ const DocReqManagement = () => {
       fetchAllDocumentListing();
     }
   }, [activeTab]);
-  const handleCreateRequest = async (e) => {
+  const handleCreateRequest = useCallback(async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
+      setTab2Loading(true);
 
       // Validate required fields
       if (
@@ -287,22 +375,26 @@ const DocReqManagement = () => {
         setSelectedDays([]);
         setNotifyMethods([]);
         setLoading(false);
+        setTab2Loading(false);
         fetchDocumentListing();
         setIsSuccessModalOpen(true);
       } else {
         toast.error(res?.message || "Failed to create document request");
         setLoading(false);
+        setTab2Loading(false);
       }
     } catch (error) {
       console.error("Failed to create document request:", error);
       toast.error(
         error.response?.data?.message || "Failed to create document request."
       );
+    } finally {
       setLoading(false);
+      setTab2Loading(false);
     }
-  };
+  }, [clientListing, formData, isScheduleEnabled, customDateTime, frequency, linkMethods, selectedDays, addToast, fetchDocumentListing]);
 
-  const handleSaveAsTemplate = async (e) => {
+  const handleSaveAsTemplate = useCallback(async (e) => {
     if (!formData.title) {
       toast.error("Please enter a title !");
       return;
@@ -310,6 +402,7 @@ const DocReqManagement = () => {
     e.preventDefault();
     try {
       setSaveLoading(true);
+      setTab2Loading(true);
       const prioritiesObj = Array.isArray(formData.subcategoryPriorities)
         ? formData.subcategoryPriorities.reduce((acc, curr) => {
             acc[curr.subCategoryId] = curr.priority;
@@ -348,21 +441,22 @@ const DocReqManagement = () => {
 
       if (res.success) {
         addToast("Template saved successfully", "success");
-        setSaveLoading(false);
         setActiveTab("tab4"); // Navigate to templates tab
       } else {
         toast.error(res?.message || "Failed to save template");
-        setSaveLoading(false);
       }
     } catch (error) {
       console.error("Failed to save template:", error);
       toast.error(error.response?.data?.message || "Failed to save template.");
+    } finally {
       setSaveLoading(false);
+      setTab2Loading(false);
     }
-  };
+  }, [formData, addToast]);
 
-  const fetchAllDocuments = async (query) => {
+  const fetchAllDocuments = useCallback(async (query) => {
     try {
+      setTab3Loading(true);
       const res = await getAllDocuments(query);
 
       const {
@@ -387,20 +481,28 @@ const DocReqManagement = () => {
       toast.error(
         error.response?.data?.message || "Failed to fetch document list."
       );
+    } finally {
+      setTab3Loading(false);
     }
-  };
+  }, []);
 
-  const fetchAllTemplates = async () => {
+  const fetchAllTemplates = useCallback(async () => {
     try {
+      setTab4Loading(true);
       const res = await getAllTemplates();
       if (res.success) {
         setTemplateList(res.data);
       }
     } catch (error) {
       console.error("Failed to fetch document list:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to fetch templates."
+      );
+    } finally {
+      setTab4Loading(false);
     }
-  };
-  const handleUseTemplate = async (templateData) => {
+  }, []);
+  const handleUseTemplate = useCallback(async (templateData) => {
     try {
       setLoading(true);
 
@@ -464,7 +566,7 @@ const DocReqManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clientListing, catogaryListing, fetchAllClient, fetchAllDocumentListing, handleCategoryChange]);
 
   useEffect(() => {
     if (activeTab === "tab3") {
@@ -520,24 +622,26 @@ const DocReqManagement = () => {
       prev.includes(value) ? prev.filter((m) => m !== value) : [...prev, value]
     );
   };
-  // Pagination handlers
-  const onNextPage = () => {
+  const handleClear = useCallback(() => {
+    setQuery((prev) => ({ ...prev, status: "all", page: 1, limit: 10 }));
+  }, []);
+  
+  // Pagination handlers - memoized
+  const onNextPage = useCallback(() => {
     if (query.page < query.totalPages) {
       setQuery((prev) => ({ ...prev, page: prev.page + 1 }));
     }
-  };
+  }, [query.page, query.totalPages]);
 
-  const onPrevPage = () => {
+  const onPrevPage = useCallback(() => {
     if (query.page > 1) {
       setQuery((prev) => ({ ...prev, page: prev.page - 1 }));
     }
-  };
-  const onLimitChange = (newLimit) => {
+  }, [query.page]);
+  
+  const onLimitChange = useCallback((newLimit) => {
     setQuery((prev) => ({ ...prev, limit: newLimit, page: 1 }));
-  };
-  const handleClear = () => {
-    setQuery((prev) => ({ ...prev, status: "all", page: 1, limit: 10 }));
-  };
+  }, []);
 
   const handleAction = (action, data) => {
     switch (action) {
@@ -614,7 +718,11 @@ const DocReqManagement = () => {
       <div className=" border-t-0 border-gray-300 rounded-b-md">
         {activeTab === "tab1" && (
           <div className="">
-            <div className="mt-7 grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
+            {tab1Loading ? (
+              <Loader />
+            ) : (
+              <>
+                <div className="mt-7 grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
               {/* Total Requests */}
               <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
                 <div className="flex items-center gap-2">
@@ -690,65 +798,12 @@ const DocReqManagement = () => {
             </div>
 
             <div className="border border-customGray rounded-[20px] p-5">
-              <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
-                <div className="relative w-full md:w-[60%]">
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={query.search}
-                    onChange={(e) =>
-                      setQuery((prev) => ({
-                        ...prev,
-                        search: e.target.value,
-                        page: 1,
-                      }))
-                    }
-                    className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
-                  />
-                </div>
-                <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
-                  <div className="relative">
-                    <select
-                      value={query.status || "all"}
-                      onChange={(e) =>
-                        setQuery((prev) => ({
-                          ...prev,
-                          status: e.target.value,
-                          page: 1,
-                        }))
-                      }
-                      className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
-                    >
-                      <option value="all">All</option>
-                      <option value="pending">Pending</option>
-                      <option value="completed">Complete</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
-
-                    <svg
-                      className="absolute right-[14px] top-[14px]"
-                      width="12"
-                      height="11"
-                      viewBox="0 0 12 11"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        opacity="0.2"
-                        d="M7.64399 9.62711C6.84862 10.7751 5.15138 10.7751 4.35601 9.62711L0.380525 3.88899C-0.538433 2.56259 0.410876 0.750001 2.02452 0.750001L9.97548 0.750001C11.5891 0.750002 12.5384 2.56259 11.6195 3.88899L7.64399 9.62711Z"
-                        fill="#2C3E50"
-                      />
-                    </svg>
-                  </div>
-                  <a
-                    onClick={handleClear}
-                    className="ml-5 color-black font-medium text-sm underline cursor-pointer"
-                  >
-                    Clear
-                  </a>
-                </div>
-              </div>
+              <SearchFilter 
+                query={query} 
+                setQuery={setQuery} 
+                handleClear={handleClear} 
+                statusOptions={tab1StatusOptions}
+              />
 
               <Table
                 data={documentList}
@@ -760,11 +815,17 @@ const DocReqManagement = () => {
                 onAction={handleAction}
               />
             </div>
+              </>
+            )}
           </div>
         )}
         {activeTab === "tab2" && (
           <div className="">
-            <div className="flex items-center justify-between mb-2.5">
+            {tab2Loading ? (
+              <Loader />
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-2.5">
               <h4 className="color-black text-lg font-semibold">
                 Create New Document Request
               </h4>
@@ -1536,71 +1597,23 @@ const DocReqManagement = () => {
                 title={"Document request created successfully"}
               />
             )}
+              </>
+            )}
           </div>
         )}
 
         {activeTab === "tab3" && (
           <div>
-            <div className="border border-customGray rounded-[20px] p-5">
-              <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
-                <div className="relative w-full md:w-[60%]">
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={query.search}
-                    onChange={(e) =>
-                      setQuery((prev) => ({
-                        ...prev,
-                        search: e.target.value,
-                        page: 1,
-                      }))
-                    }
-                    className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
-                  />
-                </div>
-                <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
-                  <div className="relative">
-                    <select
-                      name="status"
-                      id="status"
-                      value={query.status || "all"}
-                      onChange={(e) =>
-                        setQuery((prev) => ({
-                          ...prev,
-                          status: e.target.value,
-                          page: 1,
-                        }))
-                      }
-                      className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
-                    >
-                      <option value="all">All</option>
-                      <option value="sent">Sent</option>
-                      <option value="Used">Used</option>
-                    </select>
-
-                    <svg
-                      className="absolute right-[14px] top-[14px]"
-                      width="12"
-                      height="11"
-                      viewBox="0 0 12 11"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        opacity="0.2"
-                        d="M7.64399 9.62711C6.84862 10.7751 5.15138 10.7751 4.35601 9.62711L0.380525 3.88899C-0.538433 2.56259 0.410876 0.750001 2.02452 0.750001L9.97548 0.750001C11.5891 0.750002 12.5384 2.56259 11.6195 3.88899L7.64399 9.62711Z"
-                        fill="#2C3E50"
-                      />
-                    </svg>
-                  </div>
-                  <a
-                    onClick={handleClear}
-                    className="ml-5 color-black font-medium text-sm underline cursor-pointer"
-                  >
-                    Clear
-                  </a>
-                </div>
-              </div>
+            {tab3Loading ? (
+              <Loader />
+            ) : (
+              <div className="border border-customGray rounded-[20px] p-5">
+                <SearchFilter 
+                  query={query} 
+                  setQuery={setQuery} 
+                  handleClear={handleClear} 
+                  statusOptions={tab3StatusOptions}
+                />
 
               <Table
                 data={secureLink || []}
@@ -1611,17 +1624,22 @@ const DocReqManagement = () => {
                 onLimitChange={onLimitChange}
                 onAction={handleAction}
               />
-            </div>
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === "tab4" && (
           <div>
-            <div className="flex flex-col sm:flex-row items-center justify-between mt-[30px] mb-[30px] gap-2 sm:gap[7px]">
-              <h4 className="color-black text-lg font-semibold">
-                Manage Document Templates
-              </h4>
-            </div>
+            {tab4Loading ? (
+              <Loader />
+            ) : (
+              <>
+                <div className="flex flex-col sm:flex-row items-center justify-between mt-[30px] mb-[30px] gap-2 sm:gap[7px]">
+                  <h4 className="color-black text-lg font-semibold">
+                    Manage Document Templates
+                  </h4>
+                </div>
 
             <div className="border border-customGray rounded-[20px] p-5">
               {templateList.length > 0 ? (
@@ -1689,6 +1707,8 @@ const DocReqManagement = () => {
                 </div>
               )}
             </div>
+              </>
+            )}
           </div>
         )}
         {loading && (

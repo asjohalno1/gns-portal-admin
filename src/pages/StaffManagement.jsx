@@ -492,7 +492,7 @@ const StaffManagement = () => {
 
       {/* Staff List Tab Content */}
       {activeTab === "Staff List" && (
-        <div className="bg-white rounded-[20px] p-8 border border-gray-200">
+        <div className="bg-white rounded-[20px]  w-[100%]">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
             Staff Records
           </h3>
@@ -501,7 +501,7 @@ const StaffManagement = () => {
       )}
 
       {activeTab === "Client Assignment" && (
-        <div className="bg-white rounded-[20px] p-8 border border-gray-200">
+        <div className="bg-white rounded-[20px] ">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
             Assign Clients to Staff
           </h3>
@@ -511,7 +511,7 @@ const StaffManagement = () => {
       )}
 
       {activeTab === "Performance" && (
-        <div className="bg-white w-[100%] rounded-[20px] p-8 border border-gray-200">
+        <div className="bg-white w-[100%] rounded-[20px] ">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
             Performance Metrics
           </h3>
