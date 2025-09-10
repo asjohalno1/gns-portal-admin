@@ -39,7 +39,7 @@ const SearchFilter = React.memo(
       <div className="relative w-full md:w-[60%]">
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search name or document title"
           value={query.search}
           onChange={(e) =>
             setQuery((prev) => ({
@@ -501,7 +501,21 @@ const DocReqManagement = () => {
 
         if (res.success) {
           addToast("Template saved successfully", "success");
-          setActiveTab("tab4"); // Navigate to templates tab
+          setActiveTab("tab4");
+          setFormData({
+            title: "",
+            clientId: [],
+            categoryId: [],
+            documentId: [],
+            subcategoryPriorities: [],
+            otherDocuments: "",
+            dueDate: "",
+            instructions: "",
+            notifyMethods: [],
+            scheduleReminder: false,
+          });
+
+          // Navigate to templates tab
         } else {
           toast.error(res?.message || "Failed to save template");
         }
@@ -1029,15 +1043,11 @@ const DocReqManagement = () => {
                       )}
                     </div>
                     <div className="grid grid-cols-1 gap-5 mb-5">
-                      {/* Replace the existing grid with category and document selection */}
                       <div className="mb-5">
-                        {/* Document Types Selection Header */}
                         <div className="w-full mb-4">
                           <label className="mb-3 block font-medium text-sm text-gray-700">
                             Select Document Types*
                           </label>
-
-                          {/* Document Type Selection Dropdown */}
                           <div className="relative mb-4">
                             <div
                               className="border border-[#eaeaea] rounded-[10px] py-3 px-4 w-full bg-white cursor-pointer flex items-center justify-between"

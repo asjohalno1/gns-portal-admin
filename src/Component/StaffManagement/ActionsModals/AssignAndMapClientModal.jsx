@@ -1,3 +1,4 @@
+import { FolderIcon, FolderOpen } from "lucide-react";
 import React, { useState, useEffect } from "react";
 
 const AssignAndMapClientModal = ({
@@ -43,8 +44,8 @@ const AssignAndMapClientModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0000005D]">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-[500px] p-6 relative">
+    <div className="fixed inset-0 z-50 flex items-center  justify-center bg-[#0000005D]">
+      <div className="bg-white rounded-lg shadow-lg w-full  max-w-[600px] p-6 relative">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -53,12 +54,10 @@ const AssignAndMapClientModal = ({
         >
           &times;
         </button>
-
         {/* Header */}
         <h2 className="text-lg font-semibold mb-4">
           Assign Client & Create Folders
         </h2>
-
         {/* Client Info */}
         <div className="mb-6 p-4 bg-gray-50 rounded-md">
           <p className="mb-2">
@@ -71,7 +70,6 @@ const AssignAndMapClientModal = ({
             <strong>Phone:</strong> {clientData?.phoneNumber}
           </p>
         </div>
-
         {/* Assign Staff Dropdown */}
         <div className="mb-6">
           <label className="block font-medium mb-2">Assign Staff:</label>
@@ -94,6 +92,16 @@ const AssignAndMapClientModal = ({
           </select>
         </div>
 
+        <div className="mb-4">
+          <div className="flex items-center  text-gray-800">
+            <span className="font-medium">
+              Mapping Path: /Client_Portal_Testing_SD/Clients/
+              <span className="font-mono  p-0 text-blue-600">
+                {clientData?.name?.toLowerCase()}
+              </span>
+            </span>
+          </div>
+        </div>
         {/* Status message */}
         {statusMessage && (
           <div
@@ -106,7 +114,6 @@ const AssignAndMapClientModal = ({
             {statusMessage}
           </div>
         )}
-
         {/* Action buttons */}
         <div className="flex justify-end gap-4">
           <button

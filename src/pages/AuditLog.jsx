@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Table from "../Component/Table/table";
 import { getAllLogs } from "../api/dashboard.api";
 import AuditDetailsModal from "../Component/AuditsModals/AuditDetailsModal";
+import Loader from "../Component/Loader/Loader";
 
 const AuditLogs = () => {
   const [filters, setFilters] = useState({
@@ -210,9 +211,7 @@ const AuditLogs = () => {
             </div>
 
             {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primaryBlue"></div>
-              </div>
+              <Loader />
             ) : (
               <Table
                 data={getFilteredData()} // Changed from clientsList to getFilteredData()

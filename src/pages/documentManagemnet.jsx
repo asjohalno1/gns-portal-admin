@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import Table from "../Component/Table/table";
 import { getAllDocumentsListingApi } from "../api/documentmanagement.api";
 import DocumentDeatailsModal from "../Component/documentmamangement/DocumentRequestDetails";
+import Loader from "../Component/Loader/Loader";
 
 const DocumentManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -128,7 +129,7 @@ const DocumentManagement = () => {
               name="search"
               value={searchTerm}
               onChange={handleSearch}
-              placeholder="Search by client, email or title"
+              placeholder="Search by client or title"
               className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
             />
             <svg
@@ -186,9 +187,7 @@ const DocumentManagement = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primaryBlue"></div>
-          </div>
+          <Loader />
         ) : (
           <Table
             data={filteredData}

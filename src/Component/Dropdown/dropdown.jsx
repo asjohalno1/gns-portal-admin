@@ -34,10 +34,7 @@ const Dropdown = ({ onAction, mode, itemId }) => {
       case "documentManagementListing":
         return [{ label: "Manage Document", value: "manage" }];
       case "documentRequestListing":
-        return [
-          { label: "Send Reminder", value: "reminder" },
-          { label: "Document Request", value: "request" },
-        ];
+        return [{ label: "Send Reminder", value: "reminder" }];
       case "secureDocumentListing":
         return [
           { label: "Send Reminder", value: "reminder" },
