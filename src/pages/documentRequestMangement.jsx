@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import Table from "../Component/Table/table";
 import Loader from "../Component/Loader/Loader";
 import {
@@ -10,6 +16,7 @@ import {
   getAllClientsAdmin,
   getAllDocuments,
   getAllDocumentsListing,
+  getAlldocumnetLinkstatusApi,
   getAllTemplates,
 } from "../api/documentManagemnet.api";
 import { toast } from "react-toastify";
@@ -26,64 +33,68 @@ import SuccessrequestModal from "../CommonPages/SuccessModal/SuccessrequestModal
 import { useToast } from "../CommonPages/customtoast/CustomToaster";
 
 // Reusable SearchFilter component
-const SearchFilter = React.memo(({ query, setQuery, handleClear, statusOptions }) => (
-  <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
-    <div className="relative w-full md:w-[60%]">
-      <input
-        type="text"
-        placeholder="Search..."
-        value={query.search}
-        onChange={(e) =>
-          setQuery((prev) => ({
-            ...prev,
-            search: e.target.value,
-            page: 1,
-          }))
-        }
-        className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
-      />
-    </div>
-    <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
-      <div className="relative">
-        <select
-          value={query.status || "all"}
+const SearchFilter = React.memo(
+  ({ query, setQuery, handleClear, statusOptions }) => (
+    <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center">
+      <div className="relative w-full md:w-[60%]">
+        <input
+          type="text"
+          placeholder="Search..."
+          value={query.search}
           onChange={(e) =>
             setQuery((prev) => ({
               ...prev,
-              status: e.target.value,
+              search: e.target.value,
               page: 1,
             }))
           }
-          className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
-        >
-          {statusOptions.map(option => (
-            <option key={option.value} value={option.value}>{option.label}</option>
-          ))}
-        </select>
-        <svg
-          className="absolute right-[14px] top-[14px]"
-          width="12"
-          height="11"
-          viewBox="0 0 12 11"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            opacity="0.2"
-            d="M7.64399 9.62711C6.84862 10.7751 5.15138 10.7751 4.35601 9.62711L0.380525 3.88899C-0.538433 2.56259 0.410876 0.750001 2.02452 0.750001L9.97548 0.750001C11.5891 0.750002 12.5384 2.56259 11.6195 3.88899L7.64399 9.62711Z"
-            fill="#2C3E50"
-          />
-        </svg>
+          className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
+        />
       </div>
-      <a
-        onClick={handleClear}
-        className="ml-5 color-black font-medium text-sm underline cursor-pointer"
-      >
-        Clear
-      </a>
+      <div className="text-right md:text-start mt-3 md:mt-0 flex items-center">
+        <div className="relative">
+          <select
+            value={query.status || "all"}
+            onChange={(e) =>
+              setQuery((prev) => ({
+                ...prev,
+                status: e.target.value,
+                page: 1,
+              }))
+            }
+            className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
+          >
+            {statusOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <svg
+            className="absolute right-[14px] top-[14px]"
+            width="12"
+            height="11"
+            viewBox="0 0 12 11"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              opacity="0.2"
+              d="M7.64399 9.62711C6.84862 10.7751 5.15138 10.7751 4.35601 9.62711L0.380525 3.88899C-0.538433 2.56259 0.410876 0.750001 2.02452 0.750001L9.97548 0.750001C11.5891 0.750002 12.5384 2.56259 11.6195 3.88899L7.64399 9.62711Z"
+              fill="#2C3E50"
+            />
+          </svg>
+        </div>
+        <a
+          onClick={handleClear}
+          className="ml-5 color-black font-medium text-sm underline cursor-pointer"
+        >
+          Clear
+        </a>
+      </div>
     </div>
-  </div>
-));
+  )
+);
 
 const DocReqManagement = () => {
   const { addToast } = useToast();
@@ -96,7 +107,7 @@ const DocReqManagement = () => {
 
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
-  
+
   // Tab-specific loading states
   const [tab1Loading, setTab1Loading] = useState(false);
   const [tab2Loading, setTab2Loading] = useState(false);
@@ -135,23 +146,41 @@ const DocReqManagement = () => {
     // subcategoryPriorities: [],
   });
   const [templateList, setTemplateList] = useState([]);
-  const days = useMemo(() => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], []);
-  
+  const days = useMemo(
+    () => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    []
+  );
+
   // Memoized status options for different tabs
-  const tab1StatusOptions = useMemo(() => [
-    { value: "all", label: "All" },
-    { value: "pending", label: "Pending" },
-    { value: "completed", label: "Complete" },
-    { value: "approved", label: "Approved" },
-    { value: "rejected", label: "Rejected" }
-  ], []);
-  
-  const tab3StatusOptions = useMemo(() => [
-    { value: "all", label: "All" },
-    { value: "sent", label: "Sent" },
-    { value: "Used", label: "Used" }
-  ], []);
-  const [query, setQuery] = useState({
+  const tab1StatusOptions = useMemo(
+    () => [
+      { value: "all", label: "All" },
+      { value: "pending", label: "Pending" },
+      { value: "completed", label: "Complete" },
+      { value: "approved", label: "Approved" },
+      { value: "rejected", label: "Rejected" },
+    ],
+    []
+  );
+
+  const tab3StatusOptions = useMemo(
+    () => [
+      { value: "all", label: "All" },
+      { value: "sent", label: "Sent" },
+      { value: "Used", label: "Used" },
+    ],
+    []
+  );
+  // Separate query state per tab to avoid cross-tab interference
+  const [tab1Query, setTab1Query] = useState({
+    search: "",
+    page: 1,
+    status: "all",
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
+  const [tab3Query, setTab3Query] = useState({
     search: "",
     page: 1,
     status: "all",
@@ -160,38 +189,59 @@ const DocReqManagement = () => {
     totalPages: 0,
   });
 
-  console.log("query", query);
+  // Debounce refs per tab
+  const tab1DebounceRef = useRef(null);
+  const tab3DebounceRef = useRef(null);
 
+  // Initial fetch on tab change
   useEffect(() => {
     if (activeTab === "tab1") {
-      fetchDocumentListing(query);
+      fetchDocumentListing(tab1Query);
+    } else if (activeTab === "tab3") {
+      fetchAllDocuments(tab3Query);
+    } else if (activeTab === "tab4") {
+      fetchAllTemplates();
+    } else if (activeTab === "tab2") {
+      fetchAllClient();
+      fetchAllDocumentListing();
     }
   }, [activeTab]);
 
+  // Debounced search per tab
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      if (activeTab === "tab1") {
-        fetchDocumentListing(query);
-      }
+    if (activeTab !== "tab1") return;
+    if (tab1DebounceRef.current) clearTimeout(tab1DebounceRef.current);
+    tab1DebounceRef.current = setTimeout(() => {
+      fetchDocumentListing(tab1Query);
     }, 500);
+    return () =>
+      tab1DebounceRef.current && clearTimeout(tab1DebounceRef.current);
+  }, [tab1Query.search, activeTab]);
 
-    if (activeTab === "tab3") {
-      fetchAllDocuments(query);
-    }
+  useEffect(() => {
+    if (activeTab !== "tab3") return;
+    if (tab3DebounceRef.current) clearTimeout(tab3DebounceRef.current);
+    tab3DebounceRef.current = setTimeout(() => {
+      fetchAllDocuments(tab3Query);
+    }, 500);
+    return () =>
+      tab3DebounceRef.current && clearTimeout(tab3DebounceRef.current);
+  }, [tab3Query.search, activeTab]);
 
-    return () => clearTimeout(delayDebounce);
-  }, [query.search]);
-
+  // Non-search query changes (page/limit/status)
   useEffect(() => {
     if (activeTab === "tab1") {
-      fetchDocumentListing(query);
+      fetchDocumentListing(tab1Query);
     }
-    if (activeTab === "tab3") {
-      fetchAllDocuments(query);
-    }
-  }, [query.page, query.limit, query.status]);
+  }, [tab1Query.page, tab1Query.limit, tab1Query.status, activeTab]);
 
-  const fetchDocumentListing = useCallback(async (queryParams = query) => {
+  useEffect(() => {
+    if (activeTab === "tab3") {
+      fetchAllDocuments(tab3Query);
+    }
+  }, [tab3Query.page, tab3Query.limit, tab3Query.status, activeTab]);
+
+  const fetchDocumentListing = useCallback(async (queryParams) => {
     try {
       setTab1Loading(true);
       const res = await getAllDocumentsListing(queryParams);
@@ -207,7 +257,7 @@ const DocReqManagement = () => {
         setDocumentList(documents);
         setHeaderSummery(headerTotal);
 
-        setQuery((prev) => ({
+        setTab1Query((prev) => ({
           ...prev,
           page: currentPage,
           total: totalDocuments,
@@ -222,29 +272,32 @@ const DocReqManagement = () => {
     } finally {
       setTab1Loading(false);
     }
-  }, [query]);
+  }, []);
 
   // tab 2 logic  and  fuctionality  !
-  const fetchAllClient = useCallback(async (
-    queryParams = {
-      status: "all",
-    }
-  ) => {
-    try {
-      setTab2Loading(true);
-      const res = await getAllClientsAdmin();
-      if (res.success) {
-        setClientListing(res.data);
+  const fetchAllClient = useCallback(
+    async (
+      queryParams = {
+        status: "all",
       }
-    } catch (error) {
-      console.error("Failed to fetch client list:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to fetch client list."
-      );
-    } finally {
-      setTab2Loading(false);
-    }
-  }, []);
+    ) => {
+      try {
+        setTab2Loading(true);
+        const res = await getAllClientsAdmin();
+        if (res.success) {
+          setClientListing(res.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch client list:", error);
+        toast.error(
+          error.response?.data?.message || "Failed to fetch client list."
+        );
+      } finally {
+        setTab2Loading(false);
+      }
+    },
+    []
+  );
 
   const fetchAllDocumentListing = useCallback(async () => {
     try {
@@ -281,195 +334,200 @@ const DocReqManagement = () => {
     }
   };
 
-  useEffect(() => {
-    if (activeTab === "tab2") {
-      fetchAllClient(query);
-      fetchAllDocumentListing();
-    }
-  }, [activeTab]);
-  const handleCreateRequest = useCallback(async (e) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      setTab2Loading(true);
+  const handleCreateRequest = useCallback(
+    async (e) => {
+      e.preventDefault();
+      try {
+        setLoading(true);
+        setTab2Loading(true);
 
-      // Validate required fields
-      if (
-        !formData.clientId?.length ||
-        !formData.categoryId?.length ||
-        !formData.documentId?.length ||
-        !formData.dueDate ||
-        !formData.notifyMethods?.length
-      ) {
-        toast.error(
-          "Please fill all required fields including notification methods"
+        // Validate required fields
+        if (
+          !formData.clientId?.length ||
+          !formData.categoryId?.length ||
+          !formData.documentId?.length ||
+          !formData.dueDate ||
+          !formData.notifyMethods?.length
+        ) {
+          toast.error(
+            "Please fill all required fields including notification methods"
+          );
+          return;
+        }
+
+        const selectedClient = clientListing.find(
+          (client) => client.clientId === formData.clientId[0]
         );
-        return;
-      }
 
-      const selectedClient = clientListing.find(
-        (client) => client.clientId === formData.clientId[0]
-      );
-
-      // Convert subcategory priorities array to object
-      const prioritiesObj = formData.subcategoryPriorities.reduce(
-        (acc, curr) => {
-          acc[curr.subCategoryId] = curr.priority;
-          return acc;
-        },
-        {}
-      );
-
-      const requestData = {
-        doctitle: formData.title,
-        clientId: formData.clientId,
-        categoryId: formData.categoryId,
-        subCategoryId: formData.documentId,
-        dueDate: formData.dueDate,
-        instructions:
-          formData.instructions ||
-          "<p>Please Upload Your Document Using This Secure Link.</p>",
-        notifyMethods: formData.notifyMethods, // Array of notification methods
-        remainderSchedule: formData.scheduleReminder
-          ? "ThreeDays"
-          : "ThreeDays",
-        expiration: formData.dueDate,
-        subcategoryPriorities: prioritiesObj,
-        userInfo: {
-          id: selectedClient?.staff?.staffId,
-        },
-      };
-
-      // Add scheduler data if enabled
-      if (isScheduleEnabled) {
-        requestData.scheduler = {
-          scheduleTime: customDateTime,
-          frequency,
-          linkMethods: linkMethods,
-          days: selectedDays,
-        };
-      }
-
-      const res = await createDocumentRequest(requestData);
-
-      if (res.success) {
-        addToast("Document request created successfully", "success");
-        // Reset form
-        setFormData({
-          title: "",
-          clientId: [],
-          categoryId: [],
-          documentId: [],
-          subcategoryPriorities: [],
-          otherDocuments: "",
-          dueDate: "",
-          instructions: "",
-          notifyMethods: [],
-          scheduleReminder: false,
-        });
-
-        // Reset scheduler
-        setIsScheduleEnabled(false);
-        setCustomDateTime("09:00");
-        setFrequency("Weekly");
-        setSelectedDays([]);
-        setNotifyMethods([]);
-        setLoading(false);
-        setTab2Loading(false);
-        fetchDocumentListing();
-        setIsSuccessModalOpen(true);
-      } else {
-        toast.error(res?.message || "Failed to create document request");
-        setLoading(false);
-        setTab2Loading(false);
-      }
-    } catch (error) {
-      console.error("Failed to create document request:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to create document request."
-      );
-    } finally {
-      setLoading(false);
-      setTab2Loading(false);
-    }
-  }, [clientListing, formData, isScheduleEnabled, customDateTime, frequency, linkMethods, selectedDays, addToast, fetchDocumentListing]);
-
-  const handleSaveAsTemplate = useCallback(async (e) => {
-    if (!formData.title) {
-      toast.error("Please enter a title !");
-      return;
-    }
-    e.preventDefault();
-    try {
-      setSaveLoading(true);
-      setTab2Loading(true);
-      const prioritiesObj = Array.isArray(formData.subcategoryPriorities)
-        ? formData.subcategoryPriorities.reduce((acc, curr) => {
+        // Convert subcategory priorities array to object
+        const prioritiesObj = formData.subcategoryPriorities.reduce(
+          (acc, curr) => {
             acc[curr.subCategoryId] = curr.priority;
             return acc;
-          }, {})
-        : formData.subcategoryPriorities;
+          },
+          {}
+        );
 
-      const templateData = {
-        name: formData.title,
-        clientIds: formData.clientId || [],
-        categoryIds: formData.categoryId,
-        subCategoryId: formData.documentId,
-        notifyMethod: formData.notifyMethods[0] || "email",
-        remainderSchedule: formData.scheduleReminder
-          ? "ThreeDays"
-          : "ThreeDays",
-        message:
-          formData.instructions ||
-          "<p>Please Upload Your Document Using This Secure Link.</p>",
-        subcategoryPriorities: prioritiesObj,
-        expiration: formData.dueDate,
-        linkMethod: formData.linkMethod,
-        active: true,
-      };
+        const requestData = {
+          doctitle: formData.title,
+          clientId: formData.clientId,
+          categoryId: formData.categoryId,
+          subCategoryId: formData.documentId,
+          dueDate: formData.dueDate,
+          instructions:
+            formData.instructions ||
+            "<p>Please Upload Your Document Using This Secure Link.</p>",
+          notifyMethods: formData.notifyMethods, // Array of notification methods
+          remainderSchedule: formData.scheduleReminder
+            ? "ThreeDays"
+            : "ThreeDays",
+          expiration: formData.dueDate,
+          subcategoryPriorities: prioritiesObj,
+          userInfo: {
+            id: selectedClient?.staff?.staffId,
+          },
+        };
 
-      // if (isScheduleEnabled) {
-      //   templateData.scheduler = {
-      //     scheduleTime: customDateTime,
-      //     frequency,
-      //     notifyMethod: notifyMethods,
-      //     days: selectedDays,
-      //   };
-      // }
+        // Add scheduler data if enabled
+        if (isScheduleEnabled) {
+          requestData.scheduler = {
+            scheduleTime: customDateTime,
+            frequency,
+            linkMethods: linkMethods,
+            days: selectedDays,
+          };
+        }
 
-      const res = await addTemplate(templateData);
+        const res = await createDocumentRequest(requestData);
 
-      if (res.success) {
-        addToast("Template saved successfully", "success");
-        setActiveTab("tab4"); // Navigate to templates tab
-      } else {
-        toast.error(res?.message || "Failed to save template");
+        if (res.success) {
+          addToast("Document request created successfully", "success");
+          // Reset form
+          setFormData({
+            title: "",
+            clientId: [],
+            categoryId: [],
+            documentId: [],
+            subcategoryPriorities: [],
+            otherDocuments: "",
+            dueDate: "",
+            instructions: "",
+            notifyMethods: [],
+            scheduleReminder: false,
+          });
+
+          // Reset scheduler
+          setIsScheduleEnabled(false);
+          setCustomDateTime("09:00");
+          setFrequency("Weekly");
+          setSelectedDays([]);
+          setNotifyMethods([]);
+          setLoading(false);
+          setTab2Loading(false);
+          fetchDocumentListing(tab1Query);
+          setIsSuccessModalOpen(true);
+        } else {
+          toast.error(res?.message || "Failed to create document request");
+          setLoading(false);
+          setTab2Loading(false);
+        }
+      } catch (error) {
+        console.error("Failed to create document request:", error);
+        toast.error(
+          error.response?.data?.message || "Failed to create document request."
+        );
+      } finally {
+        setLoading(false);
+        setTab2Loading(false);
       }
-    } catch (error) {
-      console.error("Failed to save template:", error);
-      toast.error(error.response?.data?.message || "Failed to save template.");
-    } finally {
-      setSaveLoading(false);
-      setTab2Loading(false);
-    }
-  }, [formData, addToast]);
+    },
+    [
+      clientListing,
+      formData,
+      isScheduleEnabled,
+      customDateTime,
+      frequency,
+      linkMethods,
+      selectedDays,
+      addToast,
+    ]
+  );
 
-  const fetchAllDocuments = useCallback(async (query) => {
+  const handleSaveAsTemplate = useCallback(
+    async (e) => {
+      if (!formData.title) {
+        toast.error("Please enter a title !");
+        return;
+      }
+      e.preventDefault();
+      try {
+        setSaveLoading(true);
+        setTab2Loading(true);
+        const prioritiesObj = Array.isArray(formData.subcategoryPriorities)
+          ? formData.subcategoryPriorities.reduce((acc, curr) => {
+              acc[curr.subCategoryId] = curr.priority;
+              return acc;
+            }, {})
+          : formData.subcategoryPriorities;
+
+        const templateData = {
+          name: formData.title,
+          clientIds: formData.clientId || [],
+          categoryIds: formData.categoryId,
+          subCategoryId: formData.documentId,
+          notifyMethod: formData.notifyMethods[0] || "email",
+          remainderSchedule: formData.scheduleReminder
+            ? "ThreeDays"
+            : "ThreeDays",
+          message:
+            formData.instructions ||
+            "<p>Please Upload Your Document Using This Secure Link.</p>",
+          subcategoryPriorities: prioritiesObj,
+          expiration: formData.dueDate,
+          linkMethod: formData.linkMethod,
+          active: true,
+        };
+
+        // if (isScheduleEnabled) {
+        //   templateData.scheduler = {
+        //     scheduleTime: customDateTime,
+        //     frequency,
+        //     notifyMethod: notifyMethods,
+        //     days: selectedDays,
+        //   };
+        // }
+
+        const res = await addTemplate(templateData);
+
+        if (res.success) {
+          addToast("Template saved successfully", "success");
+          setActiveTab("tab4"); // Navigate to templates tab
+        } else {
+          toast.error(res?.message || "Failed to save template");
+        }
+      } catch (error) {
+        console.error("Failed to save template:", error);
+        toast.error(
+          error.response?.data?.message || "Failed to save template."
+        );
+      } finally {
+        setSaveLoading(false);
+        setTab2Loading(false);
+      }
+    },
+    [formData, addToast]
+  );
+
+  const fetchAllDocuments = useCallback(async (queryParams) => {
     try {
       setTab3Loading(true);
-      const res = await getAllDocuments(query);
+      const res = await getAlldocumnetLinkstatusApi(queryParams);
 
-      const {
-        documents,
-        currentPage,
-        totalDocuments,
-        totalPages,
-        headerTotal,
-      } = res.data;
+      const { documents, currentPage, totalDocuments, totalPages } = res.data;
 
       if (res.success) {
         setSecureLink(documents);
-        setQuery((prev) => ({
+        setTab3Query((prev) => ({
           ...prev,
           page: currentPage,
           total: totalDocuments,
@@ -502,80 +560,80 @@ const DocReqManagement = () => {
       setTab4Loading(false);
     }
   }, []);
-  const handleUseTemplate = useCallback(async (templateData) => {
-    try {
-      setLoading(true);
+  const handleUseTemplate = useCallback(
+    async (templateData) => {
+      try {
+        setLoading(true);
 
-      if (clientListing.length === 0) await fetchAllClient();
-      if (catogaryListing.length === 0) await fetchAllDocumentListing();
+        if (clientListing.length === 0) await fetchAllClient();
+        if (catogaryListing.length === 0) await fetchAllDocumentListing();
 
-      await new Promise((res) => setTimeout(res, 100));
+        await new Promise((res) => setTimeout(res, 100));
 
-      const clientIds = templateData.clientNames
-        ? clientListing
-            .filter((client) =>
-              templateData.clientNames.includes(client.clientName)
-            )
-            .map((client) => client.clientId)
-        : templateData.clientIds || [];
+        const clientIds = templateData.clientNames
+          ? clientListing
+              .filter((client) =>
+                templateData.clientNames.includes(client.clientName)
+              )
+              .map((client) => client.clientId)
+          : templateData.clientIds || [];
 
-      const categoryIds = templateData.categoryNames
-        ? catogaryListing
-            .filter((category) =>
-              templateData.categoryNames.includes(category.name)
-            )
-            .map((category) => category._id)
-        : templateData.categoryIds || [];
+        const categoryIds = templateData.categoryNames
+          ? catogaryListing
+              .filter((category) =>
+                templateData.categoryNames.includes(category.name)
+              )
+              .map((category) => category._id)
+          : templateData.categoryIds || [];
 
-      for (const categoryId of categoryIds) {
-        await handleCategoryChange(categoryId);
+        for (const categoryId of categoryIds) {
+          await handleCategoryChange(categoryId);
+        }
+
+        const subcategoryPriorities = Object.entries(
+          templateData.subcategoryPriorities || {}
+        ).map(([subCategoryId, priority]) => ({
+          subCategoryId,
+          priority,
+        }));
+
+        const documentIds = Object.keys(
+          templateData.subcategoryPriorities || {}
+        );
+
+        // ✅ SET FORM DATA FIRST
+        setFormData({
+          clientId: clientIds,
+          categoryId: categoryIds,
+          documentId: documentIds,
+          subcategoryPriorities,
+          instructions: templateData.message || "",
+          notifyMethods: [templateData.notifyMethod].filter(Boolean),
+          scheduleReminder: templateData.remainderSchedule === "ThreeDays",
+          reminderFrequency: "Weekly",
+          selectedDays: [],
+          dueDate: templateData?.expiration || "",
+          otherDocuments: "",
+          reminderTime: "",
+        });
+        setTimeout(() => {
+          setActiveTab("tab2");
+        }, 100);
+      } catch (error) {
+        console.error("Error using template:", error);
+        toast.error("Failed to load template data");
+      } finally {
+        setLoading(false);
       }
-
-      const subcategoryPriorities = Object.entries(
-        templateData.subcategoryPriorities || {}
-      ).map(([subCategoryId, priority]) => ({
-        subCategoryId,
-        priority,
-      }));
-
-      const documentIds = Object.keys(templateData.subcategoryPriorities || {});
-
-      // ✅ SET FORM DATA FIRST
-      setFormData({
-        clientId: clientIds,
-        categoryId: categoryIds,
-        documentId: documentIds,
-        subcategoryPriorities,
-        instructions: templateData.message || "",
-        notifyMethods: [templateData.notifyMethod].filter(Boolean),
-        scheduleReminder: templateData.remainderSchedule === "ThreeDays",
-        reminderFrequency: "Weekly",
-        selectedDays: [],
-        dueDate: templateData?.expiration || "",
-        otherDocuments: "",
-        reminderTime: "",
-      });
-
-      // ✅ ONLY AFTER FORM DATA IS SET, SWITCH TO TAB
-      setTimeout(() => {
-        setActiveTab("tab2");
-      }, 100); // slight delay to let form re-render properly
-    } catch (error) {
-      console.error("Error using template:", error);
-      toast.error("Failed to load template data");
-    } finally {
-      setLoading(false);
-    }
-  }, [clientListing, catogaryListing, fetchAllClient, fetchAllDocumentListing, handleCategoryChange]);
-
-  useEffect(() => {
-    if (activeTab === "tab3") {
-      fetchAllDocuments(query);
-    }
-    if (activeTab === "tab4") {
-      fetchAllTemplates();
-    }
-  }, [activeTab]);
+    },
+    [
+      clientListing,
+      catogaryListing,
+      fetchAllClient,
+      fetchAllDocumentListing,
+      handleCategoryChange,
+    ]
+  );
 
   //schedular logic
   const handleSchedulerToggle = (e) => {
@@ -622,25 +680,56 @@ const DocReqManagement = () => {
       prev.includes(value) ? prev.filter((m) => m !== value) : [...prev, value]
     );
   };
-  const handleClear = useCallback(() => {
-    setQuery((prev) => ({ ...prev, status: "all", page: 1, limit: 10 }));
+  const handleClearTab1 = useCallback(() => {
+    setTab1Query((prev) => ({
+      ...prev,
+      search: "",
+      status: "all",
+      page: 1,
+      limit: 10,
+    }));
   }, []);
-  
-  // Pagination handlers - memoized
-  const onNextPage = useCallback(() => {
-    if (query.page < query.totalPages) {
-      setQuery((prev) => ({ ...prev, page: prev.page + 1 }));
-    }
-  }, [query.page, query.totalPages]);
+  const handleClearTab3 = useCallback(() => {
+    setTab3Query((prev) => ({
+      ...prev,
+      search: "",
+      status: "all",
+      page: 1,
+      limit: 10,
+    }));
+  }, []);
 
-  const onPrevPage = useCallback(() => {
-    if (query.page > 1) {
-      setQuery((prev) => ({ ...prev, page: prev.page - 1 }));
+  // Pagination handlers - memoized
+  const onNextPageTab1 = useCallback(() => {
+    if (tab1Query.page < tab1Query.totalPages) {
+      setTab1Query((prev) => ({ ...prev, page: prev.page + 1 }));
     }
-  }, [query.page]);
-  
-  const onLimitChange = useCallback((newLimit) => {
-    setQuery((prev) => ({ ...prev, limit: newLimit, page: 1 }));
+  }, [tab1Query.page, tab1Query.totalPages]);
+
+  const onPrevPageTab1 = useCallback(() => {
+    if (tab1Query.page > 1) {
+      setTab1Query((prev) => ({ ...prev, page: prev.page - 1 }));
+    }
+  }, [tab1Query.page]);
+
+  const onLimitChangeTab1 = useCallback((newLimit) => {
+    setTab1Query((prev) => ({ ...prev, limit: newLimit, page: 1 }));
+  }, []);
+
+  const onNextPageTab3 = useCallback(() => {
+    if (tab3Query.page < tab3Query.totalPages) {
+      setTab3Query((prev) => ({ ...prev, page: prev.page + 1 }));
+    }
+  }, [tab3Query.page, tab3Query.totalPages]);
+
+  const onPrevPageTab3 = useCallback(() => {
+    if (tab3Query.page > 1) {
+      setTab3Query((prev) => ({ ...prev, page: prev.page - 1 }));
+    }
+  }, [tab3Query.page]);
+
+  const onLimitChangeTab3 = useCallback((newLimit) => {
+    setTab3Query((prev) => ({ ...prev, limit: newLimit, page: 1 }));
   }, []);
 
   const handleAction = (action, data) => {
@@ -723,98 +812,98 @@ const DocReqManagement = () => {
             ) : (
               <>
                 <div className="mt-7 grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-              {/* Total Requests */}
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-body font-semibold text-[28px] leading-none">
-                    {headerSummery?.totalReq}
+                  {/* Total Requests */}
+                  <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-body font-semibold text-[28px] leading-none">
+                        {headerSummery?.totalReq}
+                      </h4>
+                      <span className="text-body font-medium text-[14px]">
+                        Total Requests
+                      </span>
+                    </div>
+                    <div className="bg-bgPurple flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                      <DocumentIcon />
+                    </div>
+                  </div>
+
+                  {/* Completed Today */}
+                  <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-body font-semibold text-[28px] leading-none">
+                        {headerSummery?.totalComplete}
+                      </h4>
+                      <span className="text-body font-medium text-[14px]">
+                        Completed Today
+                      </span>
+                    </div>
+                    <div className="bg-bgGreen flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                      <CompleteCheckIcon />
+                    </div>
+                  </div>
+
+                  {/* Pending Requests */}
+                  <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-body font-semibold text-[28px] leading-none">
+                        {headerSummery?.totalPending}
+                      </h4>
+                      <span className="text-body font-medium text-[14px]">
+                        Pending Requests
+                      </span>
+                    </div>
+                    <div className="bg-bgOrange flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                      <PendingIcon />
+                    </div>
+                  </div>
+
+                  {/* Overdue */}
+                  <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-body font-semibold text-[28px] leading-none">
+                        {headerSummery?.overdue}
+                      </h4>
+                      <span className="text-body font-medium text-[14px]">
+                        Overdue
+                      </span>
+                    </div>
+                    <div className="bg-bgRed flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
+                      <OverdueIcon />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mb-2.5">
+                  <h4 className="color-black text-lg font-semibold">
+                    Document Requests
                   </h4>
-                  <span className="text-body font-medium text-[14px]">
-                    Total Requests
-                  </span>
+                  <button
+                    onClick={() => setActiveTab("tab2")}
+                    type="button"
+                    className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
+                  >
+                    New Request
+                  </button>
                 </div>
-                <div className="bg-bgPurple flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                  <DocumentIcon />
-                </div>
-              </div>
 
-              {/* Completed Today */}
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-body font-semibold text-[28px] leading-none">
-                    {headerSummery?.totalComplete}
-                  </h4>
-                  <span className="text-body font-medium text-[14px]">
-                    Completed Today
-                  </span>
-                </div>
-                <div className="bg-bgGreen flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                  <CompleteCheckIcon />
-                </div>
-              </div>
+                <div className="border border-customGray rounded-[20px] p-5">
+                  <SearchFilter
+                    query={tab1Query}
+                    setQuery={setTab1Query}
+                    handleClear={handleClearTab1}
+                    statusOptions={tab1StatusOptions}
+                  />
 
-              {/* Pending Requests */}
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-body font-semibold text-[28px] leading-none">
-                    {headerSummery?.totalPending}
-                  </h4>
-                  <span className="text-body font-medium text-[14px]">
-                    Pending Requests
-                  </span>
+                  <Table
+                    data={documentList}
+                    mode="documentRequestListing"
+                    pagination={tab1Query}
+                    onNextPage={onNextPageTab1}
+                    onPrevPage={onPrevPageTab1}
+                    onLimitChange={onLimitChangeTab1}
+                    onAction={handleAction}
+                  />
                 </div>
-                <div className="bg-bgOrange flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                  <PendingIcon />
-                </div>
-              </div>
-
-              {/* Overdue */}
-              <div className="border border-customGray p-5 rounded-[20px] flex justify-between items-center bg-white">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-body font-semibold text-[28px] leading-none">
-                    {headerSummery?.overdue}
-                  </h4>
-                  <span className="text-body font-medium text-[14px]">
-                    Overdue
-                  </span>
-                </div>
-                <div className="bg-bgRed flex justify-center items-center w-[45px] h-[45px] p-[8px] rounded-[10px]">
-                  <OverdueIcon />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between mb-2.5">
-              <h4 className="color-black text-lg font-semibold">
-                Document Requests
-              </h4>
-              <button
-                onClick={() => setActiveTab("tab2")}
-                type="button"
-                className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
-              >
-                New Request
-              </button>
-            </div>
-
-            <div className="border border-customGray rounded-[20px] p-5">
-              <SearchFilter 
-                query={query} 
-                setQuery={setQuery} 
-                handleClear={handleClear} 
-                statusOptions={tab1StatusOptions}
-              />
-
-              <Table
-                data={documentList}
-                mode="documentRequestListing"
-                pagination={query}
-                onNextPage={onNextPage}
-                onPrevPage={onPrevPage}
-                onLimitChange={onLimitChange}
-                onAction={handleAction}
-              />
-            </div>
               </>
             )}
           </div>
@@ -826,229 +915,239 @@ const DocReqManagement = () => {
             ) : (
               <>
                 <div className="flex items-center justify-between mb-2.5">
-              <h4 className="color-black text-lg font-semibold">
-                Create New Document Request
-              </h4>
-              {/* <button
+                  <h4 className="color-black text-lg font-semibold">
+                    Create New Document Request
+                  </h4>
+                  {/* <button
                 onClick={() => setActiveTab("tab4")}
                 className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
               >
                 Prefill Data
               </button> */}
-            </div>
-            <div className="border border-customGray rounded-[20px] p-5 ">
-              <form action="" onSubmit={handleCreateRequest}>
-                <div className="w-full mb-5">
-                  <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
-                    Request Document Title*
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        title: e.target.value,
-                      }))
-                    }
-                    placeholder="Enter document request title"
-                    className="w-full border border-[#eaeaea] rounded-[10px] px-3 py-2 text-sm"
-                    required
-                  />
                 </div>
-                {/* Replace the existing client selection section */}
-                <div className="w-full mb-5">
-                  <label className="mb-2 block font-medium text-sm">
-                    Client*
-                  </label>
-
-                  {/* Dropdown for adding clients */}
-                  <div className="relative mb-3">
-                    <select
-                      value=""
-                      onChange={(e) => {
-                        const clientId = e.target.value;
-                        if (clientId && !formData.clientId.includes(clientId)) {
+                <div className="border border-customGray rounded-[20px] p-5 ">
+                  <form action="" onSubmit={handleCreateRequest}>
+                    <div className="w-full mb-5">
+                      <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
+                        Request Document Title*
+                      </label>
+                      <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={(e) =>
                           setFormData((prev) => ({
                             ...prev,
-                            clientId: [...prev.clientId, clientId],
-                          }));
+                            title: e.target.value,
+                          }))
                         }
-                      }}
-                      className="border border-[#eaeaea] rounded-[10px] py-2 px-4 w-full"
-                    >
-                      <option value="">Select a client to add...</option>
-                      {(clientListing || [])
-                        .filter(
-                          (client) =>
-                            !formData.clientId.includes(client?.clientId)
-                        )
-                        .map((client) => (
-                          <option key={client.clientId} value={client.clientId}>
-                            {client?.clientName} (Associated to:{" "}
-                            {client?.staff?.staffName})
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-
-                  {/* Selected clients display */}
-                  {formData.clientId.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-600">Selected Clients:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {formData.clientId.map((clientId) => {
-                          const client = clientListing.find(
-                            (c) => c.clientId === clientId
-                          );
-                          return (
-                            <div
-                              key={clientId}
-                              className="flex items-center bg-blue-50 border border-blue-200 rounded-lg px-3 py-2"
-                            >
-                              <span className="text-sm font-medium text-blue-800">
-                                {client?.clientName}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    clientId: prev.clientId.filter(
-                                      (id) => id !== clientId
-                                    ),
-                                  }));
-                                }}
-                                className="ml-2 text-blue-600 hover:text-blue-800"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
+                        placeholder="Enter document request title"
+                        className="w-full border border-[#eaeaea] rounded-[10px] px-3 py-2 text-sm"
+                        required
+                      />
                     </div>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 gap-5 mb-5">
-                  {/* Replace the existing grid with category and document selection */}
-                  <div className="mb-5">
-                    {/* Document Types Selection Header */}
-                    <div className="w-full mb-4">
-                      <label className="mb-3 block font-medium text-sm text-gray-700">
-                        Select Document Types*
+                    {/* Replace the existing client selection section */}
+                    <div className="w-full mb-5">
+                      <label className="mb-2 block font-medium text-sm">
+                        Client*
                       </label>
 
-                      {/* Document Type Selection Dropdown */}
-                      <div className="relative mb-4">
-                        <div
-                          className="border border-[#eaeaea] rounded-[10px] py-3 px-4 w-full bg-white cursor-pointer flex items-center justify-between"
-                          onClick={() =>
-                            setShowCategoryDropdown(!showCategoryDropdown)
-                          }
+                      {/* Dropdown for adding clients */}
+                      <div className="relative mb-3">
+                        <select
+                          value=""
+                          onChange={(e) => {
+                            const clientId = e.target.value;
+                            if (
+                              clientId &&
+                              !formData.clientId.includes(clientId)
+                            ) {
+                              setFormData((prev) => ({
+                                ...prev,
+                                clientId: [...prev.clientId, clientId],
+                              }));
+                            }
+                          }}
+                          className="border border-[#eaeaea] rounded-[10px] py-2 px-4 w-full"
                         >
-                          <span className="text-gray-500">
-                            + Add Document Type...
-                          </span>
-                          <svg
-                            className={`w-4 h-4 transition-transform ${
-                              showCategoryDropdown ? "rotate-180" : ""
-                            }`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
+                          <option value="">Select a client to add...</option>
+                          {(clientListing || [])
+                            .filter(
+                              (client) =>
+                                !formData.clientId.includes(client?.clientId)
+                            )
+                            .map((client) => (
+                              <option
+                                key={client.clientId}
+                                value={client.clientId}
+                              >
+                                {client?.clientName} (Associated to:{" "}
+                                {client?.staff?.staffName})
+                              </option>
+                            ))}
+                        </select>
+                      </div>
 
-                        {/* Scrollable dropdown */}
-                        {showCategoryDropdown && (
-                          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                            {catogaryListing
-                              .filter(
-                                (category) =>
-                                  !formData.categoryId.includes(category._id)
-                              )
-                              .map((category) => (
+                      {/* Selected clients display */}
+                      {formData.clientId.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-600">
+                            Selected Clients:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {formData.clientId.map((clientId) => {
+                              const client = clientListing.find(
+                                (c) => c.clientId === clientId
+                              );
+                              return (
                                 <div
-                                  key={category._id}
-                                  onClick={() => {
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      categoryId: [
-                                        ...prev.categoryId,
-                                        category._id,
-                                      ],
-                                    }));
-                                    handleCategoryChange(category._id);
-                                    setShowCategoryDropdown(false);
-                                  }}
-                                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                  key={clientId}
+                                  className="flex items-center bg-blue-50 border border-blue-200 rounded-lg px-3 py-2"
                                 >
-                                  {category.name}
+                                  <span className="text-sm font-medium text-blue-800">
+                                    {client?.clientName}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        clientId: prev.clientId.filter(
+                                          (id) => id !== clientId
+                                        ),
+                                      }));
+                                    }}
+                                    className="ml-2 text-blue-600 hover:text-blue-800"
+                                  >
+                                    ×
+                                  </button>
                                 </div>
-                              ))}
-                            {catogaryListing.filter(
-                              (category) =>
-                                !formData.categoryId.includes(category._id)
-                            ).length === 0 && (
-                              <div className="px-4 py-3 text-gray-500 text-sm">
-                                All categories selected
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 gap-5 mb-5">
+                      {/* Replace the existing grid with category and document selection */}
+                      <div className="mb-5">
+                        {/* Document Types Selection Header */}
+                        <div className="w-full mb-4">
+                          <label className="mb-3 block font-medium text-sm text-gray-700">
+                            Select Document Types*
+                          </label>
+
+                          {/* Document Type Selection Dropdown */}
+                          <div className="relative mb-4">
+                            <div
+                              className="border border-[#eaeaea] rounded-[10px] py-3 px-4 w-full bg-white cursor-pointer flex items-center justify-between"
+                              onClick={() =>
+                                setShowCategoryDropdown(!showCategoryDropdown)
+                              }
+                            >
+                              <span className="text-gray-500">
+                                + Add Document Type...
+                              </span>
+                              <svg
+                                className={`w-4 h-4 transition-transform ${
+                                  showCategoryDropdown ? "rotate-180" : ""
+                                }`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                            </div>
+
+                            {/* Scrollable dropdown */}
+                            {showCategoryDropdown && (
+                              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                {catogaryListing
+                                  .filter(
+                                    (category) =>
+                                      !formData.categoryId.includes(
+                                        category._id
+                                      )
+                                  )
+                                  .map((category) => (
+                                    <div
+                                      key={category._id}
+                                      onClick={() => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          categoryId: [
+                                            ...prev.categoryId,
+                                            category._id,
+                                          ],
+                                        }));
+                                        handleCategoryChange(category._id);
+                                        setShowCategoryDropdown(false);
+                                      }}
+                                      className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                    >
+                                      {category.name}
+                                    </div>
+                                  ))}
+                                {catogaryListing.filter(
+                                  (category) =>
+                                    !formData.categoryId.includes(category._id)
+                                ).length === 0 && (
+                                  <div className="px-4 py-3 text-gray-500 text-sm">
+                                    All categories selected
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                    </div>
-                    {/* Selected Document Types with Their Subcategories */}
-                    {formData.categoryId.length > 0 && (
-                      <div className="space-y-4">
-                        <p className="text-sm font-medium text-gray-700 mb-4">
-                          Selected Document Types & Documents:
-                        </p>
+                        </div>
+                        {/* Selected Document Types with Their Subcategories */}
+                        {formData.categoryId.length > 0 && (
+                          <div className="space-y-4">
+                            <p className="text-sm font-medium text-gray-700 mb-4">
+                              Selected Document Types & Documents:
+                            </p>
 
-                        {formData.categoryId.map((categoryId) => {
-                          const category = catogaryListing.find(
-                            (c) => c._id === categoryId
-                          );
-
-                          const categorySubcategories =
-                            formData?.documentId?.filter((docId) => {
-                              const subCategory = subDocumentListing.find(
-                                (sub) => sub._id === docId
+                            {formData.categoryId.map((categoryId) => {
+                              const category = catogaryListing.find(
+                                (c) => c._id === categoryId
                               );
+
+                              const categorySubcategories =
+                                formData?.documentId?.filter((docId) => {
+                                  const subCategory = subDocumentListing.find(
+                                    (sub) => sub._id === docId
+                                  );
+                                  return (
+                                    subCategory &&
+                                    subCategory.parentCategoryId === categoryId
+                                  );
+                                });
+
                               return (
-                                subCategory &&
-                                subCategory.parentCategoryId === categoryId
-                              );
-                            });
-
-                          return (
-                            <div
-                              key={categoryId}
-                              className="border-2 border-blue-100 rounded-xl p-5 bg-[#fafafa] from-blue-50 to-indigo-50 shadow-sm"
-                            >
-                              {/* Category Header */}
-                              <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                  <h4 className="font-semibold text-gray-800 text-lg">
-                                    {category?.name}
-                                  </h4>
-                                  <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
-                                    {categorySubcategories.length} documents
-                                    selected
-                                  </span>
-                                </div>
-                                <div className="flex items-center">
-                                  {/* <button
+                                <div
+                                  key={categoryId}
+                                  className="border-2 border-blue-100 rounded-xl p-5 bg-[#fafafa] from-blue-50 to-indigo-50 shadow-sm"
+                                >
+                                  {/* Category Header */}
+                                  <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                      <h4 className="font-semibold text-gray-800 text-lg">
+                                        {category?.name}
+                                      </h4>
+                                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                                        {categorySubcategories.length} documents
+                                        selected
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center">
+                                      {/* <button
                                     type="button"
                                     onClick={() => {
                                       setCurrentCategory(category);
@@ -1077,280 +1176,303 @@ const DocReqManagement = () => {
                                     </svg>
                                   </button> */}
 
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      // Remove category and its subcategories
-                                      const subcatsToRemove = subDocumentListing
-                                        .filter((sub) =>
-                                          categorySubcategories.includes(
-                                            sub._id
-                                          )
-                                        )
-                                        .map((sub) => sub._id);
-
-                                      setFormData((prev) => ({
-                                        ...prev,
-                                        categoryId: prev.categoryId.filter(
-                                          (id) => id !== categoryId
-                                        ),
-                                        documentId: prev.documentId.filter(
-                                          (id) => !subcatsToRemove.includes(id)
-                                        ),
-                                        subcategoryPriorities:
-                                          prev.subcategoryPriorities.filter(
-                                            (item) =>
-                                              !subcatsToRemove.includes(
-                                                item.subCategoryId
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          // Remove category and its subcategories
+                                          const subcatsToRemove =
+                                            subDocumentListing
+                                              .filter((sub) =>
+                                                categorySubcategories.includes(
+                                                  sub._id
+                                                )
                                               )
-                                          ),
-                                      }));
-                                    }}
-                                    className="flex items-center gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-all duration-200"
-                                  >
-                                    <svg
-                                      width="16"
-                                      height="16"
-                                      viewBox="0 0 24 24"
-                                      fill="currentColor"
-                                    >
-                                      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                                    </svg>
-                                    Remove Type
-                                  </button>
-                                </div>
-                              </div>
+                                              .map((sub) => sub._id);
 
-                              {/* Subcategory Selection Dropdown - FIXED */}
-                              <div className="mb-4">
-                                <select
-                                  value=""
-                                  onChange={(e) => {
-                                    const subCategoryId = e.target.value;
-                                    if (
-                                      subCategoryId &&
-                                      !formData.documentId.includes(
-                                        subCategoryId
-                                      )
-                                    ) {
-                                      setFormData((prev) => ({
-                                        ...prev,
-                                        documentId: [
-                                          ...prev.documentId,
-                                          subCategoryId,
-                                        ],
-                                        subcategoryPriorities: [
-                                          ...prev.subcategoryPriorities,
-                                          { subCategoryId, priority: "medium" },
-                                        ],
-                                      }));
-                                    }
-                                  }}
-                                  className="border border-gray-300 rounded-lg py-2 px-4 w-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                  <option value="">+ Add Document...</option>
-                                  {subDocumentListing
-                                    .filter(
-                                      (sub) =>
-                                        !formData.documentId.includes(
-                                          sub._id
-                                        ) && sub.parentCategoryId === categoryId // Only show subcategories for this category
-                                    )
-                                    .map((subCategory) => (
-                                      <option
-                                        key={subCategory._id}
-                                        value={subCategory._id}
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            categoryId: prev.categoryId.filter(
+                                              (id) => id !== categoryId
+                                            ),
+                                            documentId: prev.documentId.filter(
+                                              (id) =>
+                                                !subcatsToRemove.includes(id)
+                                            ),
+                                            subcategoryPriorities:
+                                              prev.subcategoryPriorities.filter(
+                                                (item) =>
+                                                  !subcatsToRemove.includes(
+                                                    item.subCategoryId
+                                                  )
+                                              ),
+                                          }));
+                                        }}
+                                        className="flex items-center gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded-lg transition-all duration-200"
                                       >
-                                        {subCategory.name}
-                                      </option>
-                                    ))}
-                                </select>
-                              </div>
-
-                              <div className="space-y-3">
-                                {categorySubcategories.length > 0 ? (
-                                  <>
-                                    <h5 className="text-sm font-medium text-gray-600 mb-2">
-                                      Selected Documents:
-                                    </h5>
-                                    {categorySubcategories.map((docId) => {
-                                      const subCategory =
-                                        subDocumentListing.find(
-                                          (sc) => sc._id === docId
-                                        );
-                                      const priorityIndex =
-                                        formData.subcategoryPriorities.findIndex(
-                                          (p) => p.subCategoryId === docId
-                                        );
-                                      const currentPriority =
-                                        priorityIndex >= 0
-                                          ? formData.subcategoryPriorities[
-                                              priorityIndex
-                                            ].priority
-                                          : "medium";
-
-                                      const priorityColors = {
-                                        low: "bg-green-50 border-green-200 text-green-700",
-                                        medium:
-                                          "bg-yellow-50 border-yellow-200 text-yellow-700",
-                                        high: "bg-red-50 border-red-200 text-red-700",
-                                      };
-
-                                      const priorityLabels = {
-                                        low: "Low Priority",
-                                        medium: "Medium Priority",
-                                        high: "High Priority",
-                                      };
-
-                                      return (
-                                        <div
-                                          key={docId}
-                                          className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+                                        <svg
+                                          width="16"
+                                          height="16"
+                                          viewBox="0 0 24 24"
+                                          fill="currentColor"
                                         >
-                                          <div className="flex items-center space-x-4 flex-1">
-                                            {/* Document Icon */}
-                                            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                              <svg
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                className="text-blue-600"
-                                              >
-                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                                <polyline points="14,2 14,8 20,8" />
-                                                <line
-                                                  x1="16"
-                                                  y1="13"
-                                                  x2="8"
-                                                  y2="13"
-                                                />
-                                                <line
-                                                  x1="16"
-                                                  y1="17"
-                                                  x2="8"
-                                                  y2="17"
-                                                />
-                                                <polyline points="10,9 9,9 8,9" />
-                                              </svg>
-                                            </div>
+                                          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                                        </svg>
+                                        Remove Type
+                                      </button>
+                                    </div>
+                                  </div>
 
-                                            {/* Document Name */}
-                                            <div className="flex-1">
-                                              <span className="text-sm font-medium text-gray-800">
-                                                {subCategory?.name}
-                                              </span>
-                                            </div>
+                                  {/* Subcategory Selection Dropdown - FIXED */}
+                                  <div className="mb-4">
+                                    <select
+                                      value=""
+                                      onChange={(e) => {
+                                        const subCategoryId = e.target.value;
+                                        if (
+                                          subCategoryId &&
+                                          !formData.documentId.includes(
+                                            subCategoryId
+                                          )
+                                        ) {
+                                          setFormData((prev) => ({
+                                            ...prev,
+                                            documentId: [
+                                              ...prev.documentId,
+                                              subCategoryId,
+                                            ],
+                                            subcategoryPriorities: [
+                                              ...prev.subcategoryPriorities,
+                                              {
+                                                subCategoryId,
+                                                priority: "medium",
+                                              },
+                                            ],
+                                          }));
+                                        }
+                                      }}
+                                      className="border border-gray-300 rounded-lg py-2 px-4 w-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                      <option value="">
+                                        + Add Document...
+                                      </option>
+                                      {subDocumentListing
+                                        .filter(
+                                          (sub) =>
+                                            !formData.documentId.includes(
+                                              sub._id
+                                            ) &&
+                                            sub.parentCategoryId === categoryId // Only show subcategories for this category
+                                        )
+                                        .map((subCategory) => (
+                                          <option
+                                            key={subCategory._id}
+                                            value={subCategory._id}
+                                          >
+                                            {subCategory.name}
+                                          </option>
+                                        ))}
+                                    </select>
+                                  </div>
 
-                                            {/* Priority Selection */}
-                                            <div className="flex items-center gap-2">
-                                              <span className="text-xs text-gray-500">
-                                                Priority:
-                                              </span>
-                                              <select
-                                                value={currentPriority}
-                                                onChange={(e) => {
-                                                  const newPriorities = [
-                                                    ...formData.subcategoryPriorities,
-                                                  ];
-                                                  if (priorityIndex >= 0) {
-                                                    newPriorities[
-                                                      priorityIndex
-                                                    ].priority = e.target.value;
-                                                  } else {
-                                                    newPriorities.push({
-                                                      subCategoryId: docId,
-                                                      priority: e.target.value,
-                                                    });
-                                                  }
+                                  <div className="space-y-3">
+                                    {categorySubcategories.length > 0 ? (
+                                      <>
+                                        <h5 className="text-sm font-medium text-gray-600 mb-2">
+                                          Selected Documents:
+                                        </h5>
+                                        {categorySubcategories.map((docId) => {
+                                          const subCategory =
+                                            subDocumentListing.find(
+                                              (sc) => sc._id === docId
+                                            );
+                                          const priorityIndex =
+                                            formData.subcategoryPriorities.findIndex(
+                                              (p) => p.subCategoryId === docId
+                                            );
+                                          const currentPriority =
+                                            priorityIndex >= 0
+                                              ? formData.subcategoryPriorities[
+                                                  priorityIndex
+                                                ].priority
+                                              : "medium";
+
+                                          const priorityColors = {
+                                            low: "bg-green-50 border-green-200 text-green-700",
+                                            medium:
+                                              "bg-yellow-50 border-yellow-200 text-yellow-700",
+                                            high: "bg-red-50 border-red-200 text-red-700",
+                                          };
+
+                                          const priorityLabels = {
+                                            low: "Low Priority",
+                                            medium: "Medium Priority",
+                                            high: "High Priority",
+                                          };
+
+                                          return (
+                                            <div
+                                              key={docId}
+                                              className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+                                            >
+                                              <div className="flex items-center space-x-4 flex-1">
+                                                {/* Document Icon */}
+                                                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                  <svg
+                                                    width="16"
+                                                    height="16"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    className="text-blue-600"
+                                                  >
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                    <polyline points="14,2 14,8 20,8" />
+                                                    <line
+                                                      x1="16"
+                                                      y1="13"
+                                                      x2="8"
+                                                      y2="13"
+                                                    />
+                                                    <line
+                                                      x1="16"
+                                                      y1="17"
+                                                      x2="8"
+                                                      y2="17"
+                                                    />
+                                                    <polyline points="10,9 9,9 8,9" />
+                                                  </svg>
+                                                </div>
+
+                                                {/* Document Name */}
+                                                <div className="flex-1">
+                                                  <span className="text-sm font-medium text-gray-800">
+                                                    {subCategory?.name}
+                                                  </span>
+                                                </div>
+
+                                                {/* Priority Selection */}
+                                                <div className="flex items-center gap-2">
+                                                  <span className="text-xs text-gray-500">
+                                                    Priority:
+                                                  </span>
+                                                  <select
+                                                    value={currentPriority}
+                                                    onChange={(e) => {
+                                                      const newPriorities = [
+                                                        ...formData.subcategoryPriorities,
+                                                      ];
+                                                      if (priorityIndex >= 0) {
+                                                        newPriorities[
+                                                          priorityIndex
+                                                        ].priority =
+                                                          e.target.value;
+                                                      } else {
+                                                        newPriorities.push({
+                                                          subCategoryId: docId,
+                                                          priority:
+                                                            e.target.value,
+                                                        });
+                                                      }
+                                                      setFormData((prev) => ({
+                                                        ...prev,
+                                                        subcategoryPriorities:
+                                                          newPriorities,
+                                                      }));
+                                                    }}
+                                                    className={`border rounded-lg px-3 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 ${priorityColors[currentPriority]}`}
+                                                  >
+                                                    <option value="low">
+                                                      Low
+                                                    </option>
+                                                    <option value="medium">
+                                                      Medium
+                                                    </option>
+                                                    <option value="high">
+                                                      High
+                                                    </option>
+                                                  </select>
+                                                </div>
+                                              </div>
+
+                                              {/* Remove Button */}
+                                              <button
+                                                type="button"
+                                                onClick={() => {
                                                   setFormData((prev) => ({
                                                     ...prev,
+                                                    documentId:
+                                                      prev.documentId.filter(
+                                                        (id) => id !== docId
+                                                      ),
                                                     subcategoryPriorities:
-                                                      newPriorities,
+                                                      prev.subcategoryPriorities.filter(
+                                                        (item) =>
+                                                          item.subCategoryId !==
+                                                          docId
+                                                      ),
                                                   }));
                                                 }}
-                                                className={`border rounded-lg px-3 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 ${priorityColors[currentPriority]}`}
+                                                className="ml-3 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1"
                                               >
-                                                <option value="low">Low</option>
-                                                <option value="medium">
-                                                  Medium
-                                                </option>
-                                                <option value="high">
-                                                  High
-                                                </option>
-                                              </select>
+                                                <svg
+                                                  width="16"
+                                                  height="16"
+                                                  viewBox="0 0 24 24"
+                                                  fill="currentColor"
+                                                >
+                                                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                                                </svg>
+                                              </button>
                                             </div>
-                                          </div>
-
-                                          {/* Remove Button */}
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setFormData((prev) => ({
-                                                ...prev,
-                                                documentId:
-                                                  prev.documentId.filter(
-                                                    (id) => id !== docId
-                                                  ),
-                                                subcategoryPriorities:
-                                                  prev.subcategoryPriorities.filter(
-                                                    (item) =>
-                                                      item.subCategoryId !==
-                                                      docId
-                                                  ),
-                                              }));
-                                            }}
-                                            className="ml-3 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1"
-                                          >
-                                            <svg
-                                              width="16"
-                                              height="16"
-                                              viewBox="0 0 24 24"
-                                              fill="currentColor"
-                                            >
-                                              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                                            </svg>
-                                          </button>
-                                        </div>
-                                      );
-                                    })}
-                                  </>
-                                ) : (
-                                  <div className="text-center py-4 text-gray-500">
-                                    <svg
-                                      width="48"
-                                      height="48"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="1"
-                                      className="mx-auto mb-2 text-gray-300"
-                                    >
-                                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                      <polyline points="14,2 14,8 20,8" />
-                                      <line x1="16" y1="13" x2="8" y2="13" />
-                                      <line x1="16" y1="17" x2="8" y2="17" />
-                                      <polyline points="10,9 9,9 8,9" />
-                                    </svg>
-                                    <p className="text-sm">
-                                      No documents selected for this type
-                                    </p>
-                                    <p className="text-xs text-gray-400">
-                                      Use the dropdown above to add documents
-                                    </p>
+                                          );
+                                        })}
+                                      </>
+                                    ) : (
+                                      <div className="text-center py-4 text-gray-500">
+                                        <svg
+                                          width="48"
+                                          height="48"
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          strokeWidth="1"
+                                          className="mx-auto mb-2 text-gray-300"
+                                        >
+                                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                          <polyline points="14,2 14,8 20,8" />
+                                          <line
+                                            x1="16"
+                                            y1="13"
+                                            x2="8"
+                                            y2="13"
+                                          />
+                                          <line
+                                            x1="16"
+                                            y1="17"
+                                            x2="8"
+                                            y2="17"
+                                          />
+                                          <polyline points="10,9 9,9 8,9" />
+                                        </svg>
+                                        <p className="text-sm">
+                                          No documents selected for this type
+                                        </p>
+                                        <p className="text-xs text-gray-400">
+                                          Use the dropdown above to add
+                                          documents
+                                        </p>
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
-                {/* <div className="mb-5">
+                    </div>
+                    {/* <div className="mb-5">
                   <label className="block text-[#484848] text-sm font-medium mb-2">
                     Add other Documents (eg. Insurance, Petant document, ...)
                   </label>
@@ -1360,243 +1482,254 @@ const DocReqManagement = () => {
                     placeholder="Add Other Documents  seperated by ‘Comma’"
                   />
                 </div> */}
-                <div className="grid grid-cols-2 gap-5 mb-5">
-                  <div className="mb-5">
-                    <label className="block text-[#484848] text-sm font-medium mb-2">
-                      Instructions & Requirements
-                    </label>
-                    <textarea
-                      value={formData.instructions}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          instructions: e.target.value,
-                        }))
-                      }
-                      className="w-full border border-[#eaeaea]  text-[#484848] p-3 rounded-[10px] font-normal text-[12px] leading-[100%] tracking-[0] capitalize focus:outline-dark h-[45px] resize-none"
-                      rows="2"
-                      placeholder="Add instructions..."
-                    />
-                  </div>
-                  <div className="w-full">
-                    <label
-                      for="fname"
-                      className="block mb-2 font-medium text-sm"
-                    >
-                      Due Date
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.dueDate}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          dueDate: e.target.value,
-                        }))
-                      }
-                      min={new Date().toISOString().split("T")[0]}
-                      className="w-full py-2 px-4 border border-[#eaeaea] rounded-[10px] text-gray-700"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-5">
-                  <label className="block text-[#484848] text-sm font-medium mb-2">
-                    Notify Method*
-                  </label>
-                  <div className="flex gap-5 text-sm text-[#484848]">
-                    {["email", "sms", "portal"].map((method) => (
-                      <label key={method} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={formData.notifyMethods.includes(method)}
-                          onChange={(e) => {
-                            const newMethods = e.target.checked
-                              ? [...formData.notifyMethods, method]
-                              : formData.notifyMethods.filter(
-                                  (m) => m !== method
-                                );
+                    <div className="grid grid-cols-2 gap-5 mb-5">
+                      <div className="mb-5">
+                        <label className="block text-[#484848] text-sm font-medium mb-2">
+                          Instructions & Requirements
+                        </label>
+                        <textarea
+                          value={formData.instructions}
+                          onChange={(e) =>
                             setFormData((prev) => ({
                               ...prev,
-                              notifyMethods: newMethods,
-                            }));
-                          }}
-                          className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
+                              instructions: e.target.value,
+                            }))
+                          }
+                          className="w-full border border-[#eaeaea]  text-[#484848] p-3 rounded-[10px] font-normal text-[12px] leading-[100%] tracking-[0] capitalize focus:outline-dark h-[45px] resize-none"
+                          rows="2"
+                          placeholder="Add instructions..."
+                        />
+                      </div>
+                      <div className="w-full">
+                        <label
+                          for="fname"
+                          className="block mb-2 font-medium text-sm"
+                        >
+                          Due Date
+                        </label>
+                        <input
+                          type="date"
+                          value={formData.dueDate}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              dueDate: e.target.value,
+                            }))
+                          }
+                          min={new Date().toISOString().split("T")[0]}
+                          className="w-full py-2 px-4 border border-[#eaeaea] rounded-[10px] text-gray-700"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mb-5">
+                      <label className="block text-[#484848] text-sm font-medium mb-2">
+                        Notify Method*
+                      </label>
+                      <div className="flex gap-5 text-sm text-[#484848]">
+                        {["email", "sms", "portal"].map((method) => (
+                          <label
+                            key={method}
+                            className="flex items-center gap-2"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.notifyMethods.includes(method)}
+                              onChange={(e) => {
+                                const newMethods = e.target.checked
+                                  ? [...formData.notifyMethods, method]
+                                  : formData.notifyMethods.filter(
+                                      (m) => m !== method
+                                    );
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  notifyMethods: newMethods,
+                                }));
+                              }}
+                              className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative 
             checked:bg-[#20BF55] checked:border-[#20BF55]
             checked:after:content-['✓'] checked:after:text-white 
             checked:after:text-[12px] checked:after:font-bold 
             checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]"
-                        />
-                        {method.charAt(0).toUpperCase() + method.slice(1)}
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                            />
+                            {method.charAt(0).toUpperCase() + method.slice(1)}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
 
-                <div className="mb-5">
-                  <label className="block text-[#484848] text-sm font-medium mb-2">
-                    Schedule Reminder
-                  </label>
-                  <div className="flex items-center gap-2   text-sm text-[#484848]">
-                    <input
-                      type="checkbox"
-                      checked={isScheduleEnabled}
-                      onChange={(e) => setIsScheduleEnabled(e.target.checked)}
-                      className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative
+                    <div className="mb-5">
+                      <label className="block text-[#484848] text-sm font-medium mb-2">
+                        Schedule Reminder
+                      </label>
+                      <div className="flex items-center gap-2   text-sm text-[#484848]">
+                        <input
+                          type="checkbox"
+                          checked={isScheduleEnabled}
+                          onChange={(e) =>
+                            setIsScheduleEnabled(e.target.checked)
+                          }
+                          className="appearance-none w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px] relative
                 checked:bg-[#20BF55] checked:border-[#20BF55]
                 checked:after:content-['✓'] checked:after:text-white
                 checked:after:text-[12px] checked:after:font-bold
                 checked:after:absolute checked:after:top-[-2px] checked:after:left-[3px]
               "
-                    />
-                    Enable Schedule Reminder
-                  </div>
-                </div>
-
-                {isScheduleEnabled && (
-                  <div className="mb-5">
-                    <div className="flex items-center gap-2 mb-4">
-                      <input
-                        type="checkbox"
-                        id="schedulerCheckbox"
-                        checked={isScheduleEnabled}
-                        onChange={handleSchedulerToggle}
-                        className="w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px]"
-                      />
-                      <label
-                        htmlFor="schedulerCheckbox"
-                        className="block text-[#484848] text-sm font-medium mb-0"
-                      >
-                        Configure Reminder Schedule
-                      </label>
+                        />
+                        Enable Schedule Reminder
+                      </div>
                     </div>
 
                     {isScheduleEnabled && (
-                      <div className="p-4 bg-white rounded-lg shadow-md">
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium mb-1">
-                            Set Time
-                          </label>
+                      <div className="mb-5">
+                        <div className="flex items-center gap-2 mb-4">
                           <input
-                            type="time"
-                            value={customDateTime}
-                            onChange={(e) => setCustomDateTime(e.target.value)}
-                            className="w-full border px-3 py-2 rounded"
+                            type="checkbox"
+                            id="schedulerCheckbox"
+                            checked={isScheduleEnabled}
+                            onChange={handleSchedulerToggle}
+                            className="w-[16px] h-[16px] border border-[#B3B3B3] rounded-[4px]"
                           />
-                        </div>
-
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium mb-1">
-                            Frequency
-                          </label>
-                          <select
-                            value={frequency}
-                            onChange={handleFrequencyChange}
-                            className="w-full border px-3 py-2 rounded"
+                          <label
+                            htmlFor="schedulerCheckbox"
+                            className="block text-[#484848] text-sm font-medium mb-0"
                           >
-                            <option value="Weekly">Weekly</option>
-                            <option value="Daily">Daily</option>
-                          </select>
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {days.map((day) => (
-                              <button
-                                key={day}
-                                type="button"
-                                onClick={() => handleDayToggle(day)}
-                                className={`px-3 py-1 rounded border ${
-                                  selectedDays.includes(day)
-                                    ? "bg-blue-500 text-white border-blue-500"
-                                    : "bg-white text-gray-700 border-gray-300"
-                                } ${
-                                  frequency === "Weekly" &&
-                                  selectedDays.length > 0 &&
-                                  !selectedDays.includes(day)
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
-                                }`}
-                                disabled={
-                                  frequency === "Weekly" &&
-                                  selectedDays.length > 0 &&
-                                  !selectedDays.includes(day)
-                                }
-                              >
-                                {day}
-                              </button>
-                            ))}
-                          </div>
+                            Configure Reminder Schedule
+                          </label>
                         </div>
 
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium mb-2">
-                            Scheduler Notify Methods*
-                          </label>
-                          <div className="flex flex-wrap gap-4">
-                            {["email", "sms", "portal"].map((method) => (
-                              <label
-                                key={method}
-                                className="flex items-center gap-2"
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={linkMethods.includes(method)}
-                                  onChange={() => {
-                                    const newMethods = linkMethods.includes(
-                                      method
-                                    )
-                                      ? linkMethods.filter((m) => m !== method)
-                                      : [...linkMethods, method];
-                                    setLinkMethod(newMethods);
-                                  }}
-                                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                />
-                                {method.charAt(0).toUpperCase() +
-                                  method.slice(1)}
+                        {isScheduleEnabled && (
+                          <div className="p-4 bg-white rounded-lg shadow-md">
+                            <div className="mb-4">
+                              <label className="block text-sm font-medium mb-1">
+                                Set Time
                               </label>
-                            ))}
+                              <input
+                                type="time"
+                                value={customDateTime}
+                                onChange={(e) =>
+                                  setCustomDateTime(e.target.value)
+                                }
+                                className="w-full border px-3 py-2 rounded"
+                              />
+                            </div>
+
+                            <div className="mb-4">
+                              <label className="block text-sm font-medium mb-1">
+                                Frequency
+                              </label>
+                              <select
+                                value={frequency}
+                                onChange={handleFrequencyChange}
+                                className="w-full border px-3 py-2 rounded"
+                              >
+                                <option value="Weekly">Weekly</option>
+                                <option value="Daily">Daily</option>
+                              </select>
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {days.map((day) => (
+                                  <button
+                                    key={day}
+                                    type="button"
+                                    onClick={() => handleDayToggle(day)}
+                                    className={`px-3 py-1 rounded border ${
+                                      selectedDays.includes(day)
+                                        ? "bg-blue-500 text-white border-blue-500"
+                                        : "bg-white text-gray-700 border-gray-300"
+                                    } ${
+                                      frequency === "Weekly" &&
+                                      selectedDays.length > 0 &&
+                                      !selectedDays.includes(day)
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : ""
+                                    }`}
+                                    disabled={
+                                      frequency === "Weekly" &&
+                                      selectedDays.length > 0 &&
+                                      !selectedDays.includes(day)
+                                    }
+                                  >
+                                    {day}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="mb-4">
+                              <label className="block text-sm font-medium mb-2">
+                                Scheduler Notify Methods*
+                              </label>
+                              <div className="flex flex-wrap gap-4">
+                                {["email", "sms", "portal"].map((method) => (
+                                  <label
+                                    key={method}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={linkMethods.includes(method)}
+                                      onChange={() => {
+                                        const newMethods = linkMethods.includes(
+                                          method
+                                        )
+                                          ? linkMethods.filter(
+                                              (m) => m !== method
+                                            )
+                                          : [...linkMethods, method];
+                                        setLinkMethod(newMethods);
+                                      }}
+                                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                    />
+                                    {method.charAt(0).toUpperCase() +
+                                      method.slice(1)}
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     )}
-                  </div>
-                )}
 
-                <div className="flex items-center justify-between mt-2.5">
-                  <button
-                    type="button"
-                    onClick={handleSaveAsTemplate}
-                    disabled={saveLoading}
-                    className="rounded-[10px] py-2 px-6 text-primaryBlue border-1 border-primaryBlue cursor-pointer disabled:opacity-50"
-                  >
-                    {saveLoading ? "Saving..." : "Save as Template"}
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
-                    disabled={loading}
-                  >
-                    {loading
-                      ? "Creating Request..."
-                      : "Generate Secure Link & Send Request"}
-                  </button>
+                    <div className="flex items-center justify-between mt-2.5">
+                      <button
+                        type="button"
+                        onClick={handleSaveAsTemplate}
+                        disabled={saveLoading}
+                        className="rounded-[10px] py-2 px-6 text-primaryBlue border-1 border-primaryBlue cursor-pointer disabled:opacity-50"
+                      >
+                        {saveLoading ? "Saving..." : "Save as Template"}
+                      </button>
+                      <button
+                        type="submit"
+                        className="bg-[#2E7ED4] rounded-[10px] py-2 px-6 text-white cursor-pointer"
+                        disabled={loading}
+                      >
+                        {loading
+                          ? "Creating Request..."
+                          : "Generate Secure Link & Send Request"}
+                      </button>
+                    </div>
+                  </form>
                 </div>
-              </form>
-            </div>
-            {/* locopoco */}
-            <AddCustomSubcat
-              isOpen={isAddSubcategoryModalOpen}
-              onClose={() => setIsAddSubcategoryModalOpen(false)}
-              onSubmit={handleAddNewSubcategory}
-              categoryName={currentCategory ? currentCategory.name : "Category"}
-            />
-            {isSuccessModalOpen && (
-              <SuccessrequestModal
-                onClose={() => {
-                  setIsSuccessModalOpen(false);
-                }}
-                title={"Document request created successfully"}
-              />
-            )}
+                {/* locopoco */}
+                <AddCustomSubcat
+                  isOpen={isAddSubcategoryModalOpen}
+                  onClose={() => setIsAddSubcategoryModalOpen(false)}
+                  onSubmit={handleAddNewSubcategory}
+                  categoryName={
+                    currentCategory ? currentCategory.name : "Category"
+                  }
+                />
+                {isSuccessModalOpen && (
+                  <SuccessrequestModal
+                    onClose={() => {
+                      setIsSuccessModalOpen(false);
+                    }}
+                    title={"Document request created successfully"}
+                  />
+                )}
               </>
             )}
           </div>
@@ -1604,26 +1737,31 @@ const DocReqManagement = () => {
 
         {activeTab === "tab3" && (
           <div>
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-[30px] mb-[30px] gap-2 sm:gap[7px]">
+              <h4 className="color-black text-lg font-semibold">
+                Secure Document Request
+              </h4>
+            </div>
             {tab3Loading ? (
               <Loader />
             ) : (
               <div className="border border-customGray rounded-[20px] p-5">
-                <SearchFilter 
-                  query={query} 
-                  setQuery={setQuery} 
-                  handleClear={handleClear} 
+                <SearchFilter
+                  query={tab3Query}
+                  setQuery={setTab3Query}
+                  handleClear={handleClearTab3}
                   statusOptions={tab3StatusOptions}
                 />
 
-              <Table
-                data={secureLink || []}
-                mode="secureDocumentListing"
-                pagination={query}
-                onNextPage={onNextPage}
-                onPrevPage={onPrevPage}
-                onLimitChange={onLimitChange}
-                onAction={handleAction}
-              />
+                <Table
+                  data={secureLink || []}
+                  mode="secureDocumentListing"
+                  pagination={tab3Query}
+                  onNextPage={onNextPageTab3}
+                  onPrevPage={onPrevPageTab3}
+                  onLimitChange={onLimitChangeTab3}
+                  onAction={handleAction}
+                />
               </div>
             )}
           </div>
@@ -1641,28 +1779,28 @@ const DocReqManagement = () => {
                   </h4>
                 </div>
 
-            <div className="border border-customGray rounded-[20px] p-5">
-              {templateList.length > 0 ? (
-                templateList.map((template) => (
-                  <div
-                    key={template._id}
-                    className="bg-white border border-[#2C3E501A] rounded-[10px] py-[25px] px-[20px] mb-4"
-                  >
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2 sm:gap-[10px]">
-                      <h3 className="text-[#2C3E50] font-medium text-[16px] leading-[100%] tracking-[0%]">
-                        {template.name}
-                      </h3>
-                      <div className="flex items-center gap-[10px]">
-                        <button
-                          className="bg-[#1BA3A3] text-[#ffffff] px-[20px] py-[10px] rounded-md font-normal text-[14px] leading-[100%] tracking-[0%] cursor-pointer"
-                          onClick={() => {
-                            setSelectedTemplate(template);
-                            handleUseTemplate(template);
-                          }}
-                        >
-                          Use Template !
-                        </button>
-                        {/* <button
+                <div className="border border-customGray rounded-[20px] p-5">
+                  {templateList.length > 0 ? (
+                    templateList.map((template) => (
+                      <div
+                        key={template._id}
+                        className="bg-white border border-[#2C3E501A] rounded-[10px] py-[25px] px-[20px] mb-4"
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2 sm:gap-[10px]">
+                          <h3 className="text-[#2C3E50] font-medium text-[16px] leading-[100%] tracking-[0%]">
+                            {template.name}
+                          </h3>
+                          <div className="flex items-center gap-[10px]">
+                            <button
+                              className="bg-[#1BA3A3] text-[#ffffff] px-[20px] py-[10px] rounded-md font-normal text-[14px] leading-[100%] tracking-[0%] cursor-pointer"
+                              onClick={() => {
+                                setSelectedTemplate(template);
+                                handleUseTemplate(template);
+                              }}
+                            >
+                              Use Template !
+                            </button>
+                            {/* <button
                           type="button"
                           className="text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer p-1"
                           title="Edit Template"
@@ -1681,32 +1819,34 @@ const DocReqManagement = () => {
                             />
                           </svg>
                         </button> */}
+                          </div>
+                        </div>
+
+                        <div>
+                          <p
+                            dangerouslySetInnerHTML={{
+                              __html: template.message,
+                            }}
+                            className="mb-2 font-normal text-[16px] leading-[100%] tracking-[0%] text-[#2C3E50]"
+                          />
+                          <p className="sr-only">
+                            {getPlainText(template.message)}
+                          </p>
+                        </div>
+
+                        <p className="text-[#2C3E50] font-normal text-[14px] leading-[100%] tracking-[0%] opacity-[0.6]">
+                          Created:{" "}
+                          {new Date(template.createdAt).toLocaleDateString()} |
+                          Used: {template.usedCount || 0} times
+                        </p>
                       </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-10">
+                      <p className="text-gray-600 mb-4">No templates found</p>
                     </div>
-
-                    <div>
-                      <p
-                        dangerouslySetInnerHTML={{ __html: template.message }}
-                        className="mb-2 font-normal text-[16px] leading-[100%] tracking-[0%] text-[#2C3E50]"
-                      />
-                      <p className="sr-only">
-                        {getPlainText(template.message)}
-                      </p>
-                    </div>
-
-                    <p className="text-[#2C3E50] font-normal text-[14px] leading-[100%] tracking-[0%] opacity-[0.6]">
-                      Created:{" "}
-                      {new Date(template.createdAt).toLocaleDateString()} |
-                      Used: {template.usedCount || 0} times
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-10">
-                  <p className="text-gray-600 mb-4">No templates found</p>
+                  )}
                 </div>
-              )}
-            </div>
               </>
             )}
           </div>

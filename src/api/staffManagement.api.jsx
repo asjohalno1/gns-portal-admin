@@ -141,3 +141,16 @@ export const mapClientApi = async (clientId) => {
     return { success: false, message: "Unexpected error occurred" };
   }
 };
+
+export const assignAndMapClientApi = async (clientId, staffId) => {
+  try {
+    const response = await axiosInstance.post(`/admin/assignedandmap`, {
+      clientId,
+      staffId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error in assign and map client:", error);
+    throw error;
+  }
+};

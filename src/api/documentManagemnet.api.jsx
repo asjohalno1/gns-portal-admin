@@ -213,3 +213,15 @@ export const deleteSubCategoryApi = async (id) => {
   const res = await axiosInstance.delete(`/delete-subcategories/${id}`);
   return res.data;
 };
+
+export const getAlldocumnetLinkstatusApi = async (query) => {
+  try {
+    const response = await axiosInstance.get("/admin/getalldocuments", {
+      params: query,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching document link status:", error);
+    throw error;
+  }
+};

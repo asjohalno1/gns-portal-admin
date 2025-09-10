@@ -44,10 +44,7 @@ const Dropdown = ({ onAction, mode, itemId }) => {
           { label: "Document Request", value: "request" },
         ];
       case "unassignedClients":
-        return [
-          { label: "Assign", value: "assign" },
-          { label: "Client Mapping", value: "mapping" },
-        ];
+        return [{ label: "Assign & Map", value: "assignAndMap" }];
 
       case "remainderHistory":
         return [

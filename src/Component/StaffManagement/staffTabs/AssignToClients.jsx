@@ -1,17 +1,16 @@
 import React, { use, useEffect, useState } from "react";
 import Table from "../../Table/table";
 import { toast } from "react-toastify";
-import AssignClientModal from "../ActionsModals/AssignClientModal";
 import {
+  assignAndMapClientApi,
   assignStaffToClientApi,
   getAllUnassignedClientsApi,
   mapClientApi,
 } from "../../../api/staffManagement.api";
 import { getAllStaff } from "../../../api/dashboard.api";
-import MapClientModal from "../ActionsModals/MapClientModal";
 import Loader from "../../Loader/Loader";
 import { useToast } from "../../../CommonPages/customtoast/CustomToaster";
-import { SearchIcon } from "lucide-react";
+import AssignAndMapClientModal from "../ActionsModals/AssignAndMapClientModal";
 
 const AssignToClients = () => {
   const [unassignedClients, setUnassignedClients] = useState({
@@ -27,10 +26,9 @@ const AssignToClients = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
-  const [viewAssignToClientModal, setViewAssignToClientModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [staffMembers, setStaffMembers] = useState([]);
-  const [isMapClientModalOpen, setIsMapClientModalOpen] = useState(false);
+  const [assignaMapModalOpen, setAssignaMapModalOpen] = useState(false);
 
   const fetchAllClients = async (
     page = 1,
@@ -93,30 +91,6 @@ const AssignToClients = () => {
     );
   }, [search, status]);
 
-  const handleAssignToClient = async (clientId, staffId) => {
-    try {
-      const payload = { clientId, staffId };
-      let response = await assignStaffToClientApi(payload);
-
-      if (response.success) {
-        addToast("Client assigned successfully", "success");
-        fetchAllClients(
-          unassignedClients.pagination.page,
-          unassignedClients.pagination.limit,
-          search,
-          status
-        );
-      } else {
-        addToast(response.message || "Failed to assign client", "error");
-      }
-    } catch (error) {
-      addToast(
-        error.response?.data?.message || "Failed to assign client",
-        "error"
-      );
-    }
-  };
-
   const handlePageChange = (newPage) => {
     fetchAllClients(
       newPage,
@@ -169,39 +143,27 @@ const AssignToClients = () => {
 
   const handleActionClick = (action, client) => {
     switch (action) {
-      case "assign":
-        setViewAssignToClientModal(true);
+      case "assignAndMap":
         setSelectedClient(client);
-        break;
-      case "mapping":
-        setSelectedClient(client);
-        setIsMapClientModalOpen(true);
+        setAssignaMapModalOpen(true);
         break;
       default:
         console.warn("Unknown action:", action);
     }
   };
 
-  const handleMapingClient = async (clientId, email) => {
-    console.log("clicked");
+  const handleAssignAndMapClient = async (clientId, staffId) => {
     try {
-      // if (!email.toLowerCase().endsWith("@gmail.com")) {
-      //   toast.error("Only Gmail addresses are allowed!");
-      //   return;
-      // }
-      let res = await mapClientApi(clientId);
-      if (res.success) {
-        addToast("Client mapped successfully", "success");
-        fetchAllClients();
-      } else {
-        addToast(res.message || "Failed to map client", "error");
+      let response = await assignAndMapClientApi(clientId, staffId);
+      if (response.success) {
+        addToast("Client assigned and mapped successfully", "success");
+        setAssignaMapModalOpen(false);
       }
     } catch (error) {
       addToast(
-        error.response?.data?.message || "Failed to map client",
+        error.response?.data?.message || "Failed to assign and map client",
         "error"
       );
-      console.error("Error fetching staff members:", error);
     }
   };
 
@@ -210,7 +172,7 @@ const AssignToClients = () => {
       <div className="flex flex-col md:flex-row justify-between md:flex-row gap-4 mb-4">
         <input
           type="text"
-          placeholder="Search clients..."
+          placeholder="Search client or email"
           className="px-3 py-1 border border-gray-300 rounded-md"
           value={search}
           onChange={handleSearchChange}
@@ -240,21 +202,13 @@ const AssignToClients = () => {
           loading={loading}
         />
       )}
-      <AssignClientModal
-        isOpen={viewAssignToClientModal}
-        onClose={() => {
-          setViewAssignToClientModal(false);
-          setSelectedClient(null);
-        }}
+
+      <AssignAndMapClientModal
+        isOpen={assignaMapModalOpen}
+        onClose={() => setAssignaMapModalOpen(false)}
+        clientData={selectedClient}
+        onAssignAndMap={handleAssignAndMapClient}
         staffList={staffMembers}
-        clientData={selectedClient}
-        onAssign={handleAssignToClient}
-      />
-      <MapClientModal
-        isOpen={isMapClientModalOpen}
-        onClose={() => setIsMapClientModalOpen(false)}
-        clientData={selectedClient}
-        onMap={handleMapingClient}
       />
     </div>
   );

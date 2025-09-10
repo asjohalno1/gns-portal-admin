@@ -165,7 +165,7 @@ const PerformanceMetrics = () => {
       <div className="mb-4 flex justify-between items-center">
         <input
           type="text"
-          placeholder="Search staff..."
+          placeholder="Search staff by name"
           className="px-2 py-1 border border-gray-300 rounded-md "
           value={search}
           onChange={handleSearchChange}

@@ -71,13 +71,11 @@ export const headerConfigs = {
 
   secureDocumentListing: {
     columns: [
-      { key: "title", label: "Document Name" },
+      { key: "title", label: "Document Request Title" },
       { key: "clientName", label: "Client Name" },
-      { key: "DocType", label: "Document Type" },
-      { key: "RemaindersCount", label: "Remainders" },
-      { key: "status", label: "Status" },
+      { key: "linkStatus", label: "Link Status" },
       { key: "createdAt", label: "Created" },
-      { key: "expire", label: "Expires" },
+      { key: "dueDate", label: "Expires" },
       { key: "actions", label: "Action" },
     ],
   },
@@ -112,7 +110,7 @@ export const headerConfigs = {
 
   staffListing: {
     columns: [
-      { key: "first_name", label: "Name" },
+      { key: "first_name", label: "Staff Name" },
       { key: "email", label: "Email" },
       { key: "phoneNumber", label: "Phone" },
       { key: "active", label: "Status" },
@@ -313,6 +311,47 @@ export const getStatusButton = (status) => {
   }
 };
 
+export const Linkstatus = (status) => {
+  switch (status) {
+    case "sent":
+      return (
+        <button
+          type="button"
+          className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Sent
+        </button>
+      );
+    case "Expired":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEE2E2] text-[#B91C1C] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Expired
+        </button>
+      );
+    case "Used":
+      return (
+        <button
+          type="button"
+          className="bg-[#DBEAFE] text-[#2E7ED4] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Used
+        </button>
+      );
+    default:
+      return (
+        <button
+          type="button"
+          className="bg-[#cfd1d0] text-[#696e6a] px-8 py-1.5 rounded-full cursor-pointer"
+        >
+          {status}
+        </button>
+      );
+  }
+};
+
 // Function to render cell content based on column key
 export const renderCellContent = (item, columnKey, onAction, mode, index) => {
   switch (columnKey) {
@@ -355,6 +394,9 @@ export const renderCellContent = (item, columnKey, onAction, mode, index) => {
       return getStatusButton(item[columnKey]);
     case "process":
       return addPostfix(item[columnKey]);
+
+    case "linkStatus":
+      return Linkstatus(item[columnKey]);
     default:
       return item[columnKey] || "N/A";
   }

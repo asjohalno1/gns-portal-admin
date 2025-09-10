@@ -8,7 +8,7 @@ const Loader = () => {
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className="absolute inset-0 border-2 border-blue-500 rounded-full"
+            className="absolute inset-0 border-4 border-blue-600 rounded-full"
             animate={{
               scale: [0, 2, 2],
               opacity: [1, 0.8, 0],
