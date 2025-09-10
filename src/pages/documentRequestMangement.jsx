@@ -1846,8 +1846,8 @@ const DocReqManagement = () => {
 
                         <p className="text-[#2C3E50] font-normal text-[14px] leading-[100%] tracking-[0%] opacity-[0.6]">
                           Created:{" "}
-                          {new Date(template.createdAt).toLocaleDateString()} |
-                          Used: {template.usedCount || 0} times
+                          {new Date(template.createdAt).toLocaleDateString()} 
+                          {/* Used: {template.usedCount || 0} times */}
                         </p>
                       </div>
                     ))

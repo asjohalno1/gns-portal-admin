@@ -130,7 +130,7 @@ export const headerConfigs = {
   },
   documentManagementListing: {
     columns: [
-      { key: "title", label: "Document Name" },
+      { key: "title", label: "Document Request Title" },
       { key: "clientName", label: "Client Name" },
       { key: "status", label: "Status" },
       { key: "created", label: "Created Date" },

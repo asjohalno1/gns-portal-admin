@@ -157,7 +157,7 @@ const DocumentManagement = () => {
                 onChange={handleStatusChange}
                 className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
               >
-                <option value="all">All Statuses</option>
+                <option value="all">All Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Partially fulfilled">Partially fulfilled</option>
                 <option value="Completed">Completed</option>

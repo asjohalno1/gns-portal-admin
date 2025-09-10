@@ -89,7 +89,7 @@ const AssignToClients = () => {
       search,
       status
     );
-  }, [search, status]);
+  }, [search, status, assignaMapModalOpen]);
 
   const handlePageChange = (newPage) => {
     fetchAllClients(
@@ -158,6 +158,7 @@ const AssignToClients = () => {
       if (response.success) {
         addToast("Client assigned and mapped successfully", "success");
         setAssignaMapModalOpen(false);
+
       }
     } catch (error) {
       addToast(
