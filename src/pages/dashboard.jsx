@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Table from "../Component/Table/table";
 import { dashboarData } from "../api/dashboard.api";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +21,9 @@ const Dashboard = () => {
     },
   });
 
-  const [loading, setLoading] = useState(false);
+  const [recentActivityLoading, setRecentActivityLoading] = useState(false);
+  const [urgentTasksLoading, setUrgentTasksLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [viewDocument, setViewDocument] = useState(null);
@@ -29,45 +31,97 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        const response = await dashboarData({
-          page: dashboardData.pagination.page,
-          limit: dashboardData.pagination.limit,
-          search: searchQuery,
-          status: statusFilter,
-        });
-        setDashboardData({
-          recentActivity: response.data.recentActivity || [],
-          summary: response.data.summary || {},
-          urgentTasks: response.data.urgentTasks || {
-            overdue: [],
-            today: [],
-            tomorrow: [],
-          },
-          clients: response.data.clients || [],
-          pagination: {
-            total: response.data.totalClients || 0,
-            totalPages: response.data.totalPages || 0,
-            page: response.data.currentPage || 1,
-            limit: dashboardData.pagination.limit,
-          },
-        });
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
-        console.error("Error fetching dashboard data:", error);
-      }
-    };
-    fetchDashboardData();
+  // Fetch Recent Activity
+  const fetchRecentActivity = async () => {
+    try {
+      setRecentActivityLoading(true);
+      const response = await dashboarData({
+        page: 1,
+        limit: 10,
+        fetchType: "recentActivity",
+      });
+      setDashboardData((prev) => ({
+        ...prev,
+        recentActivity: response.data.recentActivity || [],
+        summary: response.data.summary || prev.summary,
+      }));
+    } catch (error) {
+      console.error("Error fetching recent activity:", error);
+    } finally {
+      setRecentActivityLoading(false);
+    }
+  };
+
+  // Fetch Urgent Tasks
+  const fetchUrgentTasks = async () => {
+    try {
+      setUrgentTasksLoading(true);
+      const response = await dashboarData({
+        page: 1,
+        limit: 10,
+        fetchType: "urgentTasks",
+      });
+      setDashboardData((prev) => ({
+        ...prev,
+        urgentTasks: response.data.urgentTasks || {
+          overdue: [],
+          today: [],
+          tomorrow: [],
+        },
+        summary: response.data.summary || prev.summary,
+      }));
+    } catch (error) {
+      console.error("Error fetching urgent tasks:", error);
+    } finally {
+      setUrgentTasksLoading(false);
+    }
+  };
+
+  // Fetch Table Data
+  const fetchTableData = useCallback(async () => {
+    try {
+      setTableLoading(true);
+      const response = await dashboarData({
+        page: dashboardData.pagination.page,
+        limit: dashboardData.pagination.limit,
+        search: searchQuery,
+        status: statusFilter,
+        fetchType: "tableData",
+      });
+      setDashboardData((prev) => ({
+        ...prev,
+        clients: response.data.clients || [],
+        pagination: {
+          total: response.data.totalClients || 0,
+          totalPages: response.data.totalPages || 0,
+          page: response.data.currentPage || 1,
+          limit: prev.pagination.limit,
+        },
+        summary: response.data.summary || prev.summary,
+      }));
+    } catch (error) {
+      console.error("Error fetching table data:", error);
+    } finally {
+      setTableLoading(false);
+    }
   }, [
     dashboardData.pagination.page,
     dashboardData.pagination.limit,
     searchQuery,
     statusFilter,
   ]);
+
+  // Load initial data
+  useEffect(() => {
+    fetchRecentActivity();
+    fetchUrgentTasks();
+    fetchTableData();
+  }, []);
+
+  // Update table data when search/filter/pagination changes
+  useEffect(() => {
+    fetchTableData();
+  }, [fetchTableData]);
 
   function toggleButton() {
     isOpen((open) => !open);
@@ -131,9 +185,7 @@ const Dashboard = () => {
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="bg-gradient-to-r from-[#1BA3A3] to-[#2E7ED4] rounded-[20px] p-5">
-        <h4 className="text-2xl font-medium text-white mb-[15px]">
-          Welcome, User!
-        </h4>
+        <h4 className="text-2xl font-medium text-white mb-[15px]">Welcome !</h4>
         <p className="text-white text-base font-medium">
           Here's an overview of your Staff status and upcoming deadlines.
         </p>
@@ -300,7 +352,7 @@ const Dashboard = () => {
             Recent Activity
           </h4>
 
-          {loading ? (
+          {recentActivityLoading ? (
             <Loader />
           ) : (
             <>
@@ -352,7 +404,7 @@ const Dashboard = () => {
 
         {/* Urgent Task and Deadlines */}
         <div className="border border-customGray p-5 rounded-[20px]">
-          {loading ? (
+          {urgentTasksLoading ? (
             <Loader />
           ) : (
             <>
@@ -505,7 +557,7 @@ const Dashboard = () => {
             </a>
           </div>
         </div>
-        {loading ? (
+        {tableLoading ? (
           <div className="flex justify-center items-center">
             <Loader />
           </div>

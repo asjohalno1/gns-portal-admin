@@ -20,6 +20,7 @@ import AssignClientModal from "../Component/StaffManagement/ActionsModals/Assign
 import { toast } from "react-toastify";
 import MapClientModal from "../Component/StaffManagement/ActionsModals/MapClientModal";
 import { useToast } from "../CommonPages/customtoast/CustomToaster";
+import Loader from "../Component/Loader/Loader";
 
 const ClientManagement = () => {
   const [activeTab, setActiveTab] = useState("tab1");
@@ -513,9 +514,7 @@ const ClientManagement = () => {
               </div>
 
               {loading ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primaryBlue"></div>
-                </div>
+                <Loader />
               ) : (
                 <Table
                   data={clientsList}
@@ -626,9 +625,7 @@ const ClientManagement = () => {
               </div>
 
               {loading ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primaryBlue"></div>
-                </div>
+                <Loader />
               ) : (
                 <Table
                   data={unAssignedClientsList}
