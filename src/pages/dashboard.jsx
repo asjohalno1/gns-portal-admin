@@ -196,7 +196,7 @@ const Dashboard = () => {
           <div className="flex justify-between items-center w-full">
             <div className="">
               <span className="text-body font-medium text-[14px]">
-                Active Document Request
+                Total Document Request
               </span>
               <h4 className="text-body font-semibold text-[28px]">
                 {dashboardData.summary.completedDocumentsRequest || 0}
