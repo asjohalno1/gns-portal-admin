@@ -356,7 +356,7 @@ const Dashboard = () => {
             <Loader />
           ) : (
             <>
-              <div className="divide-y divide-gray-100 h-[250px] overflow-y-scroll">
+              <div className="divide-y divide-gray-100 h-[370px] overflow-y-scroll">
                 {dashboardData?.recentActivity &&
                 dashboardData.recentActivity.length > 0 ? (
                   dashboardData.recentActivity.map((activity, index) => (
@@ -403,19 +403,20 @@ const Dashboard = () => {
         </div>
 
         {/* Urgent Task and Deadlines */}
-        <div className="border border-customGray p-5 rounded-[20px]">
-          {urgentTasksLoading ? (
-            <Loader />
-          ) : (
-            <>
+        <div className="border border-customGray p-5    rounded-[20px]">
+        
               <h4 className="text-body font-semibold text-lg mb-5">
                 Urgent Task and Deadlines
               </h4>
+              {urgentTasksLoading ? (
+            <Loader />
+          ) : (
+            <>
               {["overdue", "today", "tomorrow"].some(
                 (category) =>
                   (dashboardData?.urgentTasks?.[category] || []).length > 0
               ) ? (
-                <ul className="overflow-y-auto h-[225px] pr-2">
+                <ul className="overflow-y-auto h-[370px] pr-2">
                   {["overdue", "today", "tomorrow"].map((category) => {
                     const tasks = dashboardData?.urgentTasks?.[category] || [];
                     const labelColor = {
