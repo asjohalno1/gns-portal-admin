@@ -545,10 +545,10 @@ const Dashboard = () => {
               className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2"
             >
               <option value="all">All status</option>
-              <option value="pending">Pending</option>
+              <option value="pending">Inprogres</option>
               <option value="overdue">Overdue</option>
               <option value="rejected">Rejected</option>
-              <option value="completed">Completed</option>
+              <option value="Completed">Completed</option>
             </select>
             <a
               onClick={handleClearSearch}
