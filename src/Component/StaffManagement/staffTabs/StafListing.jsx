@@ -105,9 +105,8 @@ const StafListing = () => {
       if (!selectedStaff) return;
 
       const id = selectedStaff._id;
-      const response = await updateStaffApi(id, formData);
-
-      if (response.data.success) {
+      const response = await updateStaffApi(id, formData);   
+      if (response.success) {
         addToast("Staff updated successfully", "success");
         fetchAllStaffList(
           staffData.pagination.page,
