@@ -46,7 +46,7 @@ const Dropdown = ({ onAction, mode, itemId }) => {
       case "remainderHistory":
         return [
           {
-            label: "Instant Remainder",
+            label: "Instant Reminder",
             value: "instantRemainder",
           },
         ];
