@@ -342,12 +342,12 @@ const SendReminder = () => {
         getAllRemainder();
         setLoading(false);
         setShowSuccessRemainderModal(true);
-      } else {
+      } else {   
         addToast(res?.message || "Failed to create reminder.", "error");
         setLoading(false);
       }
     } catch (error) {
-      addToast(res?.message || "Failed to create reminder.", "error");
+      addToast(error?.message || "Failed to create reminder.", "error");
       setLoading(false);
     } finally {
       setLoading(false);
