@@ -7,6 +7,7 @@ import {
   approvedRequestDocument,
 } from "../../api/documentmanagement.api";
 import { useToast } from "../../CommonPages/customtoast/CustomToaster";
+import { approveDocumentStatus } from "../../api/documentManagemnet.api";
 
 const DocumentDeatailsModal = ({
   isOpen,
@@ -15,6 +16,7 @@ const DocumentDeatailsModal = ({
   data,
   children,
   handleDocumentUpdateChild,
+  refetchTrackingList,
 }) => {
   if (!isOpen) return null;
   const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
@@ -104,6 +106,36 @@ const DocumentDeatailsModal = ({
       }
     } catch (error) {
       console.error("Error approving request:", error);
+    }
+  };
+  const handleMarkComplete = async (document, respo) => {
+    console.log("documents", document?.subCategory._id,);
+    console.log("data", respo.findByrequest);
+    let status = "status"
+    const data = {
+      status: "approved",
+      isUploaded: true
+    };
+
+    try {
+      const result = await approveDocumentStatus(
+        respo.findByrequest,
+        document?.subCategory._id,
+        data
+      );
+      const updatedDoc = result?.updatedDocument || {
+        ...document,
+        doc: { ...document.doc, status: status },
+      };
+      if (updatedDoc);
+      toast.success(`Document approved successfully`);
+      if (refetchTrackingList) {
+        refetchTrackingList();
+      }
+      onClose();
+    } catch (error) {
+      toast.error(error?.message);
+      console.error(`Error approved document:`, error);
     }
   };
 
@@ -201,42 +233,58 @@ const DocumentDeatailsModal = ({
             .map((doc, index) => {
               const documentStatus = getDocumentStatus(doc);
               const isClickable = doc.isUploaded;
+              const isMissing =
+                !doc.isUploaded || documentStatus?.toLowerCase() === "missing";
 
               return (
-                <button
+                <div
                   key={index}
-                  onClick={() => handleSubCategoryClick(doc, data)}
-                  className={`border rounded-xl px-[19px] py-[15px] bg-white border-[#DDDDDDDD] text-left transition-all duration-200 ${
-                    isClickable
+                  className="relative group border rounded-xl px-[19px] py-[15px] bg-white border-[#DDDDDDDD] transition-all duration-200"
+                >
+                  <button
+                    onClick={() => handleSubCategoryClick(doc, data)}
+                    className={`w-full text-left ${isClickable
                       ? "hover:border-[#2E7ED4] hover:shadow-md cursor-pointer"
                       : "opacity-90 cursor-not-allowed"
-                  }`}
-                  disabled={!isClickable}
-                >
-                  <p className="font-normal not-italic text-[14px] leading-[100%] tracking-[0px] text-[#2C3E50] mb-[6px]  overflow-hidden">
-                    {doc.subCategory.name}
-                  </p>
-                  <p
-                    className="font-medium not-italic text-[14px] leading-[100%] tracking-[0px]"
-                    style={{
-                      color: getStatusStyle(documentStatus).text,
-                    }}
+                      }`}
+                    disabled={!isClickable}
                   >
-                    {getStatusStyle(documentStatus).label}
-                  </p>
-                </button>
+                    <p className="font-normal not-italic text-[14px] leading-[100%] tracking-[0px] text-[#2C3E50] mb-[6px] overflow-hidden">
+                      {doc.subCategory.name}
+                    </p>
+                    <p
+                      className="font-medium not-italic text-[14px] leading-[100%] tracking-[0px]"
+                      style={{
+                        color: getStatusStyle(documentStatus).text,
+                      }}
+                    >
+                      {getStatusStyle(documentStatus).label}
+                    </p>
+                  </button>
+
+                  {/* ✅ Show Mark Complete only when missing */}
+                  {isMissing && (
+                    <button
+                      onClick={() => handleMarkComplete(doc, data)}
+                      className="absolute bottom-2 right-2 hidden group-hover:block bg-green-600 text-white text-xs px-3 py-1 rounded-md shadow-md hover:bg-green-700 transition-all"
+                    >
+                      Mark Complete
+                    </button>
+                  )}
+                </div>
               );
             })}
 
+          {/* Empty placeholder if no docs */}
           {Array.from({
             length: Math.max(
               0,
               1 -
-                requiredDocuments.filter(
-                  (doc) =>
-                    doc.subCategory?.name !== "Others" ||
-                    (doc.subCategory?.name === "Others" && doc.isUploaded)
-                ).length
+              requiredDocuments.filter(
+                (doc) =>
+                  doc.subCategory?.name !== "Others" ||
+                  (doc.subCategory?.name === "Others" && doc.isUploaded)
+              ).length
             ),
           }).map((_, index) => (
             <div
@@ -252,6 +300,7 @@ const DocumentDeatailsModal = ({
             </div>
           ))}
         </div>
+
 
         {/* Footer buttons if needed */}
         <div className="mt-6 flex justify-between flex-wrap">
@@ -278,16 +327,15 @@ const DocumentDeatailsModal = ({
                     (doc.isUploaded && doc.status?.toLowerCase() === "approved")
                 )
               }
-              className={`font-normal text-[14px] leading-[100%] tracking-normal text-[#F1F1F1] py-[8px] px-[25px] border rounded-[6px] transition-colors duration-200 ${
-                requiredDocuments.length &&
+              className={`font-normal text-[14px] leading-[100%] tracking-normal text-[#F1F1F1] py-[8px] px-[25px] border rounded-[6px] transition-colors duration-200 ${requiredDocuments.length &&
                 requiredDocuments.every(
                   (doc) =>
                     doc.subCategory?.name === "Others" ||
                     (doc.isUploaded && doc.status?.toLowerCase() === "approved")
                 )
-                  ? "bg-green-700 hover:bg-green-600 cursor-pointer"
-                  : "bg-gray-400 cursor-not-allowed"
-              }`}
+                ? "bg-green-700 hover:bg-green-600 cursor-pointer"
+                : "bg-gray-400 cursor-not-allowed"
+                }`}
             >
               Approve Request
             </button>
