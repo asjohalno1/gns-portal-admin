@@ -94,6 +94,14 @@ export const headerConfigs = {
         key: "docTitle",
       },
       {
+        label: "Frequency",
+        key: "frequency",
+      },
+      {
+        label: "Days",
+        key: "days",
+      },
+      {
         label: "Date & Time",
         key: "scheduleTime",
       },
@@ -309,6 +317,7 @@ export const getStatusButton = (status) => {
         </button>
       );
   }
+  
 };
 
 export const Linkstatus = (status) => {
@@ -352,10 +361,18 @@ export const Linkstatus = (status) => {
   }
 };
 
+const commaSeprator = (item)=>{
+  return item.join(", ");
+}
+
 // Function to render cell content based on column key
 export const renderCellContent = (item, columnKey, onAction, mode, index) => {
   switch (columnKey) {
     case "statusUpdate":
+    case "days":
+      return commaSeprator(item[columnKey]);
+    case "notifyMethod":
+      return commaSeprator(item[columnKey]);
     case "taskDeadline":
       return getStatusButton(item[columnKey]);
     case "lastActivity":
