@@ -404,6 +404,7 @@ const EmailTemplates = () => {
                   <option value="Document Request">Document Request</option>
                   <option value="Reminder">Reminder</option>
                   <option value="Notification">Notification</option>
+                  <option value="Notification Client">Notification Client</option>
                 </select>
               </div>
               <div>
