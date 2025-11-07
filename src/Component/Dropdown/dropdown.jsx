@@ -11,6 +11,7 @@ const Dropdown = ({ onAction, mode, itemId }) => {
         return [
           { label: "View", value: "view" },
           { label: "Update", value: "update" },
+          { label: "Set PWA password", value: "setPwaPassword" },
           { label: "Delete", value: "delete" },
         ];
 

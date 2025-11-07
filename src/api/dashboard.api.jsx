@@ -111,6 +111,16 @@ export const getStaffClient = async (id) => {
   }
 };
 
+export const  getClientDetails = async (id) => {
+  try {
+    const response = await axiosInstance.get(`/client/details/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+};
+
 export const updateClient = async (data, id) => {
   try {
     const response = await axiosInstance.put(`/client/update/${id}`, data);
@@ -123,6 +133,28 @@ export const updateClient = async (data, id) => {
 export const deleteClient = async (id) => {
   try {
     const response = await axiosInstance.delete(`/client/delete/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const getClientConfig = async () => {
+  try {
+    const response = await axiosInstance.get(`/client/config`);
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const updateAllClientsPassword = async (password) => {
+  try {
+    const response = await axiosInstance.post(`/client/setclientpasswords`, {
+      password,
+    });
     return response.data;
   } catch (error) {
     console.error(error.response?.data || error.message);

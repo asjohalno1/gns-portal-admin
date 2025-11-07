@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import Table from "../Component/Table/table";
 import ImportBulkModal from "./importbulkmodal";
 import AddClientmodal from "./addClientmodal";
@@ -11,6 +11,7 @@ import {
 import ClientDetailsModal from "../Component/ClientModals/ClientDetailsModal";
 import EditClientmodal from "../Component/ClientModals/editClientModal";
 import DeleteConfirmationModal from "../Component/DeleteComfermationModal/DeleteConfirmationModal";
+import PwaPasswordModal from "../Component/ClientModals/PwaPasswordModal";
 import {
   assignAndMapClientApi,
   getAllUnassignedClientsApi,
@@ -59,6 +60,10 @@ const ClientManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [unAssignedClientsList, setUnAssignedClientsList] = useState([]);
+  const [pwaPasswordModal, setPwaPasswordModal] = useState(false);
+  const [isStandardPasswordMode, setIsStandardPasswordMode] = useState(false);
+  const [actionsDropdownOpen, setActionsDropdownOpen] = useState(false);
+  const actionsDropdownRef = useRef(null);
 
   const fetchClients = async () => {
     try {
@@ -155,6 +160,26 @@ const ClientManagement = () => {
       if (tab2LimitDebounce) clearTimeout(tab2LimitDebounce);
     };
   }, [tab1LimitDebounce, tab2LimitDebounce]);
+
+  // Handle click outside for actions dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        actionsDropdownRef.current &&
+        !actionsDropdownRef.current.contains(event.target)
+      ) {
+        setActionsDropdownOpen(false);
+      }
+    };
+
+    if (actionsDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [actionsDropdownOpen]);
 
   // Tab 1 handlers
   const handleTab1FilterChange = (e) => {
@@ -310,6 +335,11 @@ const ClientManagement = () => {
         setSelectedClient(client);
         setClientEditModal(true);
         break;
+      case "setPwaPassword":
+        setSelectedClient(client);
+        setIsStandardPasswordMode(false);
+        setPwaPasswordModal(true);
+        break;
       case "delete":
         setShowDeleteModal(true);
         setSelectedClient(client);
@@ -359,6 +389,14 @@ const ClientManagement = () => {
     }
   };
 
+  const handleActionsDropdown = (action) => {
+    if (action === "setStandardPassword") {
+      setIsStandardPasswordMode(true);
+      setPwaPasswordModal(true);
+    }
+    setActionsDropdownOpen(false);
+  };
+
   return (
     <div className="p-7.5 pt-[86px] w-full">
       <div className="flex border-b border-gray-300 space-x-4 mb-[30px]">
@@ -390,7 +428,7 @@ const ClientManagement = () => {
               <h4 className="color-black text-lg font-semibold">
                 Client Records
               </h4>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <button
                   onClick={() => setIsAddClientOpen(true)}
                   type="button"
@@ -418,6 +456,28 @@ const ClientManagement = () => {
                   onClose={() => setIsImportBulkOpen(false)}
                   title="Bulk Import"
                 />
+                <div className="relative inline-flex items-center" ref={actionsDropdownRef}>
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center rounded-full border border-gray-300 w-[38px] h-[38px] text-sm font-medium text-gray-900 bg-white hover:bg-gray-50 shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => setActionsDropdownOpen(!actionsDropdownOpen)}
+                  >
+                    <i className="fa-solid fa-ellipsis-vertical"></i>
+                  </button>
+
+                  {actionsDropdownOpen && (
+                    <div className="absolute right-0 top-full z-10 mt-2 w-56 origin-top-right bg-white rounded-md shadow-lg">
+                      <div className="py-1">
+                        <button
+                          className="block w-full px-4 py-2 text-left text-sm text-gray-900 hover:bg-gray-100 hover:text-gray-900"
+                          onClick={() => handleActionsDropdown("setStandardPassword")}
+                        >
+                          Set Standard Password
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -522,6 +582,16 @@ const ClientManagement = () => {
               onClose={() => setShowDeleteModal(false)}
               clientData={selectedClient}
               onConfirm={handleDeleteSuccess}
+            />
+            <PwaPasswordModal
+              isOpen={pwaPasswordModal}
+              onClose={() => {
+                setPwaPasswordModal(false);
+                setIsStandardPasswordMode(false);
+                setSelectedClient(null);
+              }}
+              clientData={isStandardPasswordMode ? null : selectedClient}
+              isStandardPassword={isStandardPasswordMode}
             />
           </div>
         )}
