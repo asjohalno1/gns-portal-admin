@@ -21,6 +21,7 @@ import AuditLogs from "../pages/AuditLog";
 import AdminSettings from "../pages/AdminSettings";
 import StaffManagement from "../pages/StaffManagement";
 import DocumentManagemnet from "../pages/documentManagemnet";
+import AnalyticsDashboard from "../pages/AnalyticsDashboard";
 
 const AppRoutes = () => {
   const { authToken } = useAuth(); // ✅ Get token from context
@@ -54,6 +55,7 @@ const AppRoutes = () => {
               path="document-management"
               element={<DocumentManagemnet />}
             />
+            <Route path="analytics" element={<AnalyticsDashboard />} />
           </Route>
         </Route>
 
