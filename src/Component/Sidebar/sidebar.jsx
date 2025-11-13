@@ -4,6 +4,7 @@ import Logo from "../../assets/img/gnslogo.png";
 import { useAuth } from "../../Context/AuthContext";
 import {
   AddDocumentIcon,
+  AnalyticsIcon,
   AuditLogsIcon,
   DocumentManagementIcon,
   EmailTemplateIcon,
@@ -156,21 +157,7 @@ const SideBarTab = ({ isOpen }) => {
                 to="analytics"
                 className="flex items-center px-4 py-3 hover:bg-[#2E7ED41A] hover:text-[#2E7ED4] rounded-[50px] mb-[10px] font-medium text-[#5B5B5B] text-sm transition-colors"
               >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M2 14H14M2 14V10M2 14H1M14 14V6M14 14H15M2 10L6 6L9 9L14 4M2 10H1M14 4V1M14 4H15M14 1H11M14 1V4"
-                    stroke="#1E293B"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <AnalyticsIcon />
                 <span className="ml-4">Analytics</span>
               </Link>
             </div>
