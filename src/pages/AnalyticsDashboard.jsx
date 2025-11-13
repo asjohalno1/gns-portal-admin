@@ -139,6 +139,17 @@ const AnalyticsDashboard = () => {
     setPagination((prev) => ({ ...prev, currentPage: 1 }));
   };
 
+  const hasActiveFilters = () => {
+    return !!(
+      filters.eventType ||
+      filters.category ||
+      filters.status ||
+      filters.userType ||
+      filters.startDate ||
+      filters.endDate
+    );
+  };
+
   const handleClearFilters = () => {
     setFilters({
       eventType: "",
@@ -210,6 +221,14 @@ const AnalyticsDashboard = () => {
     }
     
     return "Unknown";
+  };
+
+  const formatEventField = (value) => {
+    if (!value) return "-";
+    return value
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
   };
 
   return (
@@ -346,7 +365,12 @@ const AnalyticsDashboard = () => {
           <div className="mt-4 flex justify-end">
             <button
               onClick={handleClearFilters}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-[10px] hover:bg-gray-300 transition-colors font-medium text-sm"
+              disabled={!hasActiveFilters()}
+              className={`px-4 py-2 rounded-[10px] transition-colors font-medium text-sm ${
+                hasActiveFilters()
+                  ? "bg-red-500 text-white hover:bg-red-600"
+                  : "bg-gray-200 text-gray-700 opacity-50 cursor-not-allowed hover:bg-gray-200"
+              }`}
             >
               Clear Filters
             </button>
@@ -386,9 +410,9 @@ const AnalyticsDashboard = () => {
                           <td className="px-6 py-4 text-base">
                             {getUserName(event)}
                           </td>
-                          <td className="px-6 py-4 text-base">{event.eventType}</td>
+                          <td className="px-6 py-4 text-base">{formatEventField(event.eventType)}</td>
                           <td className="px-6 py-4 text-base">{event.category}</td>
-                          <td className="px-6 py-4 text-base">{event.action}</td>
+                          <td className="px-6 py-4 text-base">{formatEventField(event.action)}</td>
                           <td className="px-6 py-4 text-base">
                             <span
                               className={`px-2 py-1 rounded text-xs ${
