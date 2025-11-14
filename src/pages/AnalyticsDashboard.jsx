@@ -30,12 +30,15 @@ const AnalyticsDashboard = () => {
 
   const [filters, setFilters] = useState({
     eventType: "",
-    category: "",
+    category: [],
     status: "",
     userType: "",
     startDate: "",
     endDate: "",
   });
+
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState([]);
 
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -55,6 +58,19 @@ const AnalyticsDashboard = () => {
       const response = await getAnalyticsDashboard(params);
       if (response.success && response.data) {
         setDashboardData(response.data);
+        
+        // Extract categories from topCategories
+        if (response.data.topCategories && response.data.topCategories.length > 0) {
+          const categories = response.data.topCategories
+            .map((item) => item.category)
+            .filter((cat) => cat);
+          if (categories.length > 0) {
+            setAvailableCategories((prev) => {
+              const combined = [...new Set([...prev, ...categories])].sort();
+              return combined;
+            });
+          }
+        }
       }
     } catch (error) {
       console.error("Error fetching dashboard:", error);
@@ -74,7 +90,10 @@ const AnalyticsDashboard = () => {
       };
 
       if (filters.eventType) params.eventType = filters.eventType;
-      if (filters.category) params.category = filters.category;
+      if (filters.category && filters.category.length > 0) {
+        // Send categories as comma-separated string for now
+        params.category = filters.category.join(",");
+      }
       if (filters.status) params.status = filters.status;
       if (filters.userType) params.userType = filters.userType;
       if (filters.startDate) params.startDate = filters.startDate;
@@ -89,6 +108,18 @@ const AnalyticsDashboard = () => {
             totalPages: response.data.pagination.pages || 1,
             total: response.data.pagination.total || 0,
           }));
+        }
+        
+        // Extract unique categories from events
+        const uniqueCategories = [
+          ...new Set(
+            (response.data.events || [])
+              .map((event) => event.category)
+              .filter((cat) => cat)
+          ),
+        ].sort();
+        if (uniqueCategories.length > 0) {
+          setAvailableCategories(uniqueCategories);
         }
       }
     } catch (error) {
@@ -130,6 +161,23 @@ const AnalyticsDashboard = () => {
     pagination.limit,
   ]);
 
+  // Close category dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        categoryDropdownOpen &&
+        !event.target.closest(".category-dropdown-container")
+      ) {
+        setCategoryDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [categoryDropdownOpen]);
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({
@@ -142,7 +190,7 @@ const AnalyticsDashboard = () => {
   const hasActiveFilters = () => {
     return !!(
       filters.eventType ||
-      filters.category ||
+      (filters.category && filters.category.length > 0) ||
       filters.status ||
       filters.userType ||
       filters.startDate ||
@@ -153,11 +201,25 @@ const AnalyticsDashboard = () => {
   const handleClearFilters = () => {
     setFilters({
       eventType: "",
-      category: "",
+      category: [],
       status: "",
       userType: "",
       startDate: "",
       endDate: "",
+    });
+    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+  };
+
+  const handleCategoryToggle = (category) => {
+    setFilters((prev) => {
+      const currentCategories = prev.category || [];
+      const newCategories = currentCategories.includes(category)
+        ? currentCategories.filter((cat) => cat !== category)
+        : [...currentCategories, category];
+      return {
+        ...prev,
+        category: newCategories,
+      };
     });
     setPagination((prev) => ({ ...prev, currentPage: 1 }));
   };
@@ -229,6 +291,11 @@ const AnalyticsDashboard = () => {
       .split("_")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ");
+  };
+
+  const capitalizeFirstLetter = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
   return (
@@ -303,16 +370,60 @@ const AnalyticsDashboard = () => {
                 <option value="custom">Custom</option>
               </select>
             </div>
-            <div>
+            <div className="relative category-dropdown-container">
               <label className="block text-sm text-gray-600 mb-1">Category</label>
-              <input
-                type="text"
-                name="category"
-                value={filters.category}
-                onChange={handleFilterChange}
-                placeholder="e.g., ESRP, ALE"
-                className="w-full border border-[#eaeaea] rounded-[10px] py-2 px-3"
-              />
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                  className="w-full border border-[#eaeaea] rounded-[10px] py-2 px-3 text-left bg-white flex items-center justify-between"
+                >
+                  <span className={filters.category.length > 0 ? "text-gray-900" : "text-gray-500"}>
+                    {filters.category.length > 0
+                      ? `${filters.category.length} selected`
+                      : "Select categories"}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      categoryDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                {categoryDropdownOpen && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-[#eaeaea] rounded-[10px] shadow-lg max-h-60 overflow-y-auto">
+                    {availableCategories.length > 0 ? (
+                      availableCategories.map((category) => (
+                        <label
+                          key={category}
+                          className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={filters.category.includes(category)}
+                            onChange={() => handleCategoryToggle(category)}
+                            className="mr-2 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">{category}</span>
+                        </label>
+                      ))
+                    ) : (
+                      <div className="px-4 py-2 text-sm text-gray-500">
+                        No categories available
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Status</label>
@@ -423,7 +534,7 @@ const AnalyticsDashboard = () => {
                                   : "bg-gray-100 text-gray-800"
                               }`}
                             >
-                              {event.status || "N/A"}
+                              {event.status ? capitalizeFirstLetter(event.status) : "N/A"}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-base">
