@@ -44,7 +44,7 @@ const AnalyticsDashboard = () => {
     currentPage: 1,
     totalPages: 1,
     total: 0,
-    limit: 20,
+    limit: 10,
   });
 
   // Fetch dashboard overview
@@ -526,7 +526,7 @@ const AnalyticsDashboard = () => {
                           <td className="px-6 py-4 text-base">{formatEventField(event.action)}</td>
                           <td className="px-6 py-4 text-base">
                             <span
-                              className={`px-2 py-1 rounded text-xs ${
+                              className={`px-2 py-1 rounded-full text-xs ${
                                 event.status === "success"
                                   ? "bg-green-100 text-green-800"
                                   : event.status === "error"
