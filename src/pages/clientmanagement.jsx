@@ -7,11 +7,14 @@ import {
   getAllClients,
   getAllStaff,
   getStaffClient,
+  getInviteClients,
+  bulkInviteClients,
 } from "../api/dashboard.api";
 import ClientDetailsModal from "../Component/ClientModals/ClientDetailsModal";
 import EditClientmodal from "../Component/ClientModals/editClientModal";
 import DeleteConfirmationModal from "../Component/DeleteComfermationModal/DeleteConfirmationModal";
 import PwaPasswordModal from "../Component/ClientModals/PwaPasswordModal";
+import BulkInviteModal from "../Component/ClientModals/BulkInviteModal";
 import {
   assignAndMapClientApi,
   getAllUnassignedClientsApi,
@@ -55,7 +58,20 @@ const ClientManagement = () => {
     limit: 10,
   });
 
+  const [tab3Filters, setTab3Filters] = useState({
+    search: "",
+    loginStatus: "",
+  });
+  const [tab3Pagination, setTab3Pagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalClients: 0,
+    limit: 10,
+  });
+  const [tab3LimitDebounce, setTab3LimitDebounce] = useState(null);
+
   const [clientsList, setClientsList] = useState([]);
+  const [inviteClientsList, setInviteClientsList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
@@ -63,6 +79,7 @@ const ClientManagement = () => {
   const [pwaPasswordModal, setPwaPasswordModal] = useState(false);
   const [isStandardPasswordMode, setIsStandardPasswordMode] = useState(false);
   const [actionsDropdownOpen, setActionsDropdownOpen] = useState(false);
+  const [bulkInviteModalOpen, setBulkInviteModalOpen] = useState(false);
   const actionsDropdownRef = useRef(null);
 
   const fetchClients = async () => {
@@ -128,10 +145,43 @@ const ClientManagement = () => {
     }
   };
 
+  const fetchInviteClients = async () => {
+    try {
+      setLoading(true);
+      const query = {
+        page: tab3Pagination.currentPage,
+        limit: tab3Pagination.limit,
+        search: tab3Filters.search,
+        loginStatus: tab3Filters.loginStatus,
+      };
+
+      const response = await getInviteClients(query);
+      if (response?.success) {
+        setInviteClientsList(response.data.clients || []);
+        setTab3Pagination((prev) => ({
+          ...prev,
+          totalPages: response.data.pagination.totalPages,
+          totalClients: response.data.pagination.totalClients,
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching invite clients:", error);
+      addToast(
+        error.response?.data?.message || "Failed to fetch invite clients",
+        "error"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === "tab2") {
       fetchUnassignedClients();
       fetchAllStaff();
+    }
+    if (activeTab === "tab3") {
+      fetchInviteClients();
     }
   }, [activeTab]);
 
@@ -155,11 +205,18 @@ const ClientManagement = () => {
   }, [tab2Filters, tab2Pagination.currentPage, tab2Pagination.limit]);
 
   useEffect(() => {
+    if (activeTab === "tab3") {
+      fetchInviteClients();
+    }
+  }, [tab3Filters, tab3Pagination.currentPage, tab3Pagination.limit]);
+
+  useEffect(() => {
     return () => {
       if (tab1LimitDebounce) clearTimeout(tab1LimitDebounce);
       if (tab2LimitDebounce) clearTimeout(tab2LimitDebounce);
+      if (tab3LimitDebounce) clearTimeout(tab3LimitDebounce);
     };
-  }, [tab1LimitDebounce, tab2LimitDebounce]);
+  }, [tab1LimitDebounce, tab2LimitDebounce, tab3LimitDebounce]);
 
   // Handle click outside for actions dropdown
   useEffect(() => {
@@ -316,6 +373,95 @@ const ClientManagement = () => {
     [tab2LimitDebounce]
   );
 
+  // Tab 3 handlers
+  const handleTab3FilterChange = (e) => {
+    const { name, value } = e.target;
+    setTab3Filters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setTab3Pagination((prev) => ({ ...prev, currentPage: 1 }));
+  };
+
+  const handleTab3Search = (e) => {
+    handleTab3FilterChange(e);
+  };
+
+  const handleTab3LoginStatusChange = (e) => {
+    handleTab3FilterChange(e);
+  };
+
+  const handleTab3ClearFilters = () => {
+    setTab3Filters({
+      search: "",
+      loginStatus: "",
+    });
+    setTab3Pagination((prev) => ({ ...prev, currentPage: 1, limit: 10 }));
+  };
+
+  const handleTab3NextPage = () => {
+    if (tab3Pagination.currentPage < tab3Pagination.totalPages) {
+      setTab3Pagination((prev) => ({
+        ...prev,
+        currentPage: prev.currentPage + 1,
+      }));
+    }
+  };
+
+  const handleTab3PrevPage = () => {
+    if (tab3Pagination.currentPage > 1) {
+      setTab3Pagination((prev) => ({
+        ...prev,
+        currentPage: prev.currentPage - 1,
+      }));
+    }
+  };
+
+  const handleTab3PageChange = (newPage) => {
+    setTab3Pagination((prev) => ({ ...prev, currentPage: newPage }));
+  };
+
+  const handleTab3LimitChange = useCallback(
+    (newLimit) => {
+      if (tab3LimitDebounce) {
+        clearTimeout(tab3LimitDebounce);
+      }
+      const timeoutId = setTimeout(() => {
+        setTab3Pagination((prev) => ({
+          ...prev,
+          limit: newLimit,
+          currentPage: 1,
+        }));
+      }, 500);
+
+      setTab3LimitDebounce(timeoutId);
+    },
+    [tab3LimitDebounce]
+  );
+
+  const handleInviteAction = async (type, client) => {
+    switch (type) {
+      case "invite":
+        try {
+          const response = await bulkInviteClients({
+            clientIds: [client._id],
+          });
+          if (response.success) {
+            addToast("Invitation sent successfully", "success");
+            fetchInviteClients();
+          }
+        } catch (error) {
+          addToast(
+            error.response?.data?.message || "Failed to send invitation",
+            "error"
+          );
+        }
+        break;
+      default:
+        console.warn("Unknown action:", type);
+    }
+  };
+
   const handleModalAction = async (type, client) => {
     if (client?._id) {
       try {
@@ -419,6 +565,16 @@ const ClientManagement = () => {
           onClick={() => setActiveTab("tab2")}
         >
           Client Mapping
+        </button>
+        <button
+          className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${
+            activeTab === "tab3"
+              ? "bg-bgBlue text-primaryBlue font-semibold border-b-2 border-primaryBlue"
+              : "text-bodyColor hover:bg-tabsBg border-b-2 font-regular border-transparent"
+          }`}
+          onClick={() => setActiveTab("tab3")}
+        >
+          Invite Client
         </button>
       </div>
       <div className=" border-t-0 border-gray-300 rounded-b-md">
@@ -688,6 +844,108 @@ const ClientManagement = () => {
             </div>
           </div>
         )}
+        {activeTab === "tab3" && (
+          <div className="">
+            <div className="flex items-center justify-between mb-2.5">
+              <h4 className="color-black text-lg font-semibold">
+                Invite Clients
+              </h4>
+              <button
+                onClick={() => setBulkInviteModalOpen(true)}
+                className="bg-[#2E7ED4] text-white px-4 py-2 rounded-[8px] text-sm font-medium hover:bg-[#1e6bb8] transition-colors whitespace-nowrap"
+              >
+                Bulk Invite
+              </button>
+            </div>
+
+            <div className=" rounded-[20px] p-1">
+              <div className="mb-5 flex flex-col md:flex-row justify-between md:items-center gap-3">
+                <div className="relative w-full md:w-[60%]">
+                  <input
+                    type="text"
+                    name="search"
+                    value={tab3Filters.search}
+                    onChange={handleTab3Search}
+                    placeholder="Search by name or email"
+                    className="w-full md:w-[60%] py-2.5 px-10 border rounded-[12px] border-[#eaeaea]"
+                  />
+                  <svg
+                    className="absolute top-4 left-4"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M13 13L9 9M1 5.66667C1 6.2795 1.12071 6.88634 1.35523 7.45252C1.58975 8.01871 1.93349 8.53316 2.36683 8.9665C2.80018 9.39984 3.31462 9.74358 3.88081 9.97811C4.447 10.2126 5.05383 10.3333 5.66667 10.3333C6.2795 10.3333 6.88634 10.2126 7.45252 9.97811C8.01871 9.74358 8.53316 9.39984 8.9665 8.9665C9.39984 8.53316 9.74358 8.01871 9.97811 7.45252C10.2126 6.88634 10.3333 6.2795 10.3333 5.66667C10.3333 5.05383 10.2126 4.447 9.97811 3.88081C9.74358 3.31462 9.39984 2.80018 8.9665 2.36683C8.53316 1.93349 8.01871 1.58975 7.45252 1.35523C6.88634 1.12071 6.2795 1 5.66667 1C5.05383 1 4.447 1.12071 3.88081 1.35523C3.31462 1.58975 2.80018 1.93349 2.36683 2.36683C1.93349 2.80018 1.58975 3.31462 1.35523 3.88081C1.12071 4.447 1 5.05383 1 5.66667Z"
+                      stroke="#8F95A2"
+                      strokeWidth="1.25"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <div className="text-right md:text-start mt-3 md:mt-0 flex items-center gap-3">
+                  <div className="relative">
+                    <select
+                      name="loginStatus"
+                      value={tab3Filters.loginStatus}
+                      onChange={handleTab3LoginStatusChange}
+                      className="border border-[#eaeaea] rounded-[10px] w-[167px] py-1.5 px-2 appearance-none"
+                    >
+                      <option value="">All Status</option>
+                      <option value="NOT_INVITED">Not Invited</option>
+                      <option value="INVITED">Invited</option>
+                      <option value="LOGGED_IN">Logged In</option>
+                      <option value="BOUNCED">Bounced</option>
+                    </select>
+                    <svg
+                      className="absolute right-[14px] top-[14px]"
+                      width="12"
+                      height="11"
+                      viewBox="0 0 12 11"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        opacity="0.2"
+                        d="M7.64399 9.62711C6.84862 10.7751 5.15138 10.7751 4.35601 9.62711L0.380525 3.88899C-0.538433 2.56259 0.410876 0.750001 2.02452 0.750001L9.97548 0.750001C11.5891 0.750002 12.5384 2.56259 11.6195 3.88899L7.64399 9.62711Z"
+                        fill="#2C3E50"
+                      />
+                    </svg>
+                  </div>
+                  <button
+                    onClick={handleTab3ClearFilters}
+                    className="ml-5 color-black font-medium text-sm underline"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+
+              {loading ? (
+                <Loader />
+              ) : (
+                <Table
+                  data={inviteClientsList}
+                  pagination={{
+                    page: tab3Pagination.currentPage,
+                    totalPages: tab3Pagination.totalPages,
+                    total: tab3Pagination.totalClients,
+                    limit: tab3Pagination.limit,
+                  }}
+                  onPageChange={handleTab3PageChange}
+                  onLimitChange={handleTab3LimitChange}
+                  onNextPage={handleTab3NextPage}
+                  onPrevPage={handleTab3PrevPage}
+                  onAction={handleInviteAction}
+                  mode="inviteClientsListing"
+                />
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <AssignAndMapClientModal
@@ -696,6 +954,14 @@ const ClientManagement = () => {
         clientData={selectedClient}
         onAssignAndMap={handleAssignAndMapClient}
         staffList={staffMembers}
+      />
+
+      <BulkInviteModal
+        isOpen={bulkInviteModalOpen}
+        onClose={() => setBulkInviteModalOpen(false)}
+        onSuccess={() => {
+          fetchInviteClients();
+        }}
       />
     </div>
   );

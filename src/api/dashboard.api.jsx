@@ -161,3 +161,33 @@ export const updateAllClientsPassword = async (password) => {
     throw error;
   }
 };
+
+// Get invite clients for invite tab
+export const getInviteClients = async (query) => {
+  try {
+    const response = await axiosInstance.get("/admin/getInviteClients", {
+      params: query,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Get invite clients error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+// Bulk invite clients
+export const bulkInviteClients = async (data) => {
+  try {
+    const response = await axiosInstance.post("/admin/bulkInviteClients", data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Bulk invite clients error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

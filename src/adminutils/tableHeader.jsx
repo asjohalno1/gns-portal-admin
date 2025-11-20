@@ -147,6 +147,15 @@ export const headerConfigs = {
       { key: "actions", label: "Actions" },
     ],
   },
+  inviteClientsListing: {
+    columns: [
+      { key: "clientName", label: "Client Name" },
+      { key: "email", label: "Email" },
+      { key: "invited", label: "Invited" },
+      { key: "loginStatus", label: "Login Status" },
+      { key: "actions", label: "Action" },
+    ],
+  },
 };
 
 // Function to determine status button styling
@@ -361,6 +370,56 @@ export const Linkstatus = (status) => {
   }
 };
 
+export const getLoginStatusBadge = (status) => {
+  switch (status) {
+    case "NOT_INVITED":
+      return (
+        <button
+          type="button"
+          className="bg-[#F3F4F6] text-[#6B7280] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Not Invited
+        </button>
+      );
+    case "INVITED":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEF9C3] text-[#CA8A04] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Invited
+        </button>
+      );
+    case "LOGGED_IN":
+      return (
+        <button
+          type="button"
+          className="bg-[#D1FAE5] text-[#059669] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Logged In
+        </button>
+      );
+    case "BOUNCED":
+      return (
+        <button
+          type="button"
+          className="bg-[#FEE2E2] text-[#B91C1C] px-8 py-1.5 rounded-full cursor-pointer btn-table"
+        >
+          Bounced
+        </button>
+      );
+    default:
+      return (
+        <button
+          type="button"
+          className="bg-[#cfd1d0] text-[#696e6a] px-8 py-1.5 rounded-full cursor-pointer"
+        >
+          {status || "N/A"}
+        </button>
+      );
+  }
+};
+
 const commaSeprator = (item)=>{
   return item.join(", ");
 }
@@ -397,6 +456,7 @@ export const renderCellContent = (item, columnKey, onAction, mode, index) => {
           onAction={(actionType) => onAction(actionType, item)}
           mode={mode}
           itemId={item._id || item.id || `${mode}-${index}`}
+          item={item}
         />
       );
     case "dueDate":
@@ -414,6 +474,10 @@ export const renderCellContent = (item, columnKey, onAction, mode, index) => {
 
     case "linkStatus":
       return Linkstatus(item[columnKey]);
+    case "invited":
+      return item[columnKey] === true || item[columnKey] === 'true' ? 'Yes' : 'No';
+    case "loginStatus":
+      return getLoginStatusBadge(item[columnKey]);
     default:
       return item[columnKey] || "N/A";
   }

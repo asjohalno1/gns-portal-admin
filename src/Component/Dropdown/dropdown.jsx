@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const Dropdown = ({ onAction, mode, itemId }) => {
+const Dropdown = ({ onAction, mode, itemId, item }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   // Define actions based on mode
-  const getActionsForMode = (mode) => {
+  const getActionsForMode = (mode, item) => {
     switch (mode) {
       case "clientsListing":
         return [
@@ -44,6 +44,14 @@ const Dropdown = ({ onAction, mode, itemId }) => {
       case "unassignedClients":
         return [{ label: "Assign & Map", value: "assignAndMap" }];
 
+      case "inviteClientsListing":
+        // Check if client has been invited (handle both boolean and string values)
+        const isInvited = item?.invited === true || item?.invited === 'true' || item?.invited === 'Yes';
+        return [{ 
+          label: isInvited ? "Re-send Invitation" : "Send Invite", 
+          value: "invite" 
+        }];
+
       case "remainderHistory":
         return [
           {
@@ -61,7 +69,7 @@ const Dropdown = ({ onAction, mode, itemId }) => {
     }
   };
 
-  const actions = getActionsForMode(mode);
+  const actions = getActionsForMode(mode, item);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
