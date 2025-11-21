@@ -42,7 +42,7 @@ const Dropdown = ({ onAction, mode, itemId, item }) => {
           { label: "Document Request", value: "request" },
         ];
       case "unassignedClients":
-        return [{ label: "Assign & Map", value: "assignAndMap" }];
+        return [{ label: "Create Folders", value: "assignAndMap" }];
 
       case "inviteClientsListing":
         // Check if client has been invited (handle both boolean and string values)

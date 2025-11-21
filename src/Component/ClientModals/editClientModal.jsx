@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   updateClient,
-  getAllStaff,
   deleteClient,
 } from "../../api/dashboard.api";
 import { ToastContainer, toast } from "react-toastify";
@@ -16,12 +15,10 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
     phoneNumber: "",
     company: "",
     status: "",
-    staffId: "",
     address: "",
     notes: "",
   });
 
-  const [staffMembers, setStaffMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { addToast } = useToast();
@@ -35,32 +32,12 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
         phoneNumber: clientData?.client?.phoneNumber || "",
         company: clientData?.client?.company || "",
         status: clientData?.client?.status === true ? true : false, // or use boolean
-        staffId: clientData?.assignedStaff?._id || "",
         address: clientData?.client?.address || "",
         notes: clientData?.client?.notes || "",
       });
     }
   }, [clientData]);
 
-  // Fetch staff members when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      const fetchStaffMembers = async () => {
-        try {
-          setLoading(true);
-          const response = await getAllStaff();
-          setStaffMembers(response.data || []);
-        } catch (err) {
-          setError("Failed to fetch staff members");
-          console.error("Error fetching staff members:", err);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchStaffMembers();
-    }
-  }, [isOpen]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -229,31 +206,6 @@ const EditClientmodal = ({ isOpen, onClose, clientData }) => {
                     <option value="">Select Status</option>
                     <option value="true">Active</option>
                     <option value="false">Inactive</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
-                    Assign to Staff *
-                  </label>
-                  <select
-                    name="staffId"
-                    value={formData?.staffId}
-                    onChange={handleChange}
-                    className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm "
-                    disabled={loading}
-                  >
-                    <option className="text-black bg-blue-100" value="">
-                      Select Staff Member
-                    </option>
-                    {staffMembers.map((staff) => (
-                      <option
-                        className="text-dark "
-                        key={staff._id}
-                        value={staff._id}
-                      >
-                        {staff?.first_name}
-                      </option>
-                    ))}
                   </select>
                 </div>
               </div>

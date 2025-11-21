@@ -3,6 +3,6 @@
 export const staffTabs = [
     "Overview",
     "Staff List",
-    "Client Assignment",
+    "Client Folder Mapping",
     "Performance",
 ];

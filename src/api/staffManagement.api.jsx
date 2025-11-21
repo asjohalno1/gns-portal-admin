@@ -97,18 +97,6 @@ export const getAllUnassignedClientsApi = async (query) => {
   }
 };
 
-export const assignStaffToClientApi = async (data) => {
-  try {
-    const response = await axiosInstance.post(`/admin/assignStaffToClient`, {
-      data,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error assigning staff to client:", error);
-    throw error;
-  }
-};
-
 // staffPerformance.api.js
 export const getStaffPerformanceMetricsApi = async (query = {}) => {
   try {
@@ -142,15 +130,3 @@ export const mapClientApi = async (clientId) => {
   }
 };
 
-export const assignAndMapClientApi = async (clientId, staffId) => {
-  try {
-    const response = await axiosInstance.post(`/admin/assignedandmap`, {
-      clientId,
-      staffId,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error in assign and map client:", error);
-    throw error;
-  }
-};

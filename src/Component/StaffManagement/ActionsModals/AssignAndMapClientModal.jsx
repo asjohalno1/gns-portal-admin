@@ -6,33 +6,24 @@ const AssignAndMapClientModal = ({
   onClose,
   clientData,
   onAssignAndMap,
-  staffList,
 }) => {
-  const [selectedStaff, setSelectedStaff] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
     // Reset state when modal opens/closes
     if (isOpen) {
-      setSelectedStaff("");
       setIsProcessing(false);
       setStatusMessage("");
     }
   }, [isOpen]);
 
-  const handleAssignAndMapClick = async () => {
-    if (!selectedStaff) {
-      setStatusMessage("Please select a staff member");
-      return;
-    }
-
+  const handleCreateFoldersClick = async () => {
     setIsProcessing(true);
-    setStatusMessage("Assigning staff and creating folders...");
+    setStatusMessage("Creating folders...");
 
     try {
-      await onAssignAndMap(clientData._id, selectedStaff);
-      setSelectedStaff("");
+      await onAssignAndMap(clientData._id);
       onClose();
     } catch (error) {
       setStatusMessage("Error: " + error.message);
@@ -56,7 +47,7 @@ const AssignAndMapClientModal = ({
         </button>
         {/* Header */}
         <h2 className="text-lg font-semibold mb-4">
-          Assign Client & Create Folders
+          Create Folders
         </h2>
         {/* Client Info */}
         <div className="mb-6 p-4 bg-gray-50 rounded-md">
@@ -69,27 +60,6 @@ const AssignAndMapClientModal = ({
           <p className="mb-2">
             <strong>Phone:</strong> {clientData?.phoneNumber}
           </p>
-        </div>
-        {/* Assign Staff Dropdown */}
-        <div className="mb-6">
-          <label className="block font-medium mb-2">Assign Staff:</label>
-          <select
-            value={selectedStaff}
-            onChange={(e) => setSelectedStaff(e.target.value)}
-            className="w-full border rounded-md p-2"
-            disabled={isProcessing}
-          >
-            <option value="">Select staff</option>
-            {staffList.map((staff) => (
-              <option
-                className="text-gray-700"
-                key={staff._id}
-                value={staff._id}
-              >
-                {staff.first_name} {staff.last_name}
-              </option>
-            ))}
-          </select>
         </div>
 
         <div className="mb-4">
@@ -124,8 +94,8 @@ const AssignAndMapClientModal = ({
             Cancel
           </button>
           <button
-            onClick={handleAssignAndMapClick}
-            disabled={isProcessing || !selectedStaff}
+            onClick={handleCreateFoldersClick}
+            disabled={isProcessing}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {isProcessing ? (
@@ -150,10 +120,10 @@ const AssignAndMapClientModal = ({
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Processing...
+                Creating Folders...
               </>
             ) : (
-              "Assign & Create Folders"
+              "Create Folders"
             )}
           </button>
         </div>

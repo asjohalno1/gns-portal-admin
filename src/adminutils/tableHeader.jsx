@@ -19,7 +19,6 @@ export const headerConfigs = {
       { key: "fullName", label: "Client Name" },
       { key: "email", label: "Email" },
       { key: "phoneNumber", label: "Phone" },
-      { key: "assignedTo", label: "Assigned To" },
       { key: "status", label: "Status" },
       { key: "updatedAt", label: "Last Activity" },
       { key: "actions", label: "Action" },
@@ -31,9 +30,7 @@ export const headerConfigs = {
       { key: "email", label: "Email" },
       { key: "phoneNumber", label: "Phone" },
       { key: "status", label: "Status" },
-      { key: "assignedTo", label: "Assigned To" },
       { key: "updatedAt", label: "Last Activity" },
-
       { key: "actions", label: "Action" },
     ],
   },
@@ -43,7 +40,6 @@ export const headerConfigs = {
       { key: "email", label: "Email" },
       { key: "phoneNumber", label: "Phone" },
       { key: "status", label: "Status" },
-      { key: "assignedTo", label: "Assigned To" },
       { key: "updatedAt", label: "Last Activity" },
       { key: "actions", label: "Action" },
     ],
@@ -62,7 +58,6 @@ export const headerConfigs = {
     columns: [
       { key: "doctitle", label: "Document Request Title" },
       { key: "clientName", label: "Client Name" },
-      { key: "assignedTo", label: "Under Staff Name" },
       { key: "dueDate", label: "Due Date" },
       { key: "status", label: "Status" },
       { key: "actions", label: "Action" },

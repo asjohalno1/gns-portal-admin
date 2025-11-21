@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { addClient, getAllStaff } from "../api/dashboard.api";
+import { addClient } from "../api/dashboard.api";
 import { toast } from "react-toastify";
 import { useToast } from "../CommonPages/customtoast/CustomToaster";
 
@@ -11,35 +11,17 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
     phoneNumber: "",
     company: "",
     status: "",
-    staffId: "",
     address: "",
     notes: "",
   });
 
-  const [staffMembers, setStaffMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { addToast } = useToast();
 
-  // Fetch staff members when modal opens
+  // Reset form when modal closes
   useEffect(() => {
-    if (isOpen) {
-      const fetchStaffMembers = async () => {
-        try {
-          setLoading(true);
-          const response = await getAllStaff();
-          setStaffMembers(response.data || []);
-        } catch (err) {
-          setError("Failed to fetch staff members");
-
-          console.error("Error fetching staff members:", err);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchStaffMembers();
-    } else if (!isOpen) {
+    if (!isOpen) {
       setFormData({
         name: "",
         lastName: "",
@@ -47,7 +29,6 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
         phoneNumber: "",
         company: "",
         status: "",
-        staffId: "",
         address: "",
         notes: "",
       });
@@ -73,7 +54,6 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
         phoneNumber: "",
         company: "",
         status: "",
-        staffId: "",
         address: "",
         notes: "",
         sendInvitation: false,
@@ -88,7 +68,6 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
           phoneNumber: "",
           company: "",
           status: "",
-          staffId: "",
           address: "",
           notes: "",
           sendInvitation: false,
@@ -126,7 +105,7 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
 
   return (
     <div className="fixed inset-0 bg-[#0000005D]  bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6  rounded-lg w-full relative max-w-[562px] max-h-[550px] overflow-y-auto  scrollbar-none">
+      <div className="bg-white p-6  rounded-lg w-full relative max-w-[562px] max-h-[590px] overflow-y-auto  scrollbar-none">
         <div className="w-full max-w-[562px] bg-white rounded-[10px] mx-auto">
           <div className="flex justify-between items-center mb-[30px]">
             <h2 className="text-[#484848] font-medium text-[16px] leading-[100%] tracking-[0]">
@@ -230,31 +209,6 @@ const AddClientmodal = ({ isOpen, onClose, title, children }) => {
                   <option value="">Select Status</option>
                   <option value="true">Active</option>
                   <option value="false">Inactive</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-[#484848] font-medium text-[14px] leading-[100%] tracking-[0] align-middle mb-[8px]">
-                  Assign to Staff*
-                </label>
-                <select
-                  name="staffId"
-                  value={formData.staffId}
-                  onChange={handleChange}
-                  className="w-full border border-[#E0E0E0] rounded-[6px] px-3 py-2 text-sm "
-                  disabled={loading}
-                >
-                  <option className="text-black bg-blue-100" value="">
-                    Select Staff Member
-                  </option>
-                  {staffMembers.map((staff) => (
-                    <option
-                      className="text-dark "
-                      key={staff._id}
-                      value={staff._id}
-                    >
-                      {staff.first_name}
-                    </option>
-                  ))}
                 </select>
               </div>
             </div>

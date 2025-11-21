@@ -54,33 +54,6 @@ const ClientDetailsModal = ({ isOpen, onClose, data }) => {
             </p>
           </div>
         </div>
-        <div className="bg-[#2E7ED40D] rounded-[6px] px-[20px] py-[10px] mb-[21px]">
-          <p className="font-medium text-[16px] leading-[100%] tracking-normal capitalize text-[#484848] mb-[12px]">
-            Assign To Staff
-          </p>
-          <div>
-            <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
-              Assigned to:{" "}
-              <span className="ml-[11px] font-medium">
-                {(data?.assignedStaff?.first_name || "") +
-                  " " +
-                  (data?.assignedStaff?.last_name || "")}
-              </span>
-            </p>
-            <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
-              Email:{" "}
-              <span className="ml-[11px] font-medium">
-                {data?.assignedStaff?.email}
-              </span>
-            </p>
-            <p className="font-normal text-[14px] leading-[100%] tracking-normal text-[#2C3E50] mb-[8px]">
-              phoneNumber:{" "}
-              <span className="ml-[11px] font-medium">
-                {data?.assignedStaff?.phoneNumber || "-"}
-              </span>
-            </p>
-          </div>
-        </div>
         {/* <p className="font-medium text-[16px] leading-[100%] tracking-normal capitalize text-[#484848] mb-[12px]">
           Engagement Status
         </p> */}
@@ -111,7 +84,6 @@ const ClientDetailsModal = ({ isOpen, onClose, data }) => {
           </div>
         </div> */}
       </div>
-      z
     </div>
   );
 };

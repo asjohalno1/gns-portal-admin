@@ -264,10 +264,10 @@ const StaffManagement = () => {
                 Add New Staff
               </button>
               <button
-                onClick={() => setActiveTab("Client Assignment")}
+                onClick={() => setActiveTab("Client Folder Mapping")}
                 className="border border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-[12px] font-medium transition-colors duration-200"
               >
-                Assign Clients
+                Folder Mapping
               </button>
             </div>
           </div>
@@ -500,10 +500,10 @@ const StaffManagement = () => {
         </div>
       )}
 
-      {activeTab === "Client Assignment" && (
+      {activeTab === "Client Folder Mapping" && (
         <div className="bg-white rounded-[20px] ">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
-            Assign Clients to Staff
+            Manage Folder Mapping
           </h3>
 
           <AssignToClients />

@@ -5,7 +5,6 @@ import AddClientmodal from "./addClientmodal";
 import {
   deleteClient,
   getAllClients,
-  getAllStaff,
   getStaffClient,
   getInviteClients,
   bulkInviteClients,
@@ -16,7 +15,7 @@ import DeleteConfirmationModal from "../Component/DeleteComfermationModal/Delete
 import PwaPasswordModal from "../Component/ClientModals/PwaPasswordModal";
 import BulkInviteModal from "../Component/ClientModals/BulkInviteModal";
 import {
-  assignAndMapClientApi,
+  mapClientApi,
   getAllUnassignedClientsApi,
 } from "../api/staffManagement.api";
 import { useToast } from "../CommonPages/customtoast/CustomToaster";
@@ -30,7 +29,6 @@ const ClientManagement = () => {
   const [clientDetailsModal, setClientDetailsModal] = useState(false);
   const [clientEditModal, setClientEditModal] = useState(false);
   const [clientInfo, setClientInfo] = useState();
-  const [staffMembers, setStaffMembers] = useState([]);
   const [tab1LimitDebounce, setTab1LimitDebounce] = useState(null);
   const [tab2LimitDebounce, setTab2LimitDebounce] = useState(null);
   const { addToast } = useToast();
@@ -134,16 +132,6 @@ const ClientManagement = () => {
     }
   };
 
-  const fetchAllStaff = async () => {
-    try {
-      let res = await getAllStaff();
-      setStaffMembers(res.data || []);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching staff members:", error);
-      setLoading(false);
-    }
-  };
 
   const fetchInviteClients = async () => {
     try {
@@ -178,7 +166,6 @@ const ClientManagement = () => {
   useEffect(() => {
     if (activeTab === "tab2") {
       fetchUnassignedClients();
-      fetchAllStaff();
     }
     if (activeTab === "tab3") {
       fetchInviteClients();
@@ -518,18 +505,18 @@ const ClientManagement = () => {
     }
   };
 
-  const handleAssignAndMapClient = async (clientId, staffId) => {
+  const handleCreateFolders = async (clientId) => {
     try {
-      let response = await assignAndMapClientApi(clientId, staffId);
+      let response = await mapClientApi(clientId);
       if (response.success) {
-        addToast("Client assigned and mapped successfully", "success");
+        addToast("Folders created successfully", "success");
         fetchUnassignedClients();
         fetchClients();
         setAssignaMapModalOpen(false);
       }
     } catch (error) {
       addToast(
-        error.response?.data?.message || "Failed to assign and map client",
+        error.response?.data?.message || "Failed to create folders",
         "error"
       );
     }
@@ -564,7 +551,7 @@ const ClientManagement = () => {
           }`}
           onClick={() => setActiveTab("tab2")}
         >
-          Client Mapping
+          Folder Mapping
         </button>
         <button
           className={`px-5 py-[10px] text-[16px] leading-[100%] tracking-[0] rounded-t-md ${
@@ -755,7 +742,7 @@ const ClientManagement = () => {
           <div className="">
             <div className="flex items-center justify-between mb-2.5">
               <h4 className="color-black text-lg font-semibold">
-                Manage Client Mapping
+                Manage Folder Mapping
               </h4>
             </div>
             <div className="  rounded-[20px] p-2">
@@ -952,8 +939,7 @@ const ClientManagement = () => {
         isOpen={assignaMapModalOpen}
         onClose={() => setAssignaMapModalOpen(false)}
         clientData={selectedClient}
-        onAssignAndMap={handleAssignAndMapClient}
-        staffList={staffMembers}
+        onAssignAndMap={handleCreateFolders}
       />
 
       <BulkInviteModal

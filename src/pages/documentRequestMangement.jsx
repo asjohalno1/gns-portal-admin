@@ -995,8 +995,7 @@ const DocReqManagement = () => {
                                 key={client.clientId}
                                 value={client.clientId}
                               >
-                                {client?.clientName} (Associated to:{" "}
-                                {client?.staff?.staffName})
+                                {client?.clientName}
                               </option>
                             ))}
                         </select>

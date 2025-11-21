@@ -2,12 +2,9 @@ import React, { use, useEffect, useState } from "react";
 import Table from "../../Table/table";
 import { toast } from "react-toastify";
 import {
-  assignAndMapClientApi,
-  assignStaffToClientApi,
   getAllUnassignedClientsApi,
   mapClientApi,
 } from "../../../api/staffManagement.api";
-import { getAllStaff } from "../../../api/dashboard.api";
 import Loader from "../../Loader/Loader";
 import { useToast } from "../../../CommonPages/customtoast/CustomToaster";
 import AssignAndMapClientModal from "../ActionsModals/AssignAndMapClientModal";
@@ -27,7 +24,6 @@ const AssignToClients = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [selectedClient, setSelectedClient] = useState(null);
-  const [staffMembers, setStaffMembers] = useState([]);
   const [assignaMapModalOpen, setAssignaMapModalOpen] = useState(false);
 
   const fetchAllClients = async (
@@ -67,20 +63,6 @@ const AssignToClients = () => {
     }
   };
 
-  const fetchAllStaff = async () => {
-    try {
-      let res = await getAllStaff();
-      setStaffMembers(res.data || []);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching staff members:", error);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAllStaff();
-  }, []);
 
   useEffect(() => {
     fetchAllClients(
@@ -152,17 +134,17 @@ const AssignToClients = () => {
     }
   };
 
-  const handleAssignAndMapClient = async (clientId, staffId) => {
+  const handleCreateFolders = async (clientId) => {
     try {
-      let response = await assignAndMapClientApi(clientId, staffId);
+      let response = await mapClientApi(clientId);
       if (response.success) {
-        addToast("Client assigned and mapped successfully", "success");
+        addToast("Folders created successfully", "success");
         setAssignaMapModalOpen(false);
 
       }
     } catch (error) {
       addToast(
-        error.response?.data?.message || "Failed to assign and map client",
+        error.response?.data?.message || "Failed to create folders",
         "error"
       );
     }
@@ -184,8 +166,8 @@ const AssignToClients = () => {
           className="px-3 py-1 border border-gray-300 rounded-md"
         >
           <option value="all">All Status</option>
-          <option value="1">Active</option>
-          <option value="0">Inactive</option>
+          <option value="true">Active</option>
+          <option value="flase">Inactive</option>
         </select>
       </div>
       {loading ? (
@@ -208,8 +190,7 @@ const AssignToClients = () => {
         isOpen={assignaMapModalOpen}
         onClose={() => setAssignaMapModalOpen(false)}
         clientData={selectedClient}
-        onAssignAndMap={handleAssignAndMapClient}
-        staffList={staffMembers}
+        onAssignAndMap={handleCreateFolders}
       />
     </div>
   );
